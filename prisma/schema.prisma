@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  slug          String        @unique
+  description   String?
+  isActive      Boolean       @default(true)
+  filters       Json[]
+  subcategories Subcategory[]
+  products      Product[]
+}
+
+model Subcategory {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  isActive    Boolean    @default(true)
+  filters     Json[]
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products    Product[]
+}
+
+model Product {
+  id                String       @id @default(cuid())
+  name              String
+  slug              String       @unique
+  description       String
+  shortDescription  String?
+  coverImages       Json[]
+  pricing           Json
+  specifications    Json
+  filterValues      Json[]
+  isActive          Boolean      @default(true)
+  inStock           Boolean      @default(true)
+  featured          Boolean      @default(false)
+  tags              Json[]
+  metaData          Json
+  categoryId        String
+  category          Category     @relation(fields: [categoryId], references: [id])
+  subcategoryId     String?
+  subcategory       Subcategory? @relation(fields: [subcategoryId], references: [id])
+}
+
+model Currency {
+  id                String @id @default(cuid())
+  name              String
+  code              String @unique
+  symbol            String
+  symbolPosition    String @default("before")
+  decimalSeparator  String
+  thousandsSeparator String
+  decimalPlaces     Int
+  isActive          Boolean @default(true)
+}
+
+model Media {
+  id  String @id @default(cuid())
+  alt String
+  url String
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+}
