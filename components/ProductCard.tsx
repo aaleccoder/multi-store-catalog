@@ -9,8 +9,7 @@ import Link from 'next/link'
 import { useCart } from '@/components/CartContext'
 import { useWishlist } from '@/components/WishlistContext'
 import { useIsMobile } from '@/hooks/use-mobile'
-import type { Currency } from '@/payload-types'
-import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
+import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
 
 interface ProductCardProps {
   id: number | string
@@ -185,9 +184,8 @@ export const ProductCard = ({
                 {imageList.map((_, index) => (
                   <div
                     key={index}
-                    className={`rounded-full transition-all ${
-                      index === currentImageIndex ? 'bg-white w-3 h-1.5' : 'bg-white/50 w-1.5 h-1.5'
-                    }`}
+                    className={`rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-3 h-1.5' : 'bg-white/50 w-1.5 h-1.5'
+                      }`}
                   />
                 ))}
               </div>
@@ -197,9 +195,8 @@ export const ProductCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${
-                isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground'
-              }`}
+              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground'
+                }`}
               onClick={handleToggleWishlist}
             >
               <Heart className={`h-4 w-4 ${isInWishlist(id) ? 'fill-current' : ''}`} />
@@ -348,11 +345,10 @@ export const ProductCard = ({
                 <button
                   key={index}
                   onClick={handleDotClick(index)}
-                  className={`rounded-full transition-all ${
-                    index === currentImageIndex
+                  className={`rounded-full transition-all ${index === currentImageIndex
                       ? 'bg-card w-6 h-2'
                       : 'bg-card/50 hover:bg-card/75 w-2 h-2'
-                  }`}
+                    }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 />
               ))}
@@ -379,9 +375,8 @@ export const ProductCard = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${
-              isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-            }`}
+            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
+              }`}
             onClick={handleToggleWishlist}
           >
             <Heart className={`h-5 w-5 ${isInWishlist(id) ? 'fill-current' : ''}`} />

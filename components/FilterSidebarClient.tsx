@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select'
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import type { Currency } from '@/payload-types'
+import type { Currency } from '@/lib/currency-client'
 
 interface Filter {
   name: string

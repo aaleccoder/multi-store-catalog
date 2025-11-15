@@ -1,16 +1,6 @@
 import { prisma } from './db'
-
-export interface Currency {
-    id: string
-    name: string
-    code: string
-    symbol: string
-    symbolPosition: string
-    decimalSeparator: string
-    thousandsSeparator: string
-    decimalPlaces: number
-    isActive: boolean
-}
+import type { Currency } from './currency-client'
+export type { Currency } from './currency-client'
 
 let cachedCurrencies: Currency[] | null = null
 let cacheTime: number = 0
@@ -43,29 +33,5 @@ export async function getDefaultCurrency(): Promise<Currency | null> {
     return currencies[0] || null
 }
 
-export function formatPrice(
-    amount: number,
-    currency?: Currency | string | null,
-): string {
-    if (!currency) {
-        return `$${amount.toFixed(2)}`
-    }
-
-    // If currency is a string (ID), we need to fetch it
-    // For now, handle Currency object
-    if (typeof currency === 'string') {
-        return `$${amount.toFixed(2)}`
-    }
-
-    const formattedAmount = amount.toFixed(currency.decimalPlaces)
-    const parts = formattedAmount.split('.')
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, currency.thousandsSeparator)
-    const decimalPart = parts[1]
-    const finalAmount = decimalPart ? `${integerPart}${currency.decimalSeparator}${decimalPart}` : integerPart
-
-    if (currency.symbolPosition === 'before') {
-        return `${currency.symbol}${finalAmount}`
-    } else {
-        return `${finalAmount}${currency.symbol}`
-    }
-}
+// Re-export formatPrice from client-safe module
+export { formatPrice } from './currency-client'

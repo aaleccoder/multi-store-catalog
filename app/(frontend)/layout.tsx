@@ -1,5 +1,5 @@
 import React from 'react'
-import './globals.css'
+import '../globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { WishlistProvider } from '@/components/WishlistContext'
 import { Montserrat, Lobster } from 'next/font/google'

@@ -16,8 +16,7 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState } from 'react'
-import type { Currency } from '@/payload-types'
-import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
+import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
 
 interface ShoppingCartSheetProps {
   isMobileNav?: boolean

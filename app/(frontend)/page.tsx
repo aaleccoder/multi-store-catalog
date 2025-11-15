@@ -1,11 +1,4 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React, { Suspense } from 'react'
-import { fileURLToPath } from 'url'
-
-import config from '@/payload.config'
-import './globals.css'
+import '../globals.css'
 import { Header } from '@/components/Header'
 import { CategoryBarWrapper } from '@/components/CategoryBarWrapper'
 import { FilterSidebar, getFilterContent } from '@/components/FilterSidebar'
