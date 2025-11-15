@@ -2,16 +2,15 @@ import * as Minio from 'minio'
 
 // Initialize MinIO client
 export const minioClient = new Minio.Client({
-    endPoint: process.env.MINIO_ENDPOINT || 'localhost',
-    port: parseInt(process.env.MINIO_PORT || '9000'),
-    useSSL: process.env.MINIO_USE_SSL === 'true',
-    accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
-    secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
+    endPoint: process.env.S3_ENDPOINT || 'localhost',
+    port: parseInt(process.env.S3_PORT || '9000'),
+    useSSL: process.env.S3_USE_SSL === 'true',
+    accessKey: process.env.S3_ACCESS_KEY_ID || 'minioadmin',
+    secretKey: process.env.S3_SECRET_ACCESS_KEY || 'minioadmin',
 })
 
-export const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'catalog-images'
+export const BUCKET_NAME = process.env.S3_BUCKET || 'catalog-images'
 
-// Initialize bucket if it doesn't exist
 export async function ensureBucketExists() {
     try {
         const exists = await minioClient.bucketExists(BUCKET_NAME)
@@ -53,6 +52,8 @@ export async function uploadFile(
 
     // Generate public URL
     const url = `${process.env.MINIO_PUBLIC_URL || `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`}/${BUCKET_NAME}/${objectName}`
+
+    console.log(url);
 
     return url
 }

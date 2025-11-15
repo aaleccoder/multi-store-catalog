@@ -8,6 +8,8 @@ export const metadata = {
     description: 'Administration panel for Lea Catalog',
 }
 
+import '../globals.css'
+
 export default async function AdminLayout({
     children,
 }: {
@@ -19,7 +21,7 @@ export default async function AdminLayout({
     })
 
     if (!session) {
-        redirect('/admin/login')
+        redirect('/login-admin')
     }
 
     return (

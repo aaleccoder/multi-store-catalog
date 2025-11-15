@@ -1,6 +1,7 @@
 import { AdminNav } from '@/components/admin/AdminNav'
 
 export default function AdminDashboard() {
+    // Session is already validated in the layout
     return (
         <div className="min-h-screen bg-background">
             <AdminNav />

@@ -23,7 +23,8 @@ const navigation = [
     { name: 'Subcategories', href: '/admin/subcategories', icon: FolderTree },
     { name: 'Media', href: '/admin/media', icon: ImageIcon },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
-]export function AdminNav() {
+]
+export function AdminNav() {
     const pathname = usePathname()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 

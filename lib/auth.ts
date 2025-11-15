@@ -10,6 +10,7 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+        requireEmailVerification: false,
     },
     socialProviders: {
         // Add social providers if needed

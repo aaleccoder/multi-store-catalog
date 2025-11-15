@@ -1,26 +1,20 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getSessionCookie } from 'better-auth/cookies'
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
     // Protect admin routes
     if (pathname.startsWith('/admin')) {
-        // Check for session cookie from better-auth
-        const sessionToken = request.cookies.get('better-auth.session_token')
+        // Check for session cookie using Better Auth helper
+        // Note: This only checks for cookie existence, not validity
+        // Actual validation is done in the layout
+        const sessionCookie = getSessionCookie(request)
 
-        // Allow login page
-        if (pathname === '/admin/login') {
-            // If already logged in, redirect to admin dashboard
-            if (sessionToken) {
-                return NextResponse.redirect(new URL('/admin', request.url))
-            }
-            return NextResponse.next()
-        }
-
-        // Redirect to login if no session
-        if (!sessionToken) {
-            const loginUrl = new URL('/admin/login', request.url)
+        // If no session cookie found, redirect to login
+        if (!sessionCookie) {
+            const loginUrl = new URL('/login-admin', request.url)
             loginUrl.searchParams.set('from', pathname)
             return NextResponse.redirect(loginUrl)
         }
@@ -30,5 +24,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*'],
+    matcher: [
+        /*
+         * Match all admin routes except:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        '/admin/:path*',
+    ],
 }

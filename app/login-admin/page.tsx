@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { authClient } from '@/lib/auth-client'
 
 export default function AdminLoginPage() {
     const router = useRouter()
@@ -20,19 +21,25 @@ export default function AdminLoginPage() {
         setError('')
 
         try {
-            const res = await fetch('/api/auth/sign-in', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+            const { data, error: authError } = await authClient.signIn.email({
+                email,
+                password,
+            }, {
+                onRequest: () => {
+                    setLoading(true)
+                },
+                onSuccess: () => {
+                    router.push('/admin')
+                    router.refresh()
+                },
+                onError: (ctx) => {
+                    setError(ctx.error.message || 'Invalid credentials')
+                    setLoading(false)
+                }
             })
 
-            const data = await res.json()
-
-            if (res.ok && data.user) {
-                router.push('/admin')
-                router.refresh()
-            } else {
-                setError(data.error || 'Invalid credentials')
+            if (authError) {
+                setError(authError.message || 'Failed to sign in')
             }
         } catch (err) {
             setError('Failed to sign in')

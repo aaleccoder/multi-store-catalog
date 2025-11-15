@@ -37,7 +37,7 @@ interface ProductFormData {
     shortDescription: string
     categoryId: string
     subcategoryId: string
-    coverImages: Array<{ url: string; alt: string; isPrimary: boolean }>
+    coverImages: Array<{ url: string; alt: string; isPrimary: boolean; isUploaded: boolean; file?: File }>
     pricing: {
         price: number
         salePrice?: number
@@ -139,7 +139,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 shortDescription: product.shortDescription || '',
                 categoryId: product.categoryId,
                 subcategoryId: product.subcategoryId || '',
-                coverImages: product.coverImages || [],
+                coverImages: (product.coverImages || []).map((img: { url: string; alt: string; isPrimary: boolean }) => ({ ...img, isUploaded: true })),
                 pricing: product.pricing || { price: 0, currency: 'USD', taxIncluded: true },
                 specifications: product.specifications || {},
                 isActive: product.isActive,
@@ -166,42 +166,28 @@ export function ProductForm({ productId }: ProductFormProps) {
         const files = e.target.files
         if (!files || files.length === 0) return
 
-        setUploadingImage(true)
-        try {
-            const uploadPromises = Array.from(files).map(async (file) => {
-                const formDataToUpload = new FormData()
-                formDataToUpload.append('file', file)
-                formDataToUpload.append('alt', file.name)
+        const newImages = Array.from(files).map((file, idx) => ({
+            url: URL.createObjectURL(file),
+            alt: file.name,
+            isPrimary: formData.coverImages.length === 0 && idx === 0,
+            isUploaded: false,
+            file,
+        }))
 
-                const res = await fetch('/api/admin/media', {
-                    method: 'POST',
-                    body: formDataToUpload,
-                })
-
-                const media = await res.json()
-                return {
-                    url: media.url,
-                    alt: media.alt,
-                    isPrimary: formData.coverImages.length === 0,
-                }
-            })
-
-            const newImages = await Promise.all(uploadPromises)
-            setFormData({
-                ...formData,
-                coverImages: [...formData.coverImages, ...newImages],
-            })
-        } catch (error) {
-            console.error('Error uploading images:', error)
-        } finally {
-            setUploadingImage(false)
-        }
+        setFormData({
+            ...formData,
+            coverImages: [...formData.coverImages, ...newImages],
+        })
     }
 
     const removeImage = (index: number) => {
+        const img = formData.coverImages[index]
+        if (!img.isUploaded) {
+            URL.revokeObjectURL(img.url)
+        }
         const newImages = formData.coverImages.filter((_, i) => i !== index)
         // If we removed the primary image, make the first one primary
-        if (formData.coverImages[index].isPrimary && newImages.length > 0) {
+        if (img.isPrimary && newImages.length > 0) {
             newImages[0].isPrimary = true
         }
         setFormData({ ...formData, coverImages: newImages })
@@ -220,6 +206,46 @@ export function ProductForm({ productId }: ProductFormProps) {
         setSaving(true)
 
         try {
+            // Upload pending images first
+            let updatedCoverImages = formData.coverImages
+            const pendingImages = formData.coverImages.filter(img => !img.isUploaded)
+            if (pendingImages.length > 0) {
+                setUploadingImage(true)
+                try {
+                    const uploadPromises = pendingImages.map(async (img) => {
+                        const formDataToUpload = new FormData()
+                        formDataToUpload.append('file', img.file!)
+                        formDataToUpload.append('alt', img.alt)
+
+                        const res = await fetch('/api/admin/media', {
+                            method: 'POST',
+                            body: formDataToUpload,
+                        })
+
+                        const media = await res.json()
+                        return { ...img, url: media.url, alt: media.alt, isUploaded: true }
+                    })
+
+                    const uploadedImages = await Promise.all(uploadPromises)
+                    updatedCoverImages = formData.coverImages.map(img => {
+                        const uploaded = uploadedImages.find(u => u.file === img.file)
+                        return uploaded || img
+                    })
+
+                    // Revoke object URLs
+                    pendingImages.forEach(img => URL.revokeObjectURL(img.url))
+                } catch (error) {
+                    console.error('Error uploading images:', error)
+                    alert('Failed to upload images')
+                    setSaving(false)
+                    return
+                } finally {
+                    setUploadingImage(false)
+                }
+            }
+
+            const submitData = { ...formData, coverImages: updatedCoverImages.map(({ file, ...img }) => img) }
+
             const url = productId
                 ? `/api/admin/products/${productId}`
                 : '/api/admin/products'
@@ -228,7 +254,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(submitData),
             })
 
             if (res.ok) {
@@ -359,9 +385,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     <div className="space-y-2">
                                         <Label htmlFor="subcategory">Subcategory</Label>
                                         <Select
-                                            value={formData.subcategoryId}
+                                            value={formData.subcategoryId || "none"}
                                             onValueChange={(value) =>
-                                                setFormData({ ...formData, subcategoryId: value })
+                                                setFormData({ ...formData, subcategoryId: value === "none" ? "" : value })
                                             }
                                             disabled={!formData.categoryId}
                                         >
@@ -369,7 +395,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                 <SelectValue placeholder="Select subcategory" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">None</SelectItem>
+                                                <SelectItem value="none">None</SelectItem>
                                                 {subcategories.map((sub) => (
                                                     <SelectItem key={sub.id} value={sub.id}>
                                                         {sub.name}
@@ -389,43 +415,45 @@ export function ProductForm({ productId }: ProductFormProps) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {formData.coverImages.map((img, index) => (
-                                        <div key={index} className="relative group">
-                                            <div className="aspect-square relative rounded-lg overflow-hidden border-2 border-border">
-                                                <Image
-                                                    src={img.url}
-                                                    alt={img.alt}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                                {img.isPrimary && (
-                                                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                                                        Primary
-                                                    </div>
-                                                )}
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                    {!img.isPrimary && (
+                                    {formData.coverImages.map((img, index) =>
+                                        img.url ? (
+                                            <div key={index} className="relative group">
+                                                <div className="aspect-square relative rounded-lg overflow-hidden border-2 border-border">
+                                                    <Image
+                                                        src={img.url}
+                                                        alt={img.alt || 'Product image'}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                    {img.isPrimary && (
+                                                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                                                            Primary
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                        {!img.isPrimary && (
+                                                            <Button
+                                                                type="button"
+                                                                size="sm"
+                                                                variant="secondary"
+                                                                onClick={() => setPrimaryImage(index)}
+                                                            >
+                                                                Set Primary
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             type="button"
                                                             size="sm"
-                                                            variant="secondary"
-                                                            onClick={() => setPrimaryImage(index)}
+                                                            variant="destructive"
+                                                            onClick={() => removeImage(index)}
                                                         >
-                                                            Set Primary
+                                                            <X className="h-4 w-4" />
                                                         </Button>
-                                                    )}
-                                                    <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        variant="destructive"
-                                                        onClick={() => removeImage(index)}
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ) : null
+                                    )}
 
                                     <label className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                                         <Upload className="h-8 w-8 text-muted-foreground mb-2" />
