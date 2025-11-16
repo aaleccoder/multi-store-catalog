@@ -9,6 +9,7 @@ import {
     DollarSign,
     FolderTree,
     LogOut,
+    Image as ImageIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,8 +29,9 @@ const navigation = [
     { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
     { name: 'Productos', href: '/admin/products', icon: Package },
     { name: 'Categorías', href: '/admin/categories', icon: FolderTree },
-    { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
     { name: 'Subcategorías', href: '/admin/subcategories', icon: FolderTree },
+    { name: 'Media', href: '/admin/media', icon: ImageIcon },
+    { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
 ]
 export function AdminNav() {
     const pathname = usePathname()

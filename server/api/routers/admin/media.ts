@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from '../../trpc'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
-import { uploadFile, deleteFile } from '@/lib/minio'
+import { uploadFile, deleteFile, minioClient, BUCKET_NAME } from '@/lib/minio'
 
 export const adminMediaRouter = router({
     list: protectedProcedure.input(z.object({ page: z.number().optional(), limit: z.number().optional() }).optional()).query(async ({ input }) => {
@@ -16,6 +16,45 @@ export const adminMediaRouter = router({
 
         return { docs: media, totalDocs, limit, page, totalPages: Math.ceil(totalDocs / limit) }
     }),
+
+    get: protectedProcedure.input(z.string()).query(async ({ input: id }) => {
+        const media = await prisma.media.findUnique({
+            where: { id },
+            include: {
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    }
+                }
+            }
+        });
+        if (!media) throw new Error('Media not found');
+
+        const objectName = media.url.split('/').pop();
+        if (!objectName) throw new Error('Could not determine object name from URL');
+
+        try {
+            const stat = await minioClient.statObject(BUCKET_NAME, objectName);
+            return { ...media, stat };
+        } catch (error) {
+            console.error("Error getting object stat:", error);
+            // If stat fails, just return media. The object might be missing from storage.
+            return { ...media, stat: null };
+        }
+    }),
+
+    update: protectedProcedure
+        .input(z.object({ id: z.string(), alt: z.string() }))
+        .mutation(async ({ input }) => {
+            const { id, alt } = input;
+            const media = await prisma.media.update({
+                where: { id },
+                data: { alt },
+            });
+            return media;
+        }),
 
     upload: protectedProcedure
         .input(z.object({ fileBase64: z.string(), fileName: z.string(), mimeType: z.string(), alt: z.string().optional() }))
