@@ -19,6 +19,7 @@ import { AdminNav } from '@/components/admin/AdminNav'
 import { Upload, X, Loader2, Plus, Trash2 } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
+import { toast } from 'sonner'
 
 interface Category {
     id: string
@@ -74,9 +75,12 @@ export function ProductForm({ productId }: ProductFormProps) {
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [categories, setCategories] = useState<Category[]>([])
+    const [categoriesLoading, setCategoriesLoading] = useState(false)
     const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+    const [subcategoriesLoading, setSubcategoriesLoading] = useState(false)
     const [uploadingImage, setUploadingImage] = useState(false)
     const [currencies, setCurrencies] = useState<Currency[]>([])
+    const [currenciesLoading, setCurrenciesLoading] = useState(false)
 
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
@@ -110,22 +114,30 @@ export function ProductForm({ productId }: ProductFormProps) {
     }, [formData.categoryId])
 
     const fetchCategories = async () => {
+        setCategoriesLoading(true)
         try {
             const res = await fetch('/api/categories')
             const data = await res.json()
             setCategories(data.docs || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
+            toast.error('Failed to load categories')
+        } finally {
+            setCategoriesLoading(false)
         }
     }
 
     const fetchSubcategories = async (categoryId: string) => {
+        setSubcategoriesLoading(true)
         try {
             const res = await fetch(`/api/subcategories?categoryId=${categoryId}`)
             const data = await res.json()
             setSubcategories(data.docs || [])
         } catch (error) {
             console.error('Error fetching subcategories:', error)
+            toast.error('Failed to load subcategories')
+        } finally {
+            setSubcategoriesLoading(false)
         }
     }
 
@@ -160,18 +172,23 @@ export function ProductForm({ productId }: ProductFormProps) {
             })
         } catch (error) {
             console.error('Error fetching product:', error)
+            toast.error('Failed to load product')
         } finally {
             setLoading(false)
         }
     }
 
     const fetchCurrencies = async () => {
+        setCurrenciesLoading(true)
         try {
             const res = await fetch('/api/currencies')
             const data = await res.json()
             setCurrencies(data || [])
         } catch (error) {
             console.error('Error fetching currencies:', error)
+            toast.error('Failed to load currencies')
+        } finally {
+            setCurrenciesLoading(false)
         }
     }
 
@@ -225,13 +242,16 @@ export function ProductForm({ productId }: ProductFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setSaving(true)
+        let savingToastId: string | number | undefined
 
         try {
             let updatedCoverImages = formData.coverImages
             const pendingImages = formData.coverImages.filter(img => !img.isUploaded)
             if (pendingImages.length > 0) {
                 setUploadingImage(true)
+                let uploadToastId: string | number | undefined
                 try {
+                    uploadToastId = toast.loading('Uploading images...')
                     const uploadPromises = pendingImages.map(async (img) => {
                         const formDataToUpload = new FormData()
                         formDataToUpload.append('file', img.file!)
@@ -254,9 +274,10 @@ export function ProductForm({ productId }: ProductFormProps) {
 
                     // Revoke object URLs
                     pendingImages.forEach(img => URL.revokeObjectURL(img.url))
+                    toast.success('Images uploaded', { id: uploadToastId })
                 } catch (error) {
                     console.error('Error uploading images:', error)
-                    alert('Failed to upload images')
+                    toast.error('Failed to upload images', { id: uploadToastId })
                     setSaving(false)
                     return
                 } finally {
@@ -284,6 +305,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 : '/api/admin/products'
             const method = productId ? 'PUT' : 'POST'
 
+            savingToastId = toast.loading('Saving product...')
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
@@ -291,14 +313,15 @@ export function ProductForm({ productId }: ProductFormProps) {
             })
 
             if (res.ok) {
+                toast.success('Product saved', { id: savingToastId })
                 router.push('/admin/products')
                 router.refresh()
             } else {
-                alert('Failed to save product')
+                toast.error('Failed to save product', { id: savingToastId })
             }
         } catch (error) {
             console.error('Error saving product:', error)
-            alert('Failed to save product')
+            toast.error('Failed to save product', { id: savingToastId })
         } finally {
             setSaving(false)
         }
@@ -321,7 +344,7 @@ export function ProductForm({ productId }: ProductFormProps) {
         <div className="min-h-screen bg-background">
             <AdminNav />
             <main className="lg:pl-64 pt-20 lg:pt-0">
-                <div className="p-8 max-w-4xl mx-auto">
+                <div className="md:p-8 md:max-w-4xl p-2 mx-auto">
                     <h1 className="text-3xl font-bold mb-6">
                         {productId ? 'Edit Product' : 'Create Product'}
                     </h1>
@@ -333,6 +356,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <CardTitle>Basic Information</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
+                                {uploadingImage && (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Uploading images... Please wait.
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Name *</Label>
                                     <Input
@@ -347,7 +376,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             })
                                         }}
                                         required
+                                        aria-required={true}
                                     />
+                                    <p className="text-xs text-muted-foreground">Required — used for product listings and SEO. A good name helps conversions.</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -357,7 +388,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                         required
+                                        aria-required={true}
                                     />
+                                    <p className="text-xs text-muted-foreground">Required — unique slug used in product URLs, auto-generated from name when empty.</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -382,7 +415,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         }
                                         rows={6}
                                         required
+                                        aria-required={true}
                                     />
+                                    <p className="text-xs text-muted-foreground">Required — a full description helps customers and search engines. Use markdown if supported.</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -391,10 +426,11 @@ export function ProductForm({ productId }: ProductFormProps) {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Prices (multiple currencies)</CardTitle>
+                                <p className="text-xs text-muted-foreground mt-1">Add prices for all currencies you support. One price should be marked as default for the primary currency.</p>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {(formData.prices ?? []).map((p, idx) => (
-                                    <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                                    <div key={idx} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
                                         <div className="space-y-2">
                                             <Label>Currency</Label>
                                             <Select
@@ -404,14 +440,20 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                     newPrices[idx] = { ...newPrices[idx], currency: value }
                                                     setFormData({ ...formData, prices: newPrices })
                                                 }}
-                                            >
+                                                aria-busy={currenciesLoading}>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select currency" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {currencies.map((c) => (
-                                                        <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
-                                                    ))}
+                                                    {currenciesLoading ? (
+                                                        <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading currencies...</div>
+                                                    ) : currencies.length === 0 ? (
+                                                        <div className="px-4 py-2 text-sm text-muted-foreground">No currencies available</div>
+                                                    ) : (
+                                                        currencies.map((c) => (
+                                                            <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
+                                                        ))
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -446,7 +488,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             />
                                         </div>
 
-                                        <div className="space-y-2">
+                                        <div className="space-y-2 hidden">
                                             <Label>Tax Included</Label>
                                             <Switch
                                                 checked={p.taxIncluded ?? true}
@@ -489,6 +531,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     }}>
                                         <Plus className="h-4 w-4 mr-2" /> Add Price
                                     </Button>
+                                    <p className="text-sm text-muted-foreground mt-2">Tip: Add localized prices for each currency you support. Mark one as default. You can add more than one per currency for different price points.</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -502,44 +545,59 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="category">Category *</Label>
+                                        <p className="text-xs text-muted-foreground">Required - this helps customers find your product.</p>
                                         <Select
                                             value={formData.categoryId}
                                             onValueChange={(value) =>
                                                 setFormData({ ...formData, categoryId: value, subcategoryId: '' })
                                             }
+                                            aria-required={true}
+                                            aria-busy={categoriesLoading}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {categories.map((cat) => (
-                                                    <SelectItem key={cat.id} value={cat.id}>
-                                                        {cat.name}
-                                                    </SelectItem>
-                                                ))}
+                                                {categoriesLoading ? (
+                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading categories...</div>
+                                                ) : categories.length === 0 ? (
+                                                    <div className="px-4 py-2 text-sm text-muted-foreground">No categories found</div>
+                                                ) : (
+                                                    categories.map((cat) => (
+                                                        <SelectItem key={cat.id} value={cat.id}>
+                                                            {cat.name}
+                                                        </SelectItem>
+                                                    ))
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="subcategory">Subcategory</Label>
+                                        <p className="text-xs text-muted-foreground">Optional - pick a more specific category if applicable.</p>
                                         <Select
                                             value={formData.subcategoryId || "none"}
                                             onValueChange={(value) =>
                                                 setFormData({ ...formData, subcategoryId: value === "none" ? "" : value })
                                             }
                                             disabled={!formData.categoryId}
+                                            aria-busy={subcategoriesLoading}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select subcategory" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="none">None</SelectItem>
-                                                {subcategories.map((sub) => (
-                                                    <SelectItem key={sub.id} value={sub.id}>
-                                                        {sub.name}
-                                                    </SelectItem>
-                                                ))}
+                                                {subcategoriesLoading ? (
+                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading subcategories...</div>
+                                                ) : (
+                                                    subcategories.map((sub) => (
+                                                        <SelectItem key={sub.id} value={sub.id}>
+                                                            {sub.name}
+                                                        </SelectItem>
+                                                    ))
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -553,7 +611,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <CardTitle>Images</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                     {formData.coverImages.map((img, index) =>
                                         img.url ? (
                                             <div key={index} className="relative group">
@@ -567,6 +625,11 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                     {img.isPrimary && (
                                                         <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                                                             Primary
+                                                        </div>
+                                                    )}
+                                                    {!img.isUploaded && (
+                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                            <Loader2 className="h-6 w-6 animate-spin text-white" />
                                                         </div>
                                                     )}
                                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -607,6 +670,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             className="hidden"
                                             disabled={uploadingImage}
                                         />
+                                        <div className="block sm:hidden text-xs text-muted-foreground mt-2 text-center">Tip: Upload up to multiple images, mark one as primary later.</div>
                                     </label>
                                 </div>
                             </CardContent>
@@ -716,8 +780,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                         </Card>
 
                         {/* Actions */}
-                        <div className="flex gap-4">
-                            <Button type="submit" disabled={saving}>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Button type="submit" disabled={saving} className="w-full sm:w-auto">
                                 {saving ? 'Saving...' : productId ? 'Update Product' : 'Create Product'}
                             </Button>
                             <Button
@@ -725,6 +789,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 variant="outline"
                                 onClick={() => router.back()}
                                 disabled={saving}
+                                className="w-full sm:w-auto"
                             >
                                 Cancel
                             </Button>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Search } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AdminNav } from '@/components/admin/AdminNav'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +42,7 @@ interface Currency {
 export default function CurrenciesPage() {
     const [currencies, setCurrencies] = useState<Currency[]>([])
     const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
     const [search, setSearch] = useState('')
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null)
@@ -225,6 +227,7 @@ export default function CurrenciesPage() {
                         <div className="relative max-w-sm">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input placeholder="Search currencies..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                            <p className="text-xs text-muted-foreground mt-2">Search by currency name or code. Add currency formats carefully.</p>
                         </div>
                     </div>
 

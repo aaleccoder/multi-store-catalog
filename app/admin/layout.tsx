@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { Montserrat } from 'next/font/google'
+import { Toaster } from '@/components/ui/sonner'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -31,6 +32,7 @@ export default async function AdminLayout({
         <html lang="es">
             <body className={montserrat.className}>
                 {children}
+                <Toaster />
             </body>
         </html>
     )

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Upload, Trash2, Search, X } from 'lucide-react'
+import { Upload, Trash2, Search, X, Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AdminNav } from '@/components/admin/AdminNav'
@@ -18,6 +19,7 @@ export default function MediaPage() {
     const [media, setMedia] = useState<Media[]>([])
     const [loading, setLoading] = useState(true)
     const [uploading, setUploading] = useState(false)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
     const [search, setSearch] = useState('')
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -116,6 +118,7 @@ export default function MediaPage() {
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="pl-10"
                             />
+                            <p className="text-xs text-muted-foreground mt-2">Search alt text for images. Use clear to reset results.</p>
                             {search && (
                                 <Button
                                     variant="ghost"
@@ -131,7 +134,16 @@ export default function MediaPage() {
 
                     {/* Grid */}
                     {loading ? (
-                        <div className="text-center py-12">Loading...</div>
+                        <div className="text-center py-12">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                                {Array.from({ length: 8 }).map((_, i) => (
+                                    <div key={i} className="space-y-2">
+                                        <Skeleton className="w-full aspect-square" />
+                                        <Skeleton className="h-4 w-3/4" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : filteredMedia.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
                             {search ? 'No media found' : 'No media uploaded yet'}

@@ -2,6 +2,7 @@ import React from 'react'
 import '../globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { WishlistProvider } from '@/components/WishlistContext'
+import { Toaster } from '@/components/ui/sonner'
 import { Montserrat, Lobster } from 'next/font/google'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
@@ -21,6 +22,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <CartProvider>
           <WishlistProvider>
             <main>{children}</main>
+            <Toaster />
           </WishlistProvider>
         </CartProvider>
       </body>

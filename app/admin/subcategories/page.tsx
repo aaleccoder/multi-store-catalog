@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -51,6 +52,7 @@ interface Subcategory {
 export default function SubcategoriesPage() {
     const [subcategories, setSubcategories] = useState<Subcategory[]>([])
     const [categories, setCategories] = useState<Category[]>([])
+    const [categoriesLoading, setCategoriesLoading] = useState(false)
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filterCategory, setFilterCategory] = useState<string>('all')
@@ -70,12 +72,15 @@ export default function SubcategoriesPage() {
     }, [])
 
     const fetchCategories = async () => {
+        setCategoriesLoading(true)
         try {
             const res = await fetch('/api/categories')
             const data = await res.json()
             setCategories(data.docs || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
+        } finally {
+            setCategoriesLoading(false)
         }
     }
 
@@ -194,16 +199,21 @@ export default function SubcategoriesPage() {
                                                 onValueChange={(value) =>
                                                     setFormData({ ...formData, categoryId: value })
                                                 }
+                                                aria-busy={categoriesLoading}
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select category" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {categories.map((cat) => (
-                                                        <SelectItem key={cat.id} value={cat.id}>
-                                                            {cat.name}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {categoriesLoading ? (
+                                                        <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading categories...</div>
+                                                    ) : (
+                                                        categories.map((cat) => (
+                                                            <SelectItem key={cat.id} value={cat.id}>
+                                                                {cat.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>

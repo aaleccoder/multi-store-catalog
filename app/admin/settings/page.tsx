@@ -20,6 +20,7 @@ export default function SettingsPage() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-muted-foreground">Settings configuration coming soon...</p>
+                                <p className="text-xs text-muted-foreground mt-2">These settings apply to your whole store — changes will be reflected across the site.</p>
                             </CardContent>
                         </Card>
 
@@ -32,6 +33,7 @@ export default function SettingsPage() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-muted-foreground">Store settings coming soon...</p>
+                                <p className="text-xs text-muted-foreground mt-2">Company name, contact, and timezone go here.</p>
                             </CardContent>
                         </Card>
 

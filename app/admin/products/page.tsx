@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import {
     Table,
@@ -58,6 +60,7 @@ export default function ProductsPage() {
             setProducts(data.docs || [])
         } catch (error) {
             console.error('Error fetching products:', error)
+            toast.error('Failed to load products')
         } finally {
             setLoading(false)
         }
@@ -73,14 +76,23 @@ export default function ProductsPage() {
 
     const confirmDelete = async () => {
         if (!productToDelete) return
+        const deletingToastId = toast.loading('Deleting product...')
 
         try {
-            await fetch(`/api/admin/products/${productToDelete.id}`, { method: 'DELETE' })
+            const res = await fetch(`/api/admin/products/${productToDelete.id}`, { method: 'DELETE' })
+            if (!res.ok) {
+                console.error('Failed to delete product:', res)
+                toast.error('Failed to delete product', { id: deletingToastId })
+                return
+            }
+
+            toast.success('Product deleted', { id: deletingToastId })
             fetchProducts()
             setDialogOpen(false)
             setProductToDelete(null)
         } catch (error) {
             console.error('Error deleting product:', error)
+            toast.error('Failed to delete product', { id: deletingToastId })
         }
     }
 
@@ -114,19 +126,21 @@ export default function ProductsPage() {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="pl-10"
+                                aria-label="Search products by name"
                             />
+                            <p className="text-xs text-muted-foreground mt-2">Search by product name, slug or SKU. Results update as you type.</p>
                         </div>
                     </div>
 
                     {/* Table */}
-                    <div className="bg-card rounded-lg border border-border">
+                    <div className="bg-card rounded-lg border border-border" aria-busy={loading ? true : undefined}>
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Image</TableHead>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Price</TableHead>
+                                    <TableHead className="hidden md:table-cell">Category</TableHead>
+                                    <TableHead className="hidden md:table-cell">Price</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
@@ -135,13 +149,33 @@ export default function ProductsPage() {
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="text-center py-8">
-                                            Loading...
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="flex gap-4 w-full justify-center">
+                                                    <Skeleton className="w-12 h-12 rounded" />
+                                                    <div className="flex-1 space-y-2">
+                                                        <Skeleton className="h-4 w-3/4" />
+                                                        <Skeleton className="h-4 w-1/2" />
+                                                    </div>
+                                                    <div className="hidden md:block">
+                                                        <Skeleton className="h-4 w-24" />
+                                                    </div>
+                                                    <div className="hidden md:block">
+                                                        <Skeleton className="h-4 w-20" />
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm text-muted-foreground flex items-center gap-2">
+                                                    <Loader2 className="h-4 w-4 animate-spin" /> Fetching products...
+                                                </div>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredProducts.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="text-center py-8">
-                                            No products found
+                                            <div>
+                                                <div className="text-lg font-medium">No products found</div>
+                                                <div className="text-sm text-muted-foreground mt-2">Try clearing the search or add a new product.</div>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -170,8 +204,8 @@ export default function ProductsPage() {
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="font-medium">{product.name}</TableCell>
-                                                <TableCell>{product.category?.name || 'N/A'}</TableCell>
-                                                <TableCell>{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
+                                                <TableCell className="hidden md:table-cell">{product.category?.name || 'N/A'}</TableCell>
+                                                <TableCell className="hidden md:table-cell">{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
                                                 <TableCell>
                                                     <div className="flex gap-1">
                                                         {product.isActive ? (
