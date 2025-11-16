@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/sidebar'
 import LeaLogo from '../lea-logo'
 import router from 'next/router'
-import { useSession } from 'better-auth/react'
+import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
 
 const navigation = [
@@ -43,7 +43,7 @@ const adminNavigation = [
 
 export function AdminNav() {
     const pathname = usePathname()
-    const { data: session } = useSession()
+    const { data: session } = authClient.useSession()
 
     const handleLogout = async () => {
         // Implement logout
