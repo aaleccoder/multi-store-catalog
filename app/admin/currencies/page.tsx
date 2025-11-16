@@ -2,28 +2,6 @@
 
 import AdminResource from '@/components/admin/admin-resource'
 import { AdminNav } from '@/components/admin/admin-nav'
-import { Plus, Edit, Trash2, Search, Loader2 } from 'lucide-react'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
 export default function CurrenciesPage() {
     return (
         <div className="min-h-screen bg-background">
@@ -32,24 +10,24 @@ export default function CurrenciesPage() {
             <main className=" pt-20 lg:pt-0">
                 <div className="p-8">
                     <AdminResource
-                        title="Currencies"
+                        title="Monedas"
                         fetchUrl="/api/admin/currencies"
                         columns={[
-                            { header: 'Name', accessor: 'name' },
-                            { header: 'Code', accessor: 'code' },
-                            { header: 'Symbol', accessor: 'symbol' },
-                            { header: 'Format', render: (c: any) => (c.symbolPosition === 'before' ? `${c.symbol} 1${c.decimalSeparator}${'0'.repeat(c.decimalPlaces)}` : `1${c.decimalSeparator}${'0'.repeat(c.decimalPlaces)} ${c.symbol}`) },
-                            { header: 'Status', render: (c: any) => (c.isActive ? 'Active' : 'Inactive') },
+                            { header: 'Nombre', accessor: 'name' },
+                            { header: 'Código', accessor: 'code' },
+                            { header: 'Símbolo', accessor: 'symbol' },
+                            { header: 'Formato', render: (c: any) => (c.symbolPosition === 'before' ? `${c.symbol} 1${c.decimalSeparator}${'0'.repeat(c.decimalPlaces)}` : `1${c.decimalSeparator}${'0'.repeat(c.decimalPlaces)} ${c.symbol}`) },
+                            { header: 'Estado', render: (c: any) => (c.isActive ? 'Activo' : 'Inactivo') },
                         ]}
                         formFields={[
-                            { name: 'name', label: 'Name', type: 'text', required: true },
-                            { name: 'code', label: 'Code', type: 'text', required: true },
-                            { name: 'symbol', label: 'Symbol', type: 'text', required: true },
-                            { name: 'symbolPosition', label: 'Symbol Position', type: 'select', options: [{ value: 'before', label: 'Before' }, { value: 'after', label: 'After' }] },
-                            { name: 'decimalSeparator', label: 'Decimal Separator', type: 'text' },
-                            { name: 'thousandsSeparator', label: 'Thousands Separator', type: 'text' },
-                            { name: 'decimalPlaces', label: 'Decimal Places', type: 'number' },
-                            { name: 'isActive', label: 'Active', type: 'switch' },
+                            { name: 'name', label: 'Nombre', type: 'text', required: true },
+                            { name: 'code', label: 'Código', type: 'text', required: true },
+                            { name: 'symbol', label: 'Símbolo', type: 'text', required: true },
+                            { name: 'symbolPosition', label: 'Posición del Símbolo', type: 'select', options: [{ value: 'before', label: 'Antes' }, { value: 'after', label: 'Después' }] },
+                            { name: 'decimalSeparator', label: 'Separador Decimal', type: 'text' },
+                            { name: 'thousandsSeparator', label: 'Separador de Miles', type: 'text' },
+                            { name: 'decimalPlaces', label: 'Lugares Decimales', type: 'number' },
+                            { name: 'isActive', label: 'Activo', type: 'switch' },
                         ]}
                         searchKeys={['name', 'code']}
                     />

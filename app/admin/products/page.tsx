@@ -55,7 +55,7 @@ export default function ProductsPage() {
 
     const columns: Column<Product>[] = [
         {
-            header: 'Image',
+            header: 'Imagen',
             accessor: 'coverImages',
             render: (p: Product) => {
                 const coverImages = (p.coverImages as Media[]) || []
@@ -71,10 +71,10 @@ export default function ProductsPage() {
                 )
             },
         },
-        { header: 'Name', accessor: 'name' },
-        { header: 'Category', accessor: 'category.name' },
+        { header: 'Nombre', accessor: 'name' },
+        { header: 'Categoría', accessor: 'category.name' },
         {
-            header: 'Price',
+            header: 'Precio',
             accessor: 'prices',
             render: (p: Product) => {
                 const defaultPriceObj = (p as Product).prices?.find((pr) => pr.isDefault) || (p as Product).prices?.[0]
@@ -83,31 +83,31 @@ export default function ProductsPage() {
             },
         },
         {
-            header: 'Status',
+            header: 'Estado',
             accessor: 'isActive',
             render: (p: Product) => (
                 <div className="flex gap-1">
                     {p.isActive ? (
-                        <Badge variant="outline" className="bg-green-50 text-green-700">Active</Badge>
+                        <Badge variant="outline" className="bg-green-50 text-green-700">Activo</Badge>
                     ) : (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">Inactivo</Badge>
                     )}
-                    {p.featured && <Badge>Featured</Badge>}
-                    {!p.inStock && <Badge variant="destructive">Out of Stock</Badge>}
+                    {p.featured && <Badge>Destacado</Badge>}
+                    {!p.inStock && <Badge variant="destructive">Agotado</Badge>}
                 </div>
             ),
         },
     ]
 
     const formFields: FormField[] = [
-        { name: 'name', label: 'Name', type: 'text', required: true },
+        { name: 'name', label: 'Nombre', type: 'text', required: true },
         { name: 'slug', label: 'Slug', type: 'text' },
-        { name: 'shortDescription', label: 'Short description', type: 'textarea' },
-        { name: 'categoryId', label: 'Category', type: 'select' },
-        { name: 'subcategoryId', label: 'Subcategory', type: 'select' },
-        { name: 'isActive', label: 'Active', type: 'switch' },
-        { name: 'inStock', label: 'In stock', type: 'switch' },
-        { name: 'featured', label: 'Featured', type: 'switch' },
+        { name: 'shortDescription', label: 'Descripción corta', type: 'textarea' },
+        { name: 'categoryId', label: 'Categoría', type: 'select' },
+        { name: 'subcategoryId', label: 'Subcategoría', type: 'select' },
+        { name: 'isActive', label: 'Activo', type: 'switch' },
+        { name: 'inStock', label: 'En stock', type: 'switch' },
+        { name: 'featured', label: 'Destacado', type: 'switch' },
     ]
 
     const loadDependencies = async () => {
@@ -135,28 +135,29 @@ export default function ProductsPage() {
 
                     <div className="bg-card">
                         <AdminResource<Product>
-                            title="Products"
+                            title="Productos"
                             fetchUrl={'/api/products?limit=100'}
                             listTransform={(data: unknown) => ((data as { docs?: Product[] }).docs || (data as Product[]))}
                             columns={columns}
                             formFields={formFields}
-                            createUrl={'/api/admin/products'}
+                            createUrl={'/api/admin/products/'}
                             updateUrl={(id: string) => `/api/admin/products/${id}`}
                             deleteUrl={(id: string) => `/api/admin/products/${id}`}
                             keyField={'id'}
-                            newButtonLabel={'Add Product'}
+                            newButtonLabel={'Agregar Producto'}
+                            createPageUrl={'/admin/products/new'}
                             searchKeys={['name', 'slug']}
                             loadDependencies={loadDependencies}
                             renderList={(items, loading, onEdit, onDelete) => (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Image</TableHead>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead className="hidden md:table-cell">Category</TableHead>
-                                            <TableHead className="hidden md:table-cell">Price</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
+                                            <TableHead>Imagen</TableHead>
+                                            <TableHead>Nombre</TableHead>
+                                            <TableHead className="hidden md:table-cell">Categoría</TableHead>
+                                            <TableHead className="hidden md:table-cell">Precio</TableHead>
+                                            <TableHead>Estado</TableHead>
+                                            <TableHead className="text-right">Acciones</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -178,7 +179,7 @@ export default function ProductsPage() {
                                                             </div>
                                                         </div>
                                                         <div className="text-sm text-muted-foreground flex items-center gap-2">
-                                                            <Loader2 className="h-4 w-4 animate-spin" /> Fetching products...
+                                                            <Loader2 className="h-4 w-4 animate-spin" /> Obteniendo productos...
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -187,8 +188,8 @@ export default function ProductsPage() {
                                             <TableRow>
                                                 <TableCell colSpan={6} className="text-center py-8">
                                                     <div>
-                                                        <div className="text-lg font-medium">No products found</div>
-                                                        <div className="text-sm text-muted-foreground mt-2">Try clearing the search or add a new product.</div>
+                                                        <div className="text-lg font-medium">No se encontraron productos</div>
+                                                        <div className="text-sm text-muted-foreground mt-2">Intenta limpiar la búsqueda o agrega un nuevo producto.</div>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -222,13 +223,13 @@ export default function ProductsPage() {
                                                         <TableCell>
                                                             <div className="flex gap-1">
                                                                 {product.isActive ? (
-                                                                    <Badge variant="outline" className="bg-green-50 text-green-700">Active</Badge>
+                                                                    <Badge variant="outline" className="bg-green-50 text-green-700">Activo</Badge>
                                                                 ) : (
-                                                                    <Badge variant="secondary">Inactive</Badge>
+                                                                    <Badge variant="secondary">Inactivo</Badge>
                                                                 )}
-                                                                {product.featured && <Badge>Featured</Badge>}
+                                                                {product.featured && <Badge>Destacado</Badge>}
                                                                 {!product.inStock && (
-                                                                    <Badge variant="destructive">Out of Stock</Badge>
+                                                                    <Badge variant="destructive">Agotado</Badge>
                                                                 )}
                                                             </div>
                                                         </TableCell>
@@ -260,35 +261,35 @@ export default function ProductsPage() {
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                             <DialogContent>
                                 <DialogHeader>
-                                    <DialogTitle>Confirm Deletion</DialogTitle>
+                                    <DialogTitle>Confirmar Eliminación</DialogTitle>
                                     <DialogDescription>
-                                        Are you sure you want to delete &quot;{productToDelete?.name}&quot;? This action cannot be undone.
+                                        ¿Estás seguro de que quieres eliminar &quot;{productToDelete?.name}&quot;? Esta acción no se puede deshacer.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                                        Cancel
+                                        Cancelar
                                     </Button>
                                     <Button
                                         variant="destructive"
                                         onClick={async () => {
                                             if (!productToDelete) return
-                                            const deletingToastId = toast.loading('Deleting product...')
+                                            const deletingToastId = toast.loading('Eliminando producto...')
 
                                             try {
                                                 // call AdminResource delete handler
                                                 if (deleteFn) await deleteFn(productToDelete.id)
-                                                toast.success('Product deleted', { id: deletingToastId })
+                                                toast.success('Producto eliminado', { id: deletingToastId })
                                             } catch (error) {
                                                 console.error(error)
-                                                toast.error('Failed to delete product', { id: deletingToastId })
+                                                toast.error('Error al eliminar producto', { id: deletingToastId })
                                             } finally {
                                                 setDialogOpen(false)
                                                 setProductToDelete(null)
                                             }
                                         }}
                                     >
-                                        Delete
+                                        Eliminar
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>

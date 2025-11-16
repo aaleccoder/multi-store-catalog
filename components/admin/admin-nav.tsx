@@ -23,14 +23,13 @@ import {
 } from '@/components/ui/sidebar'
 import LeaLogo from '../lea-logo'
 import router from 'next/router'
-// `cn` helper intentionally not used here — removed to silence lint.
 
 const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Products', href: '/admin/products', icon: Package },
-    { name: 'Categories', href: '/admin/categories', icon: FolderTree },
-    { name: 'Currencies', href: '/admin/currencies', icon: DollarSign },
-    { name: 'Subcategories', href: '/admin/subcategories', icon: FolderTree },
+    { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
+    { name: 'Productos', href: '/admin/products', icon: Package },
+    { name: 'Categorías', href: '/admin/categories', icon: FolderTree },
+    { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
+    { name: 'Subcategorías', href: '/admin/subcategories', icon: FolderTree },
 ]
 export function AdminNav() {
     const pathname = usePathname()
@@ -45,7 +44,7 @@ export function AdminNav() {
             {/* Mobile header: we keep a small top bar with a trigger for mobile */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-border p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Admin Panel</h1>
+                    <h1 className="text-xl font-bold">Panel de Administración</h1>
                     <SidebarTrigger />
                 </div>
             </div>
@@ -59,7 +58,7 @@ export function AdminNav() {
                     >
                         <LeaLogo
                             className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
-                            aria-label="Lea Catalog logo"
+                            aria-label="Logo de Lea Catalog"
                         />
                     </button>
                 </SidebarHeader>
@@ -86,7 +85,7 @@ export function AdminNav() {
                 <SidebarFooter className="p-4 border-t border-border">
                     <Button variant="ghost" className="w-full justify-start gap-3" onClick={handleLogout}>
                         <LogOut className="h-5 w-5" />
-                        <span>Logout</span>
+                        <span>Cerrar Sesión</span>
                     </Button>
                 </SidebarFooter>
             </Sidebar>

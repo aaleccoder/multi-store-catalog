@@ -121,7 +121,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             setCategories(data.docs || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
-            toast.error('Failed to load categories')
+            toast.error('Error al cargar categorías')
         } finally {
             setCategoriesLoading(false)
         }
@@ -135,7 +135,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             setSubcategories(data.docs || [])
         } catch (error) {
             console.error('Error fetching subcategories:', error)
-            toast.error('Failed to load subcategories')
+            toast.error('Error al cargar subcategorías')
         } finally {
             setSubcategoriesLoading(false)
         }
@@ -172,7 +172,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             })
         } catch (error) {
             console.error('Error fetching product:', error)
-            toast.error('Failed to load product')
+            toast.error('Error al cargar producto')
         } finally {
             setLoading(false)
         }
@@ -186,7 +186,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             setCurrencies(data || [])
         } catch (error) {
             console.error('Error fetching currencies:', error)
-            toast.error('Failed to load currencies')
+            toast.error('Error al cargar monedas')
         } finally {
             setCurrenciesLoading(false)
         }
@@ -274,10 +274,10 @@ export function ProductForm({ productId }: ProductFormProps) {
 
                     // Revoke object URLs
                     pendingImages.forEach(img => URL.revokeObjectURL(img.url))
-                    toast.success('Images uploaded', { id: uploadToastId })
+                    toast.success('Imágenes subidas', { id: uploadToastId })
                 } catch (error) {
                     console.error('Error uploading images:', error)
-                    toast.error('Failed to upload images', { id: uploadToastId })
+                    toast.error('Error al subir imágenes', { id: uploadToastId })
                     setSaving(false)
                     return
                 } finally {
@@ -305,7 +305,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 : '/api/admin/products'
             const method = productId ? 'PUT' : 'POST'
 
-            savingToastId = toast.loading('Saving product...')
+            savingToastId = toast.loading('Guardando producto...')
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
@@ -313,15 +313,15 @@ export function ProductForm({ productId }: ProductFormProps) {
             })
 
             if (res.ok) {
-                toast.success('Product saved', { id: savingToastId })
+                toast.success('Producto guardado', { id: savingToastId })
                 router.push('/admin/products')
                 router.refresh()
             } else {
-                toast.error('Failed to save product', { id: savingToastId })
+                toast.error('Error al guardar producto', { id: savingToastId })
             }
         } catch (error) {
             console.error('Error saving product:', error)
-            toast.error('Failed to save product', { id: savingToastId })
+            toast.error('Error al guardar producto', { id: savingToastId })
         } finally {
             setSaving(false)
         }
@@ -346,24 +346,24 @@ export function ProductForm({ productId }: ProductFormProps) {
             <main className=" pt-20 lg:pt-0">
                 <div className="md:p-8 md:max-w-4xl p-2 mx-auto">
                     <h1 className="text-3xl font-bold mb-6">
-                        {productId ? 'Edit Product' : 'Create Product'}
+                        {productId ? 'Editar Producto' : 'Crear Producto'}
                     </h1>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Basic Information */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Basic Information</CardTitle>
+                                <CardTitle>Información Básica</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {uploadingImage && (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        Uploading images... Please wait.
+                                        Subiendo imágenes... Por favor espera.
                                     </div>
                                 )}
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Name *</Label>
+                                    <Label htmlFor="name">Nombre *</Label>
                                     <Input
                                         id="name"
                                         value={formData.name}
@@ -378,7 +378,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         required
                                         aria-required={true}
                                     />
-                                    <p className="text-xs text-muted-foreground">Required — used for product listings and SEO. A good name helps conversions.</p>
+                                    <p className="text-xs text-muted-foreground">Requerido — usado para listados de productos y SEO. Un buen nombre ayuda a las conversiones.</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -390,11 +390,11 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         required
                                         aria-required={true}
                                     />
-                                    <p className="text-xs text-muted-foreground">Required — unique slug used in product URLs, auto-generated from name when empty.</p>
+                                    <p className="text-xs text-muted-foreground">Requerido — slug único usado en URLs de productos, auto-generado desde el nombre cuando está vacío.</p>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="shortDescription">Short Description</Label>
+                                    <Label htmlFor="shortDescription">Descripción Corta</Label>
                                     <Textarea
                                         id="shortDescription"
                                         value={formData.shortDescription}
@@ -406,7 +406,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Description *</Label>
+                                    <Label htmlFor="description">Descripción *</Label>
                                     <Textarea
                                         id="description"
                                         value={formData.description}
@@ -417,7 +417,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         required
                                         aria-required={true}
                                     />
-                                    <p className="text-xs text-muted-foreground">Required — a full description helps customers and search engines. Use markdown if supported.</p>
+                                    <p className="text-xs text-muted-foreground">Requerido — una descripción completa ayuda a los clientes y motores de búsqueda. Usa markdown si es soportado.</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -425,14 +425,14 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Prices (multiple currencies) */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Prices (multiple currencies)</CardTitle>
-                                <p className="text-xs text-muted-foreground mt-1">Add prices for all currencies you support. One price should be marked as default for the primary currency.</p>
+                                <CardTitle>Precios (múltiples monedas)</CardTitle>
+                                <p className="text-xs text-muted-foreground mt-1">Agrega precios para todas las monedas que soportas. Un precio debe marcarse como predeterminado para la moneda principal.</p>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {(formData.prices ?? []).map((p, idx) => (
                                     <div key={idx} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
                                         <div className="space-y-2">
-                                            <Label>Currency</Label>
+                                            <Label>Moneda</Label>
                                             <Select
                                                 value={p.currency || currencies[0]?.code || 'USD'}
                                                 onValueChange={(value) => {
@@ -442,13 +442,13 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                 }}
                                                 aria-busy={currenciesLoading}>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select currency" />
+                                                    <SelectValue placeholder="Seleccionar moneda" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {currenciesLoading ? (
-                                                        <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading currencies...</div>
+                                                        <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando monedas...</div>
                                                     ) : currencies.length === 0 ? (
-                                                        <div className="px-4 py-2 text-sm text-muted-foreground">No currencies available</div>
+                                                        <div className="px-4 py-2 text-sm text-muted-foreground">No hay monedas disponibles</div>
                                                     ) : (
                                                         currencies.map((c) => (
                                                             <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
@@ -459,7 +459,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Price</Label>
+                                            <Label>Precio</Label>
                                             <Input
                                                 type="number"
                                                 step="0.01"
@@ -474,7 +474,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Sale Price</Label>
+                                            <Label>Precio de Venta</Label>
                                             <Input
                                                 type="number"
                                                 step="0.01"
@@ -489,7 +489,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         </div>
 
                                         <div className="space-y-2 hidden">
-                                            <Label>Tax Included</Label>
+                                            <Label>Impuesto Incluido</Label>
                                             <Switch
                                                 checked={p.taxIncluded ?? true}
                                                 onCheckedChange={(checked) => {
@@ -501,7 +501,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Default</Label>
+                                            <Label>Predeterminado</Label>
                                             <div className="flex gap-2">
                                                 <Button
                                                     size="sm"
@@ -510,7 +510,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         setFormData({ ...formData, prices: newPrices })
                                                     }}
                                                 >
-                                                    Set
+                                                    Establecer
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => {
                                                     const newPrices = (formData.prices || []).filter((_, i) => i !== idx)
@@ -529,9 +529,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         const newPrices = [...(formData.prices || []), { price: 0, salePrice: undefined, currency: defaultCurrency, isDefault: (formData.prices?.length ?? 0) === 0, taxIncluded: true }]
                                         setFormData({ ...formData, prices: newPrices })
                                     }}>
-                                        <Plus className="h-4 w-4 mr-2" /> Add Price
+                                        <Plus className="h-4 w-4 mr-2" /> Agregar Precio
                                     </Button>
-                                    <p className="text-sm text-muted-foreground mt-2">Tip: Add localized prices for each currency you support. Mark one as default. You can add more than one per currency for different price points.</p>
+                                    <p className="text-sm text-muted-foreground mt-2">Consejo: Agrega precios localizados para cada moneda que soportas. Marca uno como predeterminado. Puedes agregar más de uno por moneda para diferentes puntos de precio.</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -539,13 +539,13 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Category */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Category</CardTitle>
+                                <CardTitle>Categoría</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="category">Category *</Label>
-                                        <p className="text-xs text-muted-foreground">Required - this helps customers find your product.</p>
+                                        <Label htmlFor="category">Categoría *</Label>
+                                        <p className="text-xs text-muted-foreground">Requerido - esto ayuda a los clientes a encontrar tu producto.</p>
                                         <Select
                                             value={formData.categoryId}
                                             onValueChange={(value) =>
@@ -555,13 +555,13 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             aria-busy={categoriesLoading}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select category" />
+                                                <SelectValue placeholder="Seleccionar categoría" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {categoriesLoading ? (
-                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading categories...</div>
+                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando categorías...</div>
                                                 ) : categories.length === 0 ? (
-                                                    <div className="px-4 py-2 text-sm text-muted-foreground">No categories found</div>
+                                                    <div className="px-4 py-2 text-sm text-muted-foreground">No se encontraron categorías</div>
                                                 ) : (
                                                     categories.map((cat) => (
                                                         <SelectItem key={cat.id} value={cat.id}>
@@ -574,8 +574,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="subcategory">Subcategory</Label>
-                                        <p className="text-xs text-muted-foreground">Optional - pick a more specific category if applicable.</p>
+                                        <Label htmlFor="subcategory">Subcategoría</Label>
+                                        <p className="text-xs text-muted-foreground">Opcional - elige una categoría más específica si aplica.</p>
                                         <Select
                                             value={formData.subcategoryId || "none"}
                                             onValueChange={(value) =>
@@ -585,12 +585,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             aria-busy={subcategoriesLoading}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select subcategory" />
+                                                <SelectValue placeholder="Seleccionar subcategoría" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="none">None</SelectItem>
+                                                <SelectItem value="none">Ninguna</SelectItem>
                                                 {subcategoriesLoading ? (
-                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Loading subcategories...</div>
+                                                    <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando subcategorías...</div>
                                                 ) : (
                                                     subcategories.map((sub) => (
                                                         <SelectItem key={sub.id} value={sub.id}>
@@ -608,7 +608,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Images */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Images</CardTitle>
+                                <CardTitle>Imágenes</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -624,7 +624,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                     />
                                                     {img.isPrimary && (
                                                         <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                                                            Primary
+                                                            Principal
                                                         </div>
                                                     )}
                                                     {!img.isUploaded && (
@@ -640,7 +640,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                                 variant="secondary"
                                                                 onClick={() => setPrimaryImage(index)}
                                                             >
-                                                                Set Primary
+                                                                Establecer como Principal
                                                             </Button>
                                                         )}
                                                         <Button
@@ -660,7 +660,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     <label className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                                         <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                                         <span className="text-sm text-muted-foreground">
-                                            {uploadingImage ? 'Uploading...' : 'Add Images'}
+                                            {uploadingImage ? 'Subiendo...' : 'Agregar Imágenes'}
                                         </span>
                                         <input
                                             type="file"
@@ -670,7 +670,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             className="hidden"
                                             disabled={uploadingImage}
                                         />
-                                        <div className="block sm:hidden text-xs text-muted-foreground mt-2 text-center">Tip: Upload up to multiple images, mark one as primary later.</div>
+                                        <div className="block sm:hidden text-xs text-muted-foreground mt-2 text-center">Consejo: Sube hasta múltiples imágenes, marca una como principal después.</div>
                                     </label>
                                 </div>
                             </CardContent>
@@ -681,7 +681,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Specifications */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Specifications</CardTitle>
+                                <CardTitle>Especificaciones</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -700,7 +700,7 @@ export function ProductForm({ productId }: ProductFormProps) {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="weight">Weight</Label>
+                                        <Label htmlFor="weight">Peso</Label>
                                         <Input
                                             id="weight"
                                             type="number"
@@ -719,7 +719,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="weightUnit">Weight Unit</Label>
+                                        <Label htmlFor="weightUnit">Unidad de Peso</Label>
                                         <Input
                                             id="weightUnit"
                                             value={formData.specifications.weightUnit || 'g'}
@@ -741,7 +741,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Status */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Status</CardTitle>
+                                <CardTitle>Estado</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center space-x-2">
@@ -752,7 +752,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             setFormData({ ...formData, isActive: checked })
                                         }
                                     />
-                                    <Label htmlFor="isActive">Active</Label>
+                                    <Label htmlFor="isActive">Activo</Label>
                                 </div>
 
                                 <div className="flex items-center space-x-2">
@@ -763,7 +763,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             setFormData({ ...formData, inStock: checked })
                                         }
                                     />
-                                    <Label htmlFor="inStock">In Stock</Label>
+                                    <Label htmlFor="inStock">En Stock</Label>
                                 </div>
 
                                 <div className="flex items-center space-x-2">
@@ -774,7 +774,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             setFormData({ ...formData, featured: checked })
                                         }
                                     />
-                                    <Label htmlFor="featured">Featured</Label>
+                                    <Label htmlFor="featured">Destacado</Label>
                                 </div>
                             </CardContent>
                         </Card>
@@ -782,7 +782,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         {/* Actions */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-                                {saving ? 'Saving...' : productId ? 'Update Product' : 'Create Product'}
+                                {saving ? 'Guardando...' : productId ? 'Actualizar Producto' : 'Crear Producto'}
                             </Button>
                             <Button
                                 type="button"
@@ -791,7 +791,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 disabled={saving}
                                 className="w-full sm:w-auto"
                             >
-                                Cancel
+                                Cancelar
                             </Button>
                         </div>
                     </form>

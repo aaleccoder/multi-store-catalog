@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import Link from 'next/link'
 import { Switch } from '@/components/ui/switch'
-import { AdminNav } from '@/components/admin/admin-nav'
+// AdminNav is intentionally not included here; pages will include it as necessary
 
 type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
 
@@ -47,6 +48,8 @@ interface AdminResourceProps<T extends Record<string, unknown> = Record<string, 
     deleteUrl?: (id: string) => string
     keyField?: keyof T
     newButtonLabel?: string
+    /** If provided, the "New" button will navigate to this page instead of opening the create dialog */
+    createPageUrl?: string
     searchKeys?: (keyof T | string)[]
     renderList?: (items: T[], loading: boolean, onEdit: (item: T) => void, onDelete: (id: string | number) => void) => React.ReactNode
     renderForm?: (options: { formData: Record<string, FormValue>; setFormData: React.Dispatch<React.SetStateAction<Record<string, FormValue>>> }) => React.ReactNode
@@ -65,6 +68,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         deleteUrl,
         keyField = 'id' as keyof T,
         newButtonLabel,
+        createPageUrl,
         searchKeys = ['name'] as (keyof T | string)[],
         renderList,
         renderForm,
@@ -165,12 +169,21 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <h1 className="text-3xl font-bold">{title}</h1>
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button onClick={() => { resetForm(); loadDependencies?.() }}>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    {newButtonLabel ?? `Add ${title.slice(0, -1)}`}
-                                </Button>
-                            </DialogTrigger>
+                            {createPageUrl ? (
+                                <Link href={createPageUrl} onClick={() => { resetForm(); loadDependencies?.() }}>
+                                    <Button>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        {newButtonLabel ?? `Add ${title.slice(0, -1)}`}
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <DialogTrigger asChild>
+                                    <Button onClick={() => { resetForm(); loadDependencies?.() }}>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        {newButtonLabel ?? `Add ${title.slice(0, -1)}`}
+                                    </Button>
+                                </DialogTrigger>
+                            )}
                             <DialogContent>
                                 <DialogHeader>
                                     <DialogTitle>{editing ? `Edit ${title.slice(0, -1)}` : `Create ${title.slice(0, -1)}`}</DialogTitle>

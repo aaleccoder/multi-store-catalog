@@ -1,4 +1,3 @@
-import ScrollToTop from '@/components/ui/scroll-to-top'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {

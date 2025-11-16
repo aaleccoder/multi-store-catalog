@@ -10,22 +10,22 @@ export default function CategoriesPage() {
             <main className=" pt-20 lg:pt-0">
                 <div className="p-8">
                     <AdminResource
-                        title="Categories"
+                        title="Categorías"
                         fetchUrl="/api/admin/categories"
                         columns={[
-                            { header: 'Name', accessor: 'name' },
+                            { header: 'Nombre', accessor: 'name' },
                             { header: 'Slug', accessor: 'slug', className: 'text-muted-foreground' },
-                            { header: 'Products', render: (x: any) => x._count?.products || 0 },
-                            { header: 'Status', render: (x: any) => (x.isActive ? 'Active' : 'Inactive') },
+                            { header: 'Productos', render: (x: any) => x._count?.products || 0 },
+                            { header: 'Estado', render: (x: any) => (x.isActive ? 'Activo' : 'Inactivo') },
                         ]}
                         formFields={[
-                            { name: 'name', label: 'Name', type: 'text', required: true },
+                            { name: 'name', label: 'Nombre', type: 'text', required: true },
                             { name: 'slug', label: 'Slug', type: 'text', required: true },
-                            { name: 'description', label: 'Description', type: 'textarea' },
-                            { name: 'isActive', label: 'Active', type: 'switch' },
+                            { name: 'description', label: 'Descripción', type: 'textarea' },
+                            { name: 'isActive', label: 'Activo', type: 'switch' },
                         ]}
                         searchKeys={['name', 'slug']}
-                        newButtonLabel="Add Category"
+                        newButtonLabel="Agregar Categoría"
                     />
                 </div>
             </main>

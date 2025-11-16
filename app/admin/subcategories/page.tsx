@@ -18,24 +18,24 @@ export default function SubcategoriesPage() {
             <main className=" pt-20 lg:pt-0">
                 <div className="p-8">
                     <AdminResource
-                        title="Subcategories"
+                        title="Subcategorías"
                         fetchUrl="/api/admin/subcategories"
                         columns={[
-                            { header: 'Name', accessor: 'name' },
+                            { header: 'Nombre', accessor: 'name' },
                             { header: 'Slug', accessor: 'slug' },
-                            { header: 'Category', render: (s: any) => s.category?.name || 'N/A' },
-                            { header: 'Products', render: (s: any) => s._count?.products || 0 },
-                            { header: 'Status', render: (s: any) => (s.isActive ? 'Active' : 'Inactive') },
+                            { header: 'Categoría', render: (s: any) => s.category?.name || 'N/A' },
+                            { header: 'Productos', render: (s: any) => s._count?.products || 0 },
+                            { header: 'Estado', render: (s: any) => (s.isActive ? 'Activo' : 'Inactivo') },
                         ]}
                         formFields={[
-                            { name: 'categoryId', label: 'Category', type: 'select', required: true },
-                            { name: 'name', label: 'Name', type: 'text', required: true },
+                            { name: 'categoryId', label: 'Categoría', type: 'select', required: true },
+                            { name: 'name', label: 'Nombre', type: 'text', required: true },
                             { name: 'slug', label: 'Slug', type: 'text', required: true },
-                            { name: 'description', label: 'Description', type: 'textarea' },
-                            { name: 'isActive', label: 'Active', type: 'switch' },
+                            { name: 'description', label: 'Descripción', type: 'textarea' },
+                            { name: 'isActive', label: 'Activo', type: 'switch' },
                         ]}
                         loadDependencies={loadDependencies}
-                        newButtonLabel="Add Subcategory"
+                        newButtonLabel="Agregar Subcategoría"
                         searchKeys={['name']}
                     />
                 </div>
