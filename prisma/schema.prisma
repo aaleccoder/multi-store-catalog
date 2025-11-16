@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  EDITOR
+}
+
 model Category {
   id            String        @id @default(cuid())
   name          String        @unique
@@ -98,6 +103,7 @@ model User {
   name          String?
   emailVerified Boolean   @default(false)
   image         String?
+  role          Role      @default(EDITOR)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]

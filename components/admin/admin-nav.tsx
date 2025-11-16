@@ -9,7 +9,8 @@ import {
     DollarSign,
     FolderTree,
     LogOut,
-    Image as ImageIcon,
+    ImageIcon,
+    Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,6 +25,8 @@ import {
 } from '@/components/ui/sidebar'
 import LeaLogo from '../lea-logo'
 import router from 'next/router'
+import { useSession } from 'better-auth/react'
+import { Role } from '@/generated/prisma'
 
 const navigation = [
     { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
@@ -33,8 +36,14 @@ const navigation = [
     { name: 'Media', href: '/admin/media', icon: ImageIcon },
     { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
 ]
+
+const adminNavigation = [
+    { name: 'Users', href: '/admin/users', icon: Users },
+]
+
 export function AdminNav() {
     const pathname = usePathname()
+    const { data: session } = useSession()
 
     const handleLogout = async () => {
         // Implement logout
@@ -68,6 +77,20 @@ export function AdminNav() {
                 <SidebarContent className='px-4'>
                     <SidebarMenu>
                         {navigation.map((item) => {
+                            const isActive = pathname === item.href
+
+                            return (
+                                <SidebarMenuItem key={item.name} className=''>
+                                    <SidebarMenuButton asChild isActive={isActive} className='h-12 text-xl'>
+                                        <Link href={item.href} className="flex items-center gap-3 w-full">
+                                            <item.icon className="h-4 w-4" />
+                                            <span>{item.name}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )
+                        })}
+                        {session?.user?.role === Role.ADMIN && adminNavigation.map((item) => {
                             const isActive = pathname === item.href
 
                             return (

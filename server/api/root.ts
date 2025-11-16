@@ -8,6 +8,7 @@ import { adminSubcategoriesRouter } from './routers/admin/subcategories'
 import { adminCurrenciesRouter } from './routers/admin/currencies'
 import { adminProductsRouter } from './routers/admin/products'
 import { adminMediaRouter } from './routers/admin/media'
+import { adminUsersRouter } from './routers/admin/users'
 
 export const appRouter = router({
     categories: categoriesRouter,
@@ -20,6 +21,7 @@ export const appRouter = router({
         currencies: adminCurrenciesRouter,
         products: adminProductsRouter,
         media: adminMediaRouter,
+        users: adminUsersRouter,
     }),
 })
 
