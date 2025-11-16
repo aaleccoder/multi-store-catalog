@@ -34,6 +34,8 @@ interface Product {
   // Legacy `pricing` removed — use `prices` relation instead
   prices?: Array<{ amount?: number; saleAmount?: number; currency?: any; isDefault?: boolean }>
   coverImages?: Array<{
+    // Some images are stored as { url }, others as nested { image: { url } } for legacy reasons
+    url?: string
     image?: {
       url?: string
     }
@@ -274,14 +276,18 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {products.map((product) => {
             // Get primary image or first image
+            // coverImages can come in two shapes depending on source:
+            // - { url: string, alt?: string, isPrimary?: boolean }
+            // - { image: { url: string }, alt?: string, isPrimary?: boolean }
             const primaryImage = product.coverImages?.find((img) => img.isPrimary)
             const imageData = primaryImage || product.coverImages?.[0]
-            const image = imageData?.image
+            const image = ((imageData as any)?.url as string) ? { url: (imageData as any).url } : imageData?.image
 
             // Prepare all images for carousel
             const images = product.coverImages
               ?.map((img) => ({
-                url: img.image?.url || '',
+                // prefer `img.url` for our Media model, but keep support for legacy `img.image.url`
+                url: ((img as any).url as string) || img.image?.url || '',
                 alt: img.alt || product.name,
               }))
               .filter((img) => img.url) // Filter out images without URL
@@ -309,7 +315,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                   })()
                 }
                 currency={(product.prices?.find((p: any) => p.isDefault)?.currency ?? null) as any}
-                image={image?.url || ''}
+                image={image?.url || ((imageData as any)?.url as string) || ''}
                 imageAlt={imageData?.alt || product.name}
                 images={images}
                 slug={product.slug}

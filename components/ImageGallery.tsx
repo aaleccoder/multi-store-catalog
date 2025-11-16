@@ -9,8 +9,13 @@ interface Media {
   alt?: string
 }
 
+// Accept either the legacy shape where the image is nested in `image`:
+// { image: { url }, alt }
+// or a simpler shape stored in the DB: { url, alt }
 interface ImageData {
-  image: number | Media
+  // Accept both forms, prefer .url or .image.url
+  image?: number | Media
+  url?: string | null
   alt?: string
   isPrimary?: boolean | null
   id?: string | null
@@ -33,12 +38,11 @@ export function ImageGallery({
 
   // Get the URL for the currently selected image
   const selectedImage = images[selectedIndex]
-  const selectedImageData = selectedImage?.image
+  const selectedImageData = selectedImage?.image as Media | undefined
   const selectedImageUrl =
-    typeof selectedImageData === 'object' && selectedImageData !== null
-      ? selectedImageData.url || primaryImageUrl
-      : primaryImageUrl
-  const selectedImageAltText = selectedImage?.alt || primaryImageAlt
+    // prefer nested `image.url` for legacy, then `imageData.url`, then top-level `url`, else fallback to primary
+    (selectedImageData && selectedImageData.url) || (selectedImage as any)?.url || primaryImageUrl
+  const selectedImageAltText = selectedImage?.alt || (selectedImage as any)?.alt || primaryImageAlt
 
   return (
     <div className="space-y-4">
@@ -64,9 +68,8 @@ export function ImageGallery({
       {images.length > 1 && (
         <div className="grid grid-cols-4 gap-2">
           {images.slice(0, 4).map((img: ImageData, idx: number) => {
-            const thumbImage = img.image
-            const imgUrl =
-              typeof thumbImage === 'object' && thumbImage !== null ? thumbImage.url || '' : ''
+            const thumbImage = img.image as Media | undefined
+            const imgUrl = (img as any).url || (thumbImage && thumbImage.url) || ''
             const isSelected = idx === selectedIndex
 
             return (

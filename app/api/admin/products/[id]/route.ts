@@ -60,7 +60,6 @@ export async function PUT(
                 categoryId: data.categoryId,
                 subcategoryId: data.subcategoryId,
                 coverImages: data.coverImages,
-                // pricing removed - use prices relation
                 specifications: data.specifications,
                 filterValues: data.filterValues,
                 tags: data.tags,
@@ -68,10 +67,6 @@ export async function PUT(
                 isActive: data.isActive,
                 inStock: data.inStock,
                 featured: data.featured,
-                // Keep `pricing` available for legacy DBs that still have the JSON column
-                // Provide a no-op object to avoid failing updates at runtime while migrating.
-                // @ts-ignore - `pricing` may have been removed from the Prisma client types
-                pricing: data.pricing ?? {},
             },
         })
 
