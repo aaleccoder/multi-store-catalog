@@ -30,15 +30,10 @@ export async function POST(request: NextRequest) {
         // Upload to MinIO
         const url = await uploadFile(buffer, file.name, file.type)
 
-        // Save to database
-        const media = await prisma.media.create({
-            data: {
-                url,
-                alt: parsedAlt.data.alt || file.name,
-            },
+        return NextResponse.json({
+            url,
+            alt: parsedAlt.data.alt || file.name,
         })
-
-        return NextResponse.json(media)
     } catch (error) {
         console.error('Error uploading file:', error)
         return NextResponse.json(

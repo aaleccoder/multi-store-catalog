@@ -43,7 +43,7 @@ model Product {
   slug             String       @unique
   description      String
   shortDescription String?
-  coverImages      Json[]
+  coverImages      Media[]
   prices           Price[]
   specifications   Json
   filterValues     Json[]
@@ -84,9 +84,11 @@ model Price {
 }
 
 model Media {
-  id  String @id @default(cuid())
-  alt String
-  url String
+  id        String  @id @default(cuid())
+  alt       String
+  url       String
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model User {

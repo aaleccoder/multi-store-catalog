@@ -188,19 +188,13 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {products.map((product: any) => {
-            // Get primary image or first image
-            // coverImages can come in two shapes depending on source:
-            // - { url: string, alt?: string, isPrimary?: boolean }
-            // - { image: { url: string }, alt?: string, isPrimary?: boolean }
-            const primaryImage = product.coverImages?.find((img: any) => img.isPrimary)
-            const imageData = primaryImage || product.coverImages?.[0]
-            const image = ((imageData as any)?.url as string) ? { url: (imageData as any).url } : imageData?.image
+            const imageData = product.coverImages?.[0]
+            const imageUrl = imageData?.url || ''
 
             // Prepare all images for carousel
             const images = product.coverImages
               ?.map((img: any) => ({
-                // prefer `img.url` for our Media model, but keep support for legacy `img.image.url`
-                url: ((img as any).url as string) || img.image?.url || '',
+                url: img.url || '',
                 alt: img.alt || product.name,
               }))
               .filter((img: any) => img.url) // Filter out images without URL
@@ -228,7 +222,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                   })()
                 }
                 currency={(product.prices?.find((p: any) => p.isDefault)?.currency ?? null) as any}
-                image={image?.url || ((imageData as any)?.url as string) || ''}
+                image={imageUrl}
                 imageAlt={imageData?.alt || product.name}
                 images={images}
                 slug={product.slug}

@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     },
     include: {
       category: true,
+      coverImages: true,
     },
   })
 
@@ -51,8 +52,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
   }
 
   const coverImages = (product.coverImages as any[]) || []
-  const primaryImage = coverImages.find((img: any) => img.isPrimary)
-  const imageData = primaryImage || coverImages[0]
+  const imageData = coverImages[0]
   const imageUrl = imageData?.url || ''
 
   const metaData = product.metaData as any
@@ -88,6 +88,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       category: true,
       subcategory: true,
       prices: { include: { currency: true } },
+      coverImages: true,
     },
   })
 
@@ -97,7 +98,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   // Extract product data
   const coverImages = (product.coverImages as any[]) || []
-  const primaryImage = coverImages.find((img: any) => img.isPrimary)
   const allImages = coverImages
 
   const defaultPriceObj = (product as any).prices?.find((p: any) => p.isDefault) || (product as any).prices?.[0]
@@ -112,7 +112,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     : 0
 
   // Get the primary image URL
-  const imageData = primaryImage || coverImages[0]
+  const imageData = coverImages[0]
   const primaryImageUrl = imageData?.url || ''
   const primaryImageAlt = imageData?.alt || product.name
 
@@ -126,6 +126,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     include: {
       category: true,
       prices: { include: { currency: true } },
+      coverImages: true,
     },
     take: 4,
   })
@@ -307,10 +308,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => {
                   const relatedCoverImages = (relatedProduct.coverImages as any[]) || []
-                  const relatedPrimaryImage = relatedCoverImages.find(
-                    (img: any) => img.isPrimary,
-                  )
-                  const relatedImageData = relatedPrimaryImage || relatedCoverImages[0]
+                  const relatedImageData = relatedCoverImages[0]
                   const relatedImageUrl = relatedImageData?.url || ''
 
                   const relatedDefaultPriceObj = (relatedProduct as any).prices?.find((p: any) => p.isDefault) || (relatedProduct as any).prices?.[0]

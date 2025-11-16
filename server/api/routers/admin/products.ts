@@ -23,7 +23,12 @@ export const adminProductsRouter = router({
                 shortDescription: payload.shortDescription,
                 categoryId: payload.categoryId,
                 subcategoryId: resolvedSubcategoryId,
-                coverImages: payload.coverImages || [],
+                coverImages: {
+                    create: (payload.coverImages || []).map((image: any) => ({
+                        url: image.url,
+                        alt: image.alt,
+                    })),
+                },
                 specifications: payload.specifications || {},
                 filterValues: payload.filterValues || [],
                 tags: payload.tags || [],
@@ -57,7 +62,7 @@ export const adminProductsRouter = router({
 
     get: protectedProcedure.input(z.string()).query(async ({ input }) => {
         const id = input
-        const product = await prisma.product.findUnique({ where: { id }, include: { category: true, subcategory: true, prices: { include: { currency: true } } } })
+        const product = await prisma.product.findUnique({ where: { id }, include: { coverImages: true, category: true, subcategory: true, prices: { include: { currency: true } } } })
         if (!product) throw new Error('Product not found')
 
         return {
@@ -80,28 +85,32 @@ export const adminProductsRouter = router({
             resolvedSubcategoryId = subcategory.id
         }
 
+        const { coverImages, prices, ...restOfData } = data
+
         const product = await prisma.product.update({
-            where: { id }, data: {
-                name: data.name,
-                slug: data.slug,
-                description: data.description,
-                shortDescription: data.shortDescription,
-                categoryId: data.categoryId,
+            where: { id },
+            data: {
+                ...restOfData,
                 subcategoryId: resolvedSubcategoryId,
-                coverImages: data.coverImages,
-                specifications: data.specifications,
-                filterValues: data.filterValues,
-                tags: data.tags,
-                metaData: data.metaData,
-                isActive: data.isActive,
-                inStock: data.inStock,
-                featured: data.featured,
             }
         })
 
-        if (Array.isArray(data.prices) && data.prices.length > 0) {
+        if (coverImages) {
+            await prisma.media.deleteMany({ where: { productId: id } })
+            if (coverImages.length > 0) {
+                await prisma.media.createMany({
+                    data: coverImages.map((image: any) => ({
+                        url: image.url,
+                        alt: image.alt,
+                        productId: id,
+                    })),
+                })
+            }
+        }
+
+        if (Array.isArray(prices) && prices.length > 0) {
             await prisma.price.deleteMany({ where: { productId: id } })
-            for (const p of data.prices) {
+            for (const p of prices) {
                 const currency = await prisma.currency.findFirst({ where: { code: p.currency } })
                 if (currency) {
                     await prisma.price.create({

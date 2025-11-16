@@ -16,11 +16,12 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AdminNav } from '@/components/admin/admin-nav'
-import { Upload, X, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Upload, Loader2, Plus, Trash2, Star } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { trpc } from '@/trpc/client'
+import { ProductInput, Specifications } from '@/lib/api-validators'
 
 interface Category {
     id: string
@@ -33,30 +34,9 @@ interface Subcategory {
     categoryId: string
 }
 
-interface ProductFormData {
-    name: string
-    slug: string
-    description: string
-    shortDescription: string
-    categoryId: string
-    subcategoryId: string
+type ProductFormData = Omit<ProductInput, 'coverImages' | 'specifications'> & {
     coverImages: Array<{ url: string; alt: string; isPrimary: boolean; isUploaded: boolean; file?: File }>
-    // pricing JSON removed; use `prices` list instead
-    prices?: Array<{ price: number; salePrice?: number | null; currency: string; isDefault?: boolean; taxIncluded?: boolean }>
-    specifications: {
-        sku?: string
-        weight?: number
-        weightUnit?: string
-        dimensions?: {
-            length: number
-            width: number
-            height: number
-            unit: string
-        }
-    }
-    isActive: boolean
-    inStock: boolean
-    featured: boolean
+    specifications: Specifications
 }
 
 interface PriceInput {
@@ -74,7 +54,6 @@ interface ProductFormProps {
 export function ProductForm({ productId }: ProductFormProps) {
     const router = useRouter()
     const [saving, setSaving] = useState(false)
-    const [uploadingImage, setUploadingImage] = useState(false)
 
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
@@ -121,7 +100,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 shortDescription: product.shortDescription || '',
                 categoryId: product.categoryId,
                 subcategoryId: product.subcategoryId || '',
-                coverImages: (product.coverImages || []).map((img: any) => ({ ...img, isUploaded: true })),
+                coverImages: (product.coverImages || []).map((img: any, index: number) => ({ ...img, isUploaded: true, isPrimary: index === 0 })),
                 prices: (product.prices || []).map((p: any) => ({
                     price: p.amount ?? p.price ?? 0,
                     salePrice: p.saleAmount ?? p.salePrice ?? undefined,
@@ -196,7 +175,6 @@ export function ProductForm({ productId }: ProductFormProps) {
             let updatedCoverImages = formData.coverImages
             const pendingImages = formData.coverImages.filter(img => !img.isUploaded)
             if (pendingImages.length > 0) {
-                setUploadingImage(true)
                 let uploadToastId: string | number | undefined
                 try {
                     uploadToastId = toast.loading('Uploading images...')
@@ -228,14 +206,16 @@ export function ProductForm({ productId }: ProductFormProps) {
                     toast.error('Error al subir imágenes', { id: uploadToastId })
                     setSaving(false)
                     return
-                } finally {
-                    setUploadingImage(false)
                 }
             }
 
+            const primaryImage = updatedCoverImages.find(img => img.isPrimary);
+            const otherImages = updatedCoverImages.filter(img => !img.isPrimary);
+            const orderedImages = primaryImage ? [primaryImage, ...otherImages] : otherImages;
+
             const submitData = {
                 ...formData,
-                coverImages: updatedCoverImages.map((img) => ({ url: img.url, alt: img.alt, isPrimary: img.isPrimary })),
+                coverImages: orderedImages.map((img) => ({ url: img.url, alt: img.alt })),
             }
             // If prices are provided, attach them to the payload using currency codes (server expects `currency` code)
             if (submitData.prices && submitData.prices.length > 0) {
@@ -296,12 +276,6 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <CardTitle>Información Básica</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {uploadingImage && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Subiendo imágenes... Por favor espera.
-                                    </div>
-                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Nombre *</Label>
                                     <Input
@@ -554,7 +528,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                     {formData.coverImages.map((img, index) =>
                                         img.url ? (
-                                            <div key={index} className="relative group">
+                                            <div key={index} className="flex flex-col gap-2">
                                                 <div className="aspect-square relative rounded-lg overflow-hidden border-2 border-border">
                                                     <Image
                                                         src={img.url}
@@ -567,31 +541,26 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                             Principal
                                                         </div>
                                                     )}
-                                                    {!img.isUploaded && (
-                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                            <Loader2 className="h-6 w-6 animate-spin text-white" />
-                                                        </div>
-                                                    )}
-                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                        {!img.isPrimary && (
-                                                            <Button
-                                                                type="button"
-                                                                size="sm"
-                                                                variant="secondary"
-                                                                onClick={() => setPrimaryImage(index)}
-                                                            >
-                                                                Establecer como Principal
-                                                            </Button>
-                                                        )}
+                                                </div>
+                                                <div className="flex gap-2 justify-center">
+                                                    {!img.isPrimary && (
                                                         <Button
                                                             type="button"
                                                             size="sm"
-                                                            variant="destructive"
-                                                            onClick={() => removeImage(index)}
+                                                            variant="secondary"
+                                                            onClick={() => setPrimaryImage(index)}
                                                         >
-                                                            <X className="h-4 w-4" />
+                                                            <Star className="h-4 w-4" />
                                                         </Button>
-                                                    </div>
+                                                    )}
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        onClick={() => removeImage(index)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         ) : null
@@ -600,7 +569,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     <label className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                                         <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                                         <span className="text-sm text-muted-foreground">
-                                            {uploadingImage ? 'Subiendo...' : 'Agregar Imágenes'}
+                                            Agregar Imágenes
                                         </span>
                                         <input
                                             type="file"
@@ -608,7 +577,6 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             accept="image/*"
                                             onChange={handleImageUpload}
                                             className="hidden"
-                                            disabled={uploadingImage}
                                         />
                                         <div className="block sm:hidden text-xs text-muted-foreground mt-2 text-center">Consejo: Sube hasta múltiples imágenes, marca una como principal después.</div>
                                     </label>
@@ -628,11 +596,11 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     <Label htmlFor="sku">SKU</Label>
                                     <Input
                                         id="sku"
-                                        value={formData.specifications.sku || ''}
+                                        value={(formData.specifications || {}).sku || ''}
                                         onChange={(e) =>
                                             setFormData({
                                                 ...formData,
-                                                specifications: { ...formData.specifications, sku: e.target.value },
+                                                specifications: { ...(formData.specifications || {}), sku: e.target.value },
                                             })
                                         }
                                     />
@@ -645,12 +613,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             id="weight"
                                             type="number"
                                             step="0.01"
-                                            value={formData.specifications.weight || ''}
+                                            value={(formData.specifications || {}).weight || ''}
                                             onChange={(e) =>
                                                 setFormData({
                                                     ...formData,
                                                     specifications: {
-                                                        ...formData.specifications,
+                                                        ...(formData.specifications || {}),
                                                         weight: e.target.value ? parseFloat(e.target.value) : undefined,
                                                     },
                                                 })
@@ -659,20 +627,166 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="weightUnit">Unidad de Peso</Label>
-                                        <Input
-                                            id="weightUnit"
-                                            value={formData.specifications.weightUnit || 'g'}
-                                            onChange={(e) =>
+                                        <Label>Unidad de Peso</Label>
+                                        <Select
+                                            value={(formData.specifications || {}).weightUnit || 'g'}
+                                            onValueChange={(value) =>
                                                 setFormData({
                                                     ...formData,
                                                     specifications: {
-                                                        ...formData.specifications,
-                                                        weightUnit: e.target.value,
+                                                        ...(formData.specifications || {}),
+                                                        weightUnit: value,
                                                     },
                                                 })
                                             }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="g">g</SelectItem>
+                                                <SelectItem value="kg">kg</SelectItem>
+                                                <SelectItem value="lbs">lbs</SelectItem>
+                                                <SelectItem value="oz">oz</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="volume">Volumen</Label>
+                                        <Input
+                                            id="volume"
+                                            type="number"
+                                            step="0.01"
+                                            value={(formData.specifications || {}).volume || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                setFormData({
+                                                    ...formData,
+                                                    specifications: {
+                                                        ...(formData.specifications || {}),
+                                                        volume: value,
+                                                    },
+                                                })
+                                            }}
                                         />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Unidad de Volumen</Label>
+                                        <Select
+                                            value={(formData.specifications || {}).volumeUnit || 'ml'}
+                                            onValueChange={(value) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    specifications: {
+                                                        ...(formData.specifications || {}),
+                                                        volumeUnit: value,
+                                                    },
+                                                })
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="ml">ml</SelectItem>
+                                                <SelectItem value="l">l</SelectItem>
+                                                <SelectItem value="fl oz">fl oz</SelectItem>
+                                                <SelectItem value="gal">gal</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Dimensiones</Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="length">Largo</Label>
+                                            <Input
+                                                id="length"
+                                                type="number"
+                                                step="0.01"
+                                                value={(formData.specifications || {}).dimensions?.length || ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                    setFormData({
+                                                        ...formData,
+                                                        specifications: {
+                                                            ...(formData.specifications || {}),
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), length: value },
+                                                        },
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="width">Ancho</Label>
+                                            <Input
+                                                id="width"
+                                                type="number"
+                                                step="0.01"
+                                                value={(formData.specifications || {}).dimensions?.width || ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                    setFormData({
+                                                        ...formData,
+                                                        specifications: {
+                                                            ...(formData.specifications || {}),
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), width: value },
+                                                        },
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="height">Alto</Label>
+                                            <Input
+                                                id="height"
+                                                type="number"
+                                                step="0.01"
+                                                value={(formData.specifications || {}).dimensions?.height || ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                    setFormData({
+                                                        ...formData,
+                                                        specifications: {
+                                                            ...(formData.specifications || {}),
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), height: value },
+                                                        },
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Unidad</Label>
+                                            <Select
+                                                value={(formData.specifications || {}).dimensions?.unit || 'cm'}
+                                                onValueChange={(value) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        specifications: {
+                                                            ...(formData.specifications || {}),
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), unit: value },
+                                                        },
+                                                    })
+                                                }
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="mm">mm</SelectItem>
+                                                    <SelectItem value="cm">cm</SelectItem>
+                                                    <SelectItem value="m">m</SelectItem>
+                                                    <SelectItem value="in">in</SelectItem>
+                                                    <SelectItem value="ft">ft</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
                                 </div>
                             </CardContent>

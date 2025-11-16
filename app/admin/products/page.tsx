@@ -44,7 +44,7 @@ interface Product {
     [key: string]: unknown
 }
 
-type Media = { id?: string; alt?: string; url?: string; isPrimary?: boolean }
+type Media = { id: string; alt: string; url: string; productId?: string | null }
 type PriceType = { id?: string; amount?: number | string; saleAmount?: number | string | null; currency?: string | null; isDefault?: boolean }
 type CategoryList = { id: string; name: string }
 type SubcategoryList = { id: string; name: string }
@@ -59,9 +59,8 @@ export default function ProductsPage() {
             header: 'Imagen',
             accessor: 'coverImages',
             render: (p: Product) => {
-                const coverImages = (p.coverImages as Media[]) || []
-                const primaryImage = coverImages.find((img) => img.isPrimary)
-                const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
+                const coverImages = p.coverImages || []
+                const imageUrl = coverImages[0]?.url || ''
 
                 return imageUrl ? (
                     <div className="relative w-12 h-12 rounded overflow-hidden">
@@ -201,9 +200,8 @@ export default function ProductsPage() {
                                             </TableRow>
                                         ) : (
                                             items.map((product: Product) => {
-                                                const coverImages = (product.coverImages as Media[]) || []
-                                                const primaryImage = coverImages.find((img) => img.isPrimary)
-                                                const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
+                                                const coverImages = product.coverImages || []
+                                                const imageUrl = coverImages[0]?.url || ''
                                                 const defaultPriceObj = (product as Product).prices?.find((p) => p.isDefault) || (product as Product).prices?.[0]
                                                 const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
 

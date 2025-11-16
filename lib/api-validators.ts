@@ -38,6 +38,20 @@ export const priceInputSchema = z.object({
     taxIncluded: z.boolean().optional(),
 })
 
+export const specificationsSchema = z.object({
+    sku: z.string().optional(),
+    weight: z.number().optional(),
+    weightUnit: z.string().optional(),
+    dimensions: z.object({
+        length: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        unit: z.string().optional(),
+    }).optional(),
+    volume: z.number().optional(),
+    volumeUnit: z.string().optional(),
+}).optional()
+
 export const productSchema = z.object({
     name: z.string().min(1),
     slug: z.string().min(1),
@@ -46,7 +60,7 @@ export const productSchema = z.object({
     categoryId: idString,
     subcategoryId: z.string().optional().nullable(),
     coverImages: z.array(z.any()).optional(),
-    specifications: z.any().optional(),
+    specifications: specificationsSchema,
     filterValues: z.array(z.any()).optional(),
     tags: z.array(z.any()).optional(),
     metaData: z.any().optional(),
@@ -64,8 +78,6 @@ export const productSchema = z.object({
 
 export const mediaAltSchema = z.object({ alt: z.string().optional() })
 
-// For update endpoints we will reuse the same shape (server expects values) but you
-// could make fields optional if you want partial updates.
 export const productUpdateSchema = productSchema
 export const categoryUpdateSchema = categorySchema
 export const subcategoryUpdateSchema = subcategorySchema
@@ -74,3 +86,4 @@ export const currencyUpdateSchema = currencySchema
 export type ProductInput = z.infer<typeof productSchema>
 export type CategoryInput = z.infer<typeof categorySchema>
 export type SubcategoryInput = z.infer<typeof subcategorySchema>
+export type Specifications = z.infer<typeof specificationsSchema>
