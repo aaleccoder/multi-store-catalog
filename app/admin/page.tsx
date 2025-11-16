@@ -12,7 +12,6 @@ export default async function AdminDashboard() {
     // Session is already validated in the layout
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
 
             <main className="lg:pl-64 pt-20 lg:pt-0">
                 <div className="p-8">

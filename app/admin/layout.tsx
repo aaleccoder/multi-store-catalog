@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { Montserrat } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -13,6 +14,7 @@ export const metadata = {
 }
 
 import '../globals.css'
+import { AdminNav } from '@/components/admin/AdminNav'
 
 export default async function AdminLayout({
     children,
@@ -31,7 +33,12 @@ export default async function AdminLayout({
     return (
         <html lang="es">
             <body className={montserrat.className}>
-                {children}
+                <SidebarProvider>
+                    <AdminNav />
+                    <SidebarInset>
+                        {children}
+                    </SidebarInset>
+                </SidebarProvider>
                 <Toaster />
             </body>
         </html>
