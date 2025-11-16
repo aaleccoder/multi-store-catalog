@@ -27,3 +27,17 @@ export async function requireAuth(redirectTo?: string) {
 
     return session
 }
+
+export async function getApiSession(request: Request | import('next/server').NextRequest) {
+    try {
+        const session = await auth.api.getSession({ headers: request.headers })
+        return session
+    } catch {
+        return null
+    }
+}
+
+export async function requireApiAuth(request: Request | import('next/server').NextRequest) {
+    const session = await getApiSession(request)
+    return session
+}

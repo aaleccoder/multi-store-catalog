@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireApiAuth } from '@/lib/session'
 import { prisma } from '@/lib/db'
+import { productUpdateSchema } from '@/lib/api-validators'
 import { toNumber } from '@/lib/number'
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const { id } = await params
 
@@ -46,35 +52,57 @@ export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const { id } = await params
         const data = await request.json()
+        const parsed = productUpdateSchema.safeParse(data)
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 })
+        }
+
+        const payload = parsed.data
+
+        // Resolve subcategory the same way as create
+        let resolvedSubcategoryId: string | undefined = undefined
+        if (typeof payload.subcategoryId === 'string' && payload.subcategoryId.trim() !== '') {
+            const subcategory = await prisma.subcategory.findFirst({
+                where: { OR: [{ id: payload.subcategoryId }, { slug: payload.subcategoryId }] },
+            })
+            if (!subcategory) {
+                return NextResponse.json({ error: 'Subcategory not found' }, { status: 400 })
+            }
+            resolvedSubcategoryId = subcategory.id
+        }
 
         const product = await prisma.product.update({
             where: { id },
             data: {
-                name: data.name,
-                slug: data.slug,
-                description: data.description,
-                shortDescription: data.shortDescription,
-                categoryId: data.categoryId,
-                subcategoryId: data.subcategoryId,
-                coverImages: data.coverImages,
-                specifications: data.specifications,
-                filterValues: data.filterValues,
-                tags: data.tags,
-                metaData: data.metaData,
-                isActive: data.isActive,
-                inStock: data.inStock,
-                featured: data.featured,
+                name: payload.name,
+                slug: payload.slug,
+                description: payload.description,
+                shortDescription: payload.shortDescription,
+                categoryId: payload.categoryId,
+                subcategoryId: resolvedSubcategoryId,
+                coverImages: payload.coverImages,
+                specifications: payload.specifications,
+                filterValues: payload.filterValues,
+                tags: payload.tags,
+                metaData: payload.metaData,
+                isActive: payload.isActive,
+                inStock: payload.inStock,
+                featured: payload.featured,
             },
         })
 
         // Update prices (simple approach: remove existing and create new if provided)
-        if (Array.isArray(data.prices) && data.prices.length > 0) {
+        if (Array.isArray(payload.prices) && payload.prices.length > 0) {
             await prisma.price.deleteMany({ where: { productId: id } })
 
-            for (const p of data.prices) {
+            for (const p of payload.prices) {
                 const currency = await prisma.currency.findFirst({ where: { code: p.currency } })
                 if (currency) {
                     await prisma.price.create({
@@ -105,6 +133,10 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const { id } = await params
 

@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireApiAuth } from '@/lib/session'
 import { uploadFile } from '@/lib/minio'
+import { mediaAltSchema } from '@/lib/api-validators'
 import { prisma } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const formData = await request.formData()
         const file = formData.get('file') as File
         const alt = formData.get('alt') as string
+        // Validate alt with Zod
+        const parsedAlt = mediaAltSchema.safeParse({ alt })
+        if (!parsedAlt.success) {
+            return NextResponse.json({ error: 'Invalid input', issues: parsedAlt.error.issues }, { status: 400 })
+        }
 
         if (!file) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -23,7 +34,7 @@ export async function POST(request: NextRequest) {
         const media = await prisma.media.create({
             data: {
                 url,
-                alt: alt || file.name,
+                alt: parsedAlt.data.alt || file.name,
             },
         })
 
@@ -38,6 +49,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const searchParams = request.nextUrl.searchParams
         const page = parseInt(searchParams.get('page') || '1')

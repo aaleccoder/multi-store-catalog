@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireApiAuth } from '@/lib/session'
 import { prisma } from '@/lib/db'
+import { categorySchema } from '@/lib/api-validators'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const categories = await prisma.category.findMany({
             include: {
@@ -23,16 +29,26 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+    const session = await requireApiAuth(request)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     try {
         const data = await request.json()
+        const parsed = categorySchema.safeParse(data)
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 })
+        }
+
+        const payload = parsed.data
 
         const category = await prisma.category.create({
             data: {
-                name: data.name,
-                slug: data.slug,
-                description: data.description,
-                isActive: data.isActive ?? true,
-                filters: data.filters || [],
+                name: payload.name,
+                slug: payload.slug,
+                description: payload.description,
+                isActive: payload.isActive ?? true,
+                filters: payload.filters || [],
             },
         })
 
