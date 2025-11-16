@@ -319,8 +319,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     : 0
                   const relatedRegularPrice = relatedDefaultPriceObj
                     ? (relatedDefaultPriceObj.saleAmount
-                        ? parseNumeric(relatedDefaultPriceObj.amount)
-                        : undefined)
+                      ? parseNumeric(relatedDefaultPriceObj.amount)
+                      : undefined)
                     : undefined
                   const relatedCurrency = relatedDefaultPriceObj?.currency ?? null
 
