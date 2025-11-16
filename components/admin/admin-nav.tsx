@@ -26,7 +26,7 @@ import {
 import LeaLogo from '../lea-logo'
 import router from 'next/router'
 import { useSession } from 'better-auth/react'
-import { Role } from '@/generated/prisma'
+import { Role } from '@/generated/prisma/enums'
 
 const navigation = [
     { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },

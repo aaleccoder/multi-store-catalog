@@ -1,7 +1,7 @@
 import { router, adminProcedure } from '../../trpc'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
-import { Role } from '@/generated/prisma'
+import { Role } from '@/generated/prisma/enums'
 
 export const adminUsersRouter = router({
     list: adminProcedure.query(async () => {

@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server'
 import { ZodError } from 'zod'
 import { getApiSession } from '@/lib/session'
-import { Role } from '../../generated/prisma'
+import { Role } from '../../generated/prisma/enums'
 
 type Context = {
     session: Awaited<ReturnType<typeof getApiSession>>
