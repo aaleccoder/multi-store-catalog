@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AdminNav } from '@/components/admin/AdminNav'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { Upload, X, Loader2, Plus, Trash2 } from 'lucide-react'
+import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
 
 interface Category {
@@ -38,12 +39,8 @@ interface ProductFormData {
     categoryId: string
     subcategoryId: string
     coverImages: Array<{ url: string; alt: string; isPrimary: boolean; isUploaded: boolean; file?: File }>
-    pricing: {
-        price: number
-        salePrice?: number
-        currency: string
-        taxIncluded: boolean
-    }
+    // pricing JSON removed; use `prices` list instead
+    prices?: Array<{ price: number; salePrice?: number | null; currency: string; isDefault?: boolean; taxIncluded?: boolean }>
     specifications: {
         sku?: string
         weight?: number
@@ -60,6 +57,14 @@ interface ProductFormData {
     featured: boolean
 }
 
+interface PriceInput {
+    price: number
+    salePrice?: number | null
+    currency: string
+    isDefault?: boolean
+    taxIncluded?: boolean
+}
+
 interface ProductFormProps {
     productId?: string
 }
@@ -71,6 +76,7 @@ export function ProductForm({ productId }: ProductFormProps) {
     const [categories, setCategories] = useState<Category[]>([])
     const [subcategories, setSubcategories] = useState<Subcategory[]>([])
     const [uploadingImage, setUploadingImage] = useState(false)
+    const [currencies, setCurrencies] = useState<Currency[]>([])
 
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
@@ -80,22 +86,21 @@ export function ProductForm({ productId }: ProductFormProps) {
         categoryId: '',
         subcategoryId: '',
         coverImages: [],
-        pricing: {
-            price: 0,
-            currency: 'USD',
-            taxIncluded: true,
-        },
+        // pricing removed in favor of `prices`
+        prices: [],
         specifications: {},
         isActive: true,
         inStock: true,
         featured: false,
     })
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCategories()
         if (productId) {
             fetchProduct()
         }
+        fetchCurrencies()
     }, [productId])
 
     useEffect(() => {
@@ -140,7 +145,14 @@ export function ProductForm({ productId }: ProductFormProps) {
                 categoryId: product.categoryId,
                 subcategoryId: product.subcategoryId || '',
                 coverImages: (product.coverImages || []).map((img: { url: string; alt: string; isPrimary: boolean }) => ({ ...img, isUploaded: true })),
-                pricing: product.pricing || { price: 0, currency: 'USD', taxIncluded: true },
+                // We manage prices with `prices` instead of a single `pricing` JSON field
+                prices: (product.prices || []).map((p: any) => ({
+                    price: p.amount ?? p.price ?? 0,
+                    salePrice: p.saleAmount ?? p.salePrice ?? undefined,
+                    currency: p.currency?.code || p.currency || '',
+                    isDefault: p.isDefault ?? false,
+                    taxIncluded: p.taxIncluded ?? true,
+                })),
                 specifications: product.specifications || {},
                 isActive: product.isActive,
                 inStock: product.inStock,
@@ -150,6 +162,16 @@ export function ProductForm({ productId }: ProductFormProps) {
             console.error('Error fetching product:', error)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const fetchCurrencies = async () => {
+        try {
+            const res = await fetch('/api/currencies')
+            const data = await res.json()
+            setCurrencies(data || [])
+        } catch (error) {
+            console.error('Error fetching currencies:', error)
         }
     }
 
@@ -186,7 +208,6 @@ export function ProductForm({ productId }: ProductFormProps) {
             URL.revokeObjectURL(img.url)
         }
         const newImages = formData.coverImages.filter((_, i) => i !== index)
-        // If we removed the primary image, make the first one primary
         if (img.isPrimary && newImages.length > 0) {
             newImages[0].isPrimary = true
         }
@@ -206,7 +227,6 @@ export function ProductForm({ productId }: ProductFormProps) {
         setSaving(true)
 
         try {
-            // Upload pending images first
             let updatedCoverImages = formData.coverImages
             const pendingImages = formData.coverImages.filter(img => !img.isUploaded)
             if (pendingImages.length > 0) {
@@ -244,7 +264,20 @@ export function ProductForm({ productId }: ProductFormProps) {
                 }
             }
 
-            const submitData = { ...formData, coverImages: updatedCoverImages.map(({ file, ...img }) => img) }
+            const submitData = {
+                ...formData,
+                coverImages: updatedCoverImages.map((img) => ({ url: img.url, alt: img.alt, isPrimary: img.isPrimary, isUploaded: img.isUploaded })),
+            }
+            // If prices are provided, attach them to the payload using currency codes (server expects `currency` code)
+            if (submitData.prices && submitData.prices.length > 0) {
+                submitData.prices = (submitData.prices as PriceInput[]).map((p) => ({
+                    price: p.price,
+                    salePrice: p.salePrice ?? null,
+                    currency: p.currency,
+                    isDefault: p.isDefault ?? false,
+                    taxIncluded: p.taxIncluded ?? true,
+                }))
+            }
 
             const url = productId
                 ? `/api/admin/products/${productId}`
@@ -350,6 +383,112 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         rows={6}
                                         required
                                     />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Prices (multiple currencies) */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Prices (multiple currencies)</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {(formData.prices ?? []).map((p, idx) => (
+                                    <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                                        <div className="space-y-2">
+                                            <Label>Currency</Label>
+                                            <Select
+                                                value={p.currency || currencies[0]?.code || 'USD'}
+                                                onValueChange={(value) => {
+                                                    const newPrices = [...(formData.prices || [])]
+                                                    newPrices[idx] = { ...newPrices[idx], currency: value }
+                                                    setFormData({ ...formData, prices: newPrices })
+                                                }}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select currency" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {currencies.map((c) => (
+                                                        <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Price</Label>
+                                            <Input
+                                                type="number"
+                                                step="0.01"
+                                                value={p.price}
+                                                onChange={(e) => {
+                                                    const value = parseFloat(e.target.value)
+                                                    const newPrices = [...(formData.prices || [])]
+                                                    newPrices[idx] = { ...newPrices[idx], price: isNaN(value) ? 0 : value }
+                                                    setFormData({ ...formData, prices: newPrices })
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Sale Price</Label>
+                                            <Input
+                                                type="number"
+                                                step="0.01"
+                                                value={p.salePrice ?? ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                    const newPrices = [...(formData.prices || [])]
+                                                    newPrices[idx] = { ...newPrices[idx], salePrice: value }
+                                                    setFormData({ ...formData, prices: newPrices })
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Tax Included</Label>
+                                            <Switch
+                                                checked={p.taxIncluded ?? true}
+                                                onCheckedChange={(checked) => {
+                                                    const newPrices = [...(formData.prices || [])]
+                                                    newPrices[idx] = { ...newPrices[idx], taxIncluded: checked }
+                                                    setFormData({ ...formData, prices: newPrices })
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Default</Label>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const newPrices = (formData.prices || []).map((x, i) => ({ ...x, isDefault: i === idx }))
+                                                        setFormData({ ...formData, prices: newPrices })
+                                                    }}
+                                                >
+                                                    Set
+                                                </Button>
+                                                <Button size="sm" variant="destructive" onClick={() => {
+                                                    const newPrices = (formData.prices || []).filter((_, i) => i !== idx)
+                                                    setFormData({ ...formData, prices: newPrices })
+                                                }}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div>
+                                    <Button type="button" onClick={() => {
+                                        const defaultCurrency = currencies[0]?.code || 'USD'
+                                        const newPrices = [...(formData.prices || []), { price: 0, salePrice: undefined, currency: defaultCurrency, isDefault: (formData.prices?.length ?? 0) === 0, taxIncluded: true }]
+                                        setFormData({ ...formData, prices: newPrices })
+                                    }}>
+                                        <Plus className="h-4 w-4 mr-2" /> Add Price
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -473,79 +612,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             </CardContent>
                         </Card>
 
-                        {/* Pricing */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Pricing</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="price">Price *</Label>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            value={formData.pricing.price}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    pricing: { ...formData.pricing, price: parseFloat(e.target.value) },
-                                                })
-                                            }
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="salePrice">Sale Price</Label>
-                                        <Input
-                                            id="salePrice"
-                                            type="number"
-                                            step="0.01"
-                                            value={formData.pricing.salePrice || ''}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    pricing: {
-                                                        ...formData.pricing,
-                                                        salePrice: e.target.value ? parseFloat(e.target.value) : undefined,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="currency">Currency</Label>
-                                        <Input
-                                            id="currency"
-                                            value={formData.pricing.currency}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    pricing: { ...formData.pricing, currency: e.target.value },
-                                                })
-                                            }
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="taxIncluded"
-                                        checked={formData.pricing.taxIncluded}
-                                        onCheckedChange={(checked) =>
-                                            setFormData({
-                                                ...formData,
-                                                pricing: { ...formData.pricing, taxIncluded: checked },
-                                            })
-                                        }
-                                    />
-                                    <Label htmlFor="taxIncluded">Tax Included</Label>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        {/* Pricing: handled by `Prices (multiple currencies)` section below */}
 
                         {/* Specifications */}
                         <Card>

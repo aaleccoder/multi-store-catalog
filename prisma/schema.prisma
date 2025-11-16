@@ -44,7 +44,7 @@ model Product {
   description      String
   shortDescription String?
   coverImages      Json[]
-  pricing          Json
+  prices           Price[]
   specifications   Json
   filterValues     Json[]
   isActive         Boolean      @default(true)
@@ -68,6 +68,19 @@ model Currency {
   thousandsSeparator String
   decimalPlaces      Int
   isActive           Boolean @default(true)
+  prices             Price[]
+}
+
+model Price {
+  id          String   @id @default(cuid())
+  amount      Decimal  @db.Decimal(12, 2)
+  saleAmount  Decimal? @db.Decimal(12, 2)
+  currencyId  String
+  currency    Currency @relation(fields: [currencyId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isDefault   Boolean  @default(false)
+  taxIncluded Boolean  @default(true)
 }
 
 model Media {

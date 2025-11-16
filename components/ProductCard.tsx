@@ -346,8 +346,8 @@ export const ProductCard = ({
                   key={index}
                   onClick={handleDotClick(index)}
                   className={`rounded-full transition-all ${index === currentImageIndex
-                      ? 'bg-card w-6 h-2'
-                      : 'bg-card/50 hover:bg-card/75 w-2 h-2'
+                    ? 'bg-card w-6 h-2'
+                    : 'bg-card/50 hover:bg-card/75 w-2 h-2'
                     }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 />

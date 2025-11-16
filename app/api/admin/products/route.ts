@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
                 categoryId: data.categoryId,
                 subcategoryId: data.subcategoryId,
                 coverImages: data.coverImages || [],
-                pricing: data.pricing || {},
                 specifications: data.specifications || {},
                 filterValues: data.filterValues || [],
                 tags: data.tags || [],
@@ -24,6 +23,24 @@ export async function POST(request: NextRequest) {
                 featured: data.featured ?? false,
             },
         })
+
+        if (Array.isArray(data.prices) && data.prices.length > 0) {
+            for (const p of data.prices) {
+                const currency = await prisma.currency.findFirst({ where: { code: p.currency } })
+                if (currency) {
+                    await prisma.price.create({
+                        data: {
+                            amount: p.price || 0,
+                            saleAmount: p.salePrice ?? null,
+                            currencyId: currency.id,
+                            productId: product.id,
+                            isDefault: p.isDefault ?? false,
+                            taxIncluded: p.taxIncluded ?? true,
+                        },
+                    })
+                }
+            }
+        }
 
         return NextResponse.json(product)
     } catch (error) {

@@ -240,8 +240,8 @@ export const FilterSidebarClient = ({
             <SelectItem value="createdAt">Más antiguos</SelectItem>
             <SelectItem value="name">Nombre (A-Z)</SelectItem>
             <SelectItem value="-name">Nombre (Z-A)</SelectItem>
-            <SelectItem value="pricing.price">Precio (menor a mayor)</SelectItem>
-            <SelectItem value="-pricing.price">Precio (mayor a menor)</SelectItem>
+            <SelectItem value="price">Precio (menor a mayor)</SelectItem>
+            <SelectItem value="-price">Precio (mayor a menor)</SelectItem>
             <SelectItem value="-featured">Destacados primero</SelectItem>
           </SelectContent>
         </Select>

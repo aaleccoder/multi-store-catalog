@@ -68,8 +68,8 @@ export const MobileToolbar = () => {
           <SelectItem value="createdAt">Más antiguos</SelectItem>
           <SelectItem value="name">Nombre (A-Z)</SelectItem>
           <SelectItem value="-name">Nombre (Z-A)</SelectItem>
-          <SelectItem value="pricing.price">Precio ↑</SelectItem>
-          <SelectItem value="-pricing.price">Precio ↓</SelectItem>
+          <SelectItem value="price">Precio ↑</SelectItem>
+          <SelectItem value="-price">Precio ↓</SelectItem>
           <SelectItem value="-featured">Destacados</SelectItem>
         </SelectContent>
       </Select>

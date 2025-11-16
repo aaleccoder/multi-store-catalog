@@ -2,6 +2,9 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { Montserrat } from 'next/font/google'
+
+const montserrat = Montserrat({ subsets: ['latin'] })
 
 export const metadata = {
     title: 'Admin - Lea Catalog',
@@ -26,7 +29,7 @@ export default async function AdminLayout({
 
     return (
         <html lang="es">
-            <body>
+            <body className={montserrat.className}>
                 {children}
             </body>
         </html>

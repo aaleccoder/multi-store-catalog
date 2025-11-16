@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
+import { toNumber } from '@/lib/number'
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +18,14 @@ import { Badge } from '@/components/ui/badge'
 import { AdminNav } from '@/components/admin/AdminNav'
 import Link from 'next/link'
 import Image from 'next/image'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
 
 interface Product {
     id: string
@@ -23,7 +33,7 @@ interface Product {
     slug: string
     categoryId: string
     category?: { name: string }
-    pricing: any
+    prices?: any[]
     coverImages: any[]
     inStock: boolean
     isActive: boolean
@@ -34,6 +44,8 @@ export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const [productToDelete, setProductToDelete] = useState<Product | null>(null)
 
     useEffect(() => {
         fetchProducts()
@@ -52,11 +64,21 @@ export default function ProductsPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this product?')) return
+        const product = products.find(p => p.id === id)
+        if (product) {
+            setProductToDelete(product)
+            setDialogOpen(true)
+        }
+    }
+
+    const confirmDelete = async () => {
+        if (!productToDelete) return
 
         try {
-            await fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
+            await fetch(`/api/admin/products/${productToDelete.id}`, { method: 'DELETE' })
             fetchProducts()
+            setDialogOpen(false)
+            setProductToDelete(null)
         } catch (error) {
             console.error('Error deleting product:', error)
         }
@@ -127,8 +149,9 @@ export default function ProductsPage() {
                                         const coverImages = (product.coverImages as any[]) || []
                                         const primaryImage = coverImages.find((img: any) => img.isPrimary)
                                         const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
-                                        const pricing = product.pricing as any
-                                        const price = pricing?.price || 0
+                                        const defaultPriceObj = (product as any).prices?.find((p: any) => p.isDefault) || (product as any).prices?.[0]
+                                        // Convert Prisma Decimal (serialized as string) or other types to number
+                                        const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
 
                                         return (
                                             <TableRow key={product.id}>
@@ -148,7 +171,7 @@ export default function ProductsPage() {
                                                 </TableCell>
                                                 <TableCell className="font-medium">{product.name}</TableCell>
                                                 <TableCell>{product.category?.name || 'N/A'}</TableCell>
-                                                <TableCell>${price.toFixed(2)}</TableCell>
+                                                <TableCell>{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
                                                 <TableCell>
                                                     <div className="flex gap-1">
                                                         {product.isActive ? (
@@ -194,6 +217,25 @@ export default function ProductsPage() {
                     </div>
                 </div>
             </main>
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Deletion</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete &quot;{productToDelete?.name}&quot;? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

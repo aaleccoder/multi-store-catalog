@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { toNumber } from '@/lib/number'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -86,6 +87,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     include: {
       category: true,
       subcategory: true,
+      prices: { include: { currency: true } },
     },
   })
 
@@ -98,10 +100,12 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const primaryImage = coverImages.find((img: any) => img.isPrimary)
   const allImages = coverImages
 
-  const pricing = product.pricing as any
-  const price = pricing?.salePrice || pricing?.price || 0
-  const regularPrice = pricing?.salePrice ? pricing?.price : undefined
-  const currency = pricing?.currency
+  const defaultPriceObj = (product as any).prices?.find((p: any) => p.isDefault) || (product as any).prices?.[0]
+  const parseNumeric = (raw: any) => toNumber(raw)
+
+  const price = defaultPriceObj ? parseNumeric(defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0
+  const regularPrice = defaultPriceObj ? (defaultPriceObj.saleAmount ? parseNumeric(defaultPriceObj.amount) : undefined) : undefined
+  const currency = defaultPriceObj?.currency ?? null
   const hasDiscount = regularPrice && regularPrice > price
   const discountPercentage = hasDiscount
     ? Math.round(((regularPrice - price) / regularPrice) * 100)
@@ -121,6 +125,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     },
     include: {
       category: true,
+      prices: { include: { currency: true } },
     },
     take: 4,
   })
@@ -220,7 +225,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     </span>
                   )}
                 </div>
-                {pricing?.taxIncluded && (
+                {defaultPriceObj?.taxIncluded && (
                   <p className="text-sm text-muted-foreground">Impuestos incluidos</p>
                 )}
               </div>
@@ -308,13 +313,16 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   const relatedImageData = relatedPrimaryImage || relatedCoverImages[0]
                   const relatedImageUrl = relatedImageData?.url || ''
 
-                  const relatedPricing = relatedProduct.pricing as any
-                  const relatedPrice =
-                    relatedPricing?.salePrice || relatedPricing?.price || 0
-                  const relatedRegularPrice = relatedPricing?.salePrice
-                    ? relatedPricing?.price
+                  const relatedDefaultPriceObj = (relatedProduct as any).prices?.find((p: any) => p.isDefault) || (relatedProduct as any).prices?.[0]
+                  const relatedPrice = relatedDefaultPriceObj
+                    ? parseNumeric(relatedDefaultPriceObj.saleAmount ?? relatedDefaultPriceObj.amount)
+                    : 0
+                  const relatedRegularPrice = relatedDefaultPriceObj
+                    ? (relatedDefaultPriceObj.saleAmount
+                        ? parseNumeric(relatedDefaultPriceObj.amount)
+                        : undefined)
                     : undefined
-                  const relatedCurrency = relatedPricing?.currency
+                  const relatedCurrency = relatedDefaultPriceObj?.currency ?? null
 
                   return (
                     <ProductCard

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard,
     Package,
+    DollarSign,
     FolderTree,
     Image as ImageIcon,
     Settings,
@@ -20,9 +21,8 @@ const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Categories', href: '/admin/categories', icon: FolderTree },
+    { name: 'Currencies', href: '/admin/currencies', icon: DollarSign },
     { name: 'Subcategories', href: '/admin/subcategories', icon: FolderTree },
-    { name: 'Media', href: '/admin/media', icon: ImageIcon },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 export function AdminNav() {
     const pathname = usePathname()

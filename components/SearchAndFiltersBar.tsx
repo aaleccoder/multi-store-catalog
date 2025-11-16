@@ -113,8 +113,8 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
                 <SelectItem value="createdAt">Más antiguos</SelectItem>
                 <SelectItem value="name">A-Z</SelectItem>
                 <SelectItem value="-name">Z-A</SelectItem>
-                <SelectItem value="pricing.price">$ Menor</SelectItem>
-                <SelectItem value="-pricing.price">$ Mayor</SelectItem>
+                <SelectItem value="price">$ Menor</SelectItem>
+                <SelectItem value="-price">$ Mayor</SelectItem>
                 <SelectItem value="-featured">Destacados</SelectItem>
               </SelectContent>
             </Select>

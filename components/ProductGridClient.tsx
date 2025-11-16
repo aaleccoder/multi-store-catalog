@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from './ProductCard'
+import { toNumber } from '@/lib/number'
 import { ProductGridSkeleton } from './ProductGridSkeleton'
 import { useLoading } from './LoadingContext'
 import Link from 'next/link'
@@ -30,11 +31,8 @@ interface Product {
   name: string
   slug: string
   shortDescription?: string
-  pricing?: {
-    price?: number
-    salePrice?: number
-    currency?: any | number | string
-  }
+  // Legacy `pricing` removed — use `prices` relation instead
+  prices?: Array<{ amount?: number; saleAmount?: number; currency?: any; isDefault?: boolean }>
   coverImages?: Array<{
     image?: {
       url?: string
@@ -265,8 +263,8 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                 <SelectItem value="createdAt">Más antiguos</SelectItem>
                 <SelectItem value="name">Nombre (A-Z)</SelectItem>
                 <SelectItem value="-name">Nombre (Z-A)</SelectItem>
-                <SelectItem value="pricing.price">Precio (menor a mayor)</SelectItem>
-                <SelectItem value="-pricing.price">Precio (mayor a menor)</SelectItem>
+                <SelectItem value="price">Precio (menor a mayor)</SelectItem>
+                <SelectItem value="-price">Precio (mayor a menor)</SelectItem>
                 <SelectItem value="-featured">Destacados primero</SelectItem>
               </SelectContent>
             </Select>
@@ -294,9 +292,23 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                 id={product.id}
                 name={product.name}
                 description={product.shortDescription || ''}
-                price={product.pricing?.salePrice || product.pricing?.price || 0}
-                regularPrice={product.pricing?.price || 0}
-                currency={product.pricing?.currency}
+                price={
+                  (() => {
+                    const rawPrice =
+                      product.prices?.find((p: any) => p.isDefault)?.saleAmount ??
+                      product.prices?.find((p: any) => p.isDefault)?.amount ??
+                      0
+
+                    return toNumber(rawPrice)
+                  })()
+                }
+                regularPrice={
+                  (() => {
+                    const raw = product.prices?.find((p: any) => p.isDefault)?.amount ?? 0
+                    return toNumber(raw)
+                  })()
+                }
+                currency={(product.prices?.find((p: any) => p.isDefault)?.currency ?? null) as any}
                 image={image?.url || ''}
                 imageAlt={imageData?.alt || product.name}
                 images={images}

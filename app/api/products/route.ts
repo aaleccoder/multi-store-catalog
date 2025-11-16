@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { toNumber } from '@/lib/number'
 
 export async function GET(request: NextRequest) {
     try {
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
 
         // Sort
         const sort = searchParams.get('sort') || '-createdAt'
-        let orderBy: any = {}
+        let orderBy = {}
 
         if (sort === '-createdAt') {
             orderBy = { id: 'desc' }
@@ -23,9 +24,10 @@ export async function GET(request: NextRequest) {
         } else if (sort === '-name') {
             orderBy = { name: 'desc' }
         } else if (sort === 'price') {
-            orderBy = { id: 'asc' } // Can't directly sort by JSON field
+            // Order by the minimum price.amount for the product (first available price)
+            orderBy = { prices: { _min: { amount: 'asc' } } }
         } else if (sort === '-price') {
-            orderBy = { id: 'desc' } // Can't directly sort by JSON field
+            orderBy = { prices: { _max: { amount: 'desc' } } }
         }
 
         // Build where clause
@@ -67,6 +69,28 @@ export async function GET(request: NextRequest) {
             ]
         }
 
+        // Currency filter (select products that have a price in the given currency)
+        const currency = searchParams.get('currency')
+        if (currency) {
+            where.prices = { some: { currencyId: currency } }
+        }
+
+        // Price range filter applied to prices relation
+        const price = searchParams.get('price')
+        if (price) {
+            const [minStr, maxStr] = price.split('-')
+            const min = parseFloat(minStr || '0')
+            const max = parseFloat(maxStr || '0')
+            if (min && max) {
+                if (where.prices) {
+                    // Combine currency and price criteria
+                    where.prices = { some: { currencyId: currency ?? undefined, amount: { gte: min, lte: max } } }
+                } else {
+                    where.prices = { some: { amount: { gte: min, lte: max } } }
+                }
+            }
+        }
+
         // Fetch products with count
         const [products, totalDocs] = await Promise.all([
             prisma.product.findMany({
@@ -74,9 +98,21 @@ export async function GET(request: NextRequest) {
                 orderBy,
                 skip,
                 take: limit,
-                include: {
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    categoryId: true,
                     category: true,
                     subcategory: true,
+                    // pricing JSON removed - use `prices`
+                    prices: {
+                        include: { currency: true }
+                    },
+                    coverImages: true,
+                    inStock: true,
+                    isActive: true,
+                    featured: true,
                 },
             }),
             prisma.product.count({ where }),
@@ -85,7 +121,14 @@ export async function GET(request: NextRequest) {
         const totalPages = Math.ceil(totalDocs / limit)
 
         return NextResponse.json({
-            docs: products,
+            docs: products.map((prod) => ({
+                ...prod,
+                prices: prod.prices?.map((p) => ({
+                    ...p,
+                    amount: toNumber(p.amount),
+                    saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                })) || [],
+            })),
             totalDocs,
             limit,
             totalPages,

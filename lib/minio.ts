@@ -36,7 +36,6 @@ export async function ensureBucketExists() {
     }
 }
 
-// Upload file to MinIO
 export async function uploadFile(
     file: Buffer,
     fileName: string,
@@ -51,11 +50,10 @@ export async function uploadFile(
     })
 
     // Generate public URL
-    const url = `${process.env.MINIO_PUBLIC_URL || `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`}/${BUCKET_NAME}/${objectName}`
+    const path = `/api/media/${objectName}`
 
-    console.log(url);
 
-    return url
+    return path
 }
 
 // Delete file from MinIO

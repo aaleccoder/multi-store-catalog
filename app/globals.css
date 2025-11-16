@@ -5,7 +5,7 @@
 
 :root {
   --font-mono: JetBrains Mono, monospace;
-  --radius: 0.5rem;
+  --radius: 0.25rem;
   --background: oklch(99% 0.001 0); /* Clean white background */
   --foreground: oklch(20% 0.02 0); /* Deep charcoal for text */
   --card: oklch(100% 0 0); /* Pure white cards */
