@@ -18,7 +18,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { Currency } from '@/lib/currency-client'
 
-interface Filter {
+export interface Filter {
   name: string
   slug: string
   type: string
@@ -26,7 +26,9 @@ interface Filter {
   unit?: string
 }
 
-interface FilterSidebarClientProps {
+type FilterValue = string | string[] | { min: number; max: number } | boolean | undefined
+
+export interface FilterSidebarClientProps {
   activeFilters: Filter[]
   categorySlug?: string
   subcategorySlug?: string
@@ -43,8 +45,8 @@ export const FilterSidebarClient = ({
   const searchParams = useSearchParams()
 
   // Initialize filter state from URL params
-  const [filterState, setFilterState] = useState<Record<string, any>>(() => {
-    const state: Record<string, any> = {}
+  const [filterState, setFilterState] = useState<Record<string, FilterValue>>(() => {
+    const state: Record<string, FilterValue> = {}
     activeFilters.forEach((filter) => {
       const paramValue = searchParams.get(filter.slug)
       if (paramValue) {
@@ -65,31 +67,36 @@ export const FilterSidebarClient = ({
     searchParams.get('currency') || '',
   )
 
-  const [priceRange, setPriceRange] = useState<[number, number]>(() => {
+  // Allow empty / arbitrary price values. Store min/max as numbers or undefined.
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(() => {
     const priceParam = searchParams.get('price')
     if (priceParam) {
-      const [min, max] = priceParam.split('-').map(Number)
-      return [min, max]
+      const [minStr, maxStr] = priceParam.split('-')
+      const min = minStr !== '' ? parseFloat(minStr) : undefined
+      const max = maxStr !== '' ? parseFloat(maxStr) : undefined
+      if (min !== undefined && max !== undefined && !isNaN(min) && !isNaN(max)) return [min, max]
     }
-    return [0, 1000]
+    return null
   })
 
-  const [priceMin, setPriceMin] = useState<number>(() => {
+  const [priceMin, setPriceMin] = useState<number | undefined>(() => {
     const priceParam = searchParams.get('price')
     if (priceParam) {
-      const [min] = priceParam.split('-').map(Number)
-      return min
+      const [minStr] = priceParam.split('-')
+      const min = minStr !== '' ? parseFloat(minStr) : undefined
+      return isNaN(min as number) ? undefined : (min as number | undefined)
     }
-    return 0
+    return undefined
   })
 
-  const [priceMax, setPriceMax] = useState<number>(() => {
+  const [priceMax, setPriceMax] = useState<number | undefined>(() => {
     const priceParam = searchParams.get('price')
     if (priceParam) {
-      const [, max] = priceParam.split('-').map(Number)
-      return max
+      const [, maxStr] = priceParam.split('-')
+      const max = maxStr !== '' ? parseFloat(maxStr) : undefined
+      return isNaN(max as number) ? undefined : (max as number | undefined)
     }
-    return 1000
+    return undefined
   })
 
   const [onlyInStock, setOnlyInStock] = useState(searchParams.get('inStock') === 'true')
@@ -98,7 +105,7 @@ export const FilterSidebarClient = ({
 
   const handleMultiselectChange = (filterSlug: string, value: string) => {
     setFilterState((prev) => {
-      const currentValues = prev[filterSlug] || []
+      const currentValues = (prev[filterSlug] as string[]) || []
       const newValues = currentValues.includes(value)
         ? currentValues.filter((v: string) => v !== value)
         : [...currentValues, value]
@@ -113,7 +120,7 @@ export const FilterSidebarClient = ({
   const handleRangeChange = (filterSlug: string, values: number[]) => {
     setFilterState((prev) => ({
       ...prev,
-      [filterSlug]: { min: values[0], max: values[1] },
+      [filterSlug]: { min: values[0], max: values[1] } as { min: number; max: number },
     }))
   }
 
@@ -141,8 +148,11 @@ export const FilterSidebarClient = ({
     }
 
     // Add price range
-    if (priceMin !== 0 || priceMax !== 1000) {
-      params.set('price', `${priceMin}-${priceMax}`)
+    // Add price if either boundary is set. Use empty string for missing side.
+    if (priceMin !== undefined || priceMax !== undefined) {
+      const minStr = priceMin !== undefined ? String(priceMin) : ''
+      const maxStr = priceMax !== undefined ? String(priceMax) : ''
+      params.set('price', `${minStr}-${maxStr}`)
     }
 
     // Add stock and featured filters
@@ -175,9 +185,9 @@ export const FilterSidebarClient = ({
   const clearFilters = () => {
     // Reset all state to defaults
     setFilterState({})
-    setPriceRange([0, 1000])
-    setPriceMin(0)
-    setPriceMax(1000)
+    setPriceRange(null)
+    setPriceMin(undefined)
+    setPriceMax(undefined)
     setOnlyInStock(false)
     setOnlyFeatured(false)
     setSortBy('-createdAt')
@@ -193,8 +203,8 @@ export const FilterSidebarClient = ({
   }
 
   const hasActiveFilters =
-    priceMin !== 0 ||
-    priceMax !== 1000 ||
+    priceMin !== undefined ||
+    priceMax !== undefined ||
     onlyInStock ||
     onlyFeatured ||
     selectedCurrency !== '' ||
@@ -213,17 +223,30 @@ export const FilterSidebarClient = ({
   }
 
   const handleMinInputChange = (value: string) => {
-    const num = parseInt(value) || 0
-    const clampedMin = Math.max(0, Math.min(num, priceMax))
-    setPriceMin(clampedMin)
-    setPriceRange([clampedMin, priceMax])
+    // allow blank to unset
+    if (value.trim() === '') {
+      setPriceMin(undefined)
+      setPriceRange(priceMax !== undefined ? [0, priceMax] : null)
+      return
+    }
+
+    const num = parseFloat(value)
+    if (isNaN(num)) return
+    setPriceMin(num)
+    if (priceMax !== undefined) setPriceRange([num, priceMax])
   }
 
   const handleMaxInputChange = (value: string) => {
-    const num = parseInt(value) || 1000
-    const clampedMax = Math.max(priceMin, Math.min(num, 1000))
-    setPriceMax(clampedMax)
-    setPriceRange([priceMin, clampedMax])
+    if (value.trim() === '') {
+      setPriceMax(undefined)
+      setPriceRange(priceMin !== undefined ? [priceMin, 0] : null)
+      return
+    }
+
+    const num = parseFloat(value)
+    if (isNaN(num)) return
+    setPriceMax(num)
+    if (priceMin !== undefined) setPriceRange([priceMin, num])
   }
 
   return (
@@ -259,7 +282,7 @@ export const FilterSidebarClient = ({
               </h3>
               <div className="space-y-2">
                 {filter.options?.map((option) => {
-                  const isChecked = (filterState[filter.slug] || []).includes(option.value)
+                  const isChecked = Array.isArray(filterState[filter.slug]) && (filterState[filter.slug] as string[]).includes(option.value)
                   return (
                     <div key={option.value} className="flex items-center space-x-2">
                       <Checkbox
@@ -283,7 +306,7 @@ export const FilterSidebarClient = ({
         }
 
         if (filter.type === 'range') {
-          const rangeValue = filterState[filter.slug] || { min: 0, max: 100 }
+          const rangeValue = (filterState[filter.slug] as { min: number; max: number }) || { min: 0, max: 100 }
           return (
             <div key={filter.slug} className="space-y-3">
               <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
@@ -312,7 +335,7 @@ export const FilterSidebarClient = ({
         }
 
         if (filter.type === 'boolean') {
-          const isChecked = filterState[filter.slug] || false
+          const isChecked = !!filterState[filter.slug]
           return (
             <div key={filter.slug} className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -379,9 +402,7 @@ export const FilterSidebarClient = ({
                 <Input
                   id="priceMin"
                   type="number"
-                  min={0}
-                  max={priceMax}
-                  value={priceMin}
+                  value={priceMin ?? ''}
                   onChange={(e) => handleMinInputChange(e.target.value)}
                   className="pl-6"
                 />
@@ -399,9 +420,7 @@ export const FilterSidebarClient = ({
                 <Input
                   id="priceMax"
                   type="number"
-                  min={priceMin}
-                  max={1000}
-                  value={priceMax}
+                  value={priceMax ?? ''}
                   onChange={(e) => handleMaxInputChange(e.target.value)}
                   className="pl-6"
                 />
@@ -410,16 +429,18 @@ export const FilterSidebarClient = ({
           </div>
 
           {/* Price slider */}
-          <Slider
-            value={priceRange}
-            max={1000}
-            step={10}
-            className="w-full"
-            onValueChange={handleSliderChange}
-          />
+          {priceRange && (
+            <Slider
+              value={priceRange}
+              max={1000}
+              step={10}
+              className="w-full"
+              onValueChange={handleSliderChange}
+            />
+          )}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>$0</span>
-            <span>$1000</span>
+            <span>${priceMin ?? 0}</span>
+            <span>${priceMax ?? 1000}</span>
           </div>
         </div>
       </div>

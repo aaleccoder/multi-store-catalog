@@ -79,14 +79,20 @@ export async function GET(request: NextRequest) {
         const price = searchParams.get('price')
         if (price) {
             const [minStr, maxStr] = price.split('-')
-            const min = parseFloat(minStr || '0')
-            const max = parseFloat(maxStr || '0')
-            if (min && max) {
+
+            const min = minStr !== '' ? parseFloat(minStr) : undefined
+            const max = maxStr !== '' ? parseFloat(maxStr) : undefined
+
+            const priceWhere: any = {}
+            if (min !== undefined && !isNaN(min)) priceWhere.amount = { ...(priceWhere.amount ?? {}), gte: min }
+            if (max !== undefined && !isNaN(max)) priceWhere.amount = { ...(priceWhere.amount ?? {}), lte: max }
+
+            if (Object.keys(priceWhere).length > 0) {
                 if (where.prices) {
                     // Combine currency and price criteria
-                    where.prices = { some: { currencyId: currency ?? undefined, amount: { gte: min, lte: max } } }
+                    where.prices = { some: { currencyId: currency ?? undefined, ...priceWhere } }
                 } else {
-                    where.prices = { some: { amount: { gte: min, lte: max } } }
+                    where.prices = { some: { ...priceWhere } }
                 }
             }
         }

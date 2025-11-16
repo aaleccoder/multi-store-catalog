@@ -5,6 +5,9 @@ import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Link from 'next/link'
 import { FilterSidebarClient } from './FilterSidebarClient'
+import type { Filter } from './FilterSidebarClient'
+import type { Category, Subcategory } from '@/generated/prisma/client'
+import type { ReactElement } from 'react'
 
 interface FilterSidebarProps {
   categorySlug?: string
@@ -12,7 +15,10 @@ interface FilterSidebarProps {
 }
 
 // Export function to get filter content (used by both desktop sidebar and mobile sheet)
-export const getFilterContent = async (categorySlug?: string, subcategorySlug?: string) => {
+export const getFilterContent = async (
+  categorySlug?: string,
+  subcategorySlug?: string,
+): Promise<ReactElement> => {
   // Fetch active currencies
   const currencies = await getCurrencies()
 
@@ -27,7 +33,7 @@ export const getFilterContent = async (categorySlug?: string, subcategorySlug?: 
   })
 
   // Get selected category if categorySlug is provided
-  let selectedCategory = null
+  let selectedCategory: Category | null = null
   if (categorySlug) {
     selectedCategory = await prisma.category.findFirst({
       where: {
@@ -37,7 +43,7 @@ export const getFilterContent = async (categorySlug?: string, subcategorySlug?: 
   }
 
   // Fetch subcategories for the selected category
-  let subcategoriesForCategory: any[] = []
+  let subcategoriesForCategory: Subcategory[] = []
   if (selectedCategory) {
     subcategoriesForCategory = await prisma.subcategory.findMany({
       where: {
@@ -97,9 +103,12 @@ export const getFilterContent = async (categorySlug?: string, subcategorySlug?: 
     }
   >()
 
-  // Add filters from selected category
   if (selectedCategory && selectedCategory.filters && Array.isArray(selectedCategory.filters)) {
-    selectedCategory.filters.forEach((filter: any) => {
+    const categoryFilters = Array.isArray(selectedCategory.filters)
+      ? (selectedCategory.filters as unknown as Filter[])
+      : []
+
+    categoryFilters.forEach((filter: Filter) => {
       if (!activeFilters.has(filter.slug)) {
         activeFilters.set(filter.slug, {
           name: filter.name,
@@ -112,7 +121,6 @@ export const getFilterContent = async (categorySlug?: string, subcategorySlug?: 
     })
   }
 
-  // Add filters from selected subcategory
   if (subcategorySlug && selectedCategory) {
     const selectedSubcat = await prisma.subcategory.findFirst({
       where: {
@@ -122,7 +130,9 @@ export const getFilterContent = async (categorySlug?: string, subcategorySlug?: 
     })
 
     if (selectedSubcat && selectedSubcat.filters && Array.isArray(selectedSubcat.filters)) {
-      selectedSubcat.filters.forEach((filter: any) => {
+      const subcatFilters = selectedSubcat.filters as unknown as Filter[]
+
+      subcatFilters.forEach((filter: Filter) => {
         if (!activeFilters.has(filter.slug)) {
           activeFilters.set(filter.slug, {
             name: filter.name,

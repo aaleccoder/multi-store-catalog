@@ -118,6 +118,8 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
         const inStock = searchParams.get('inStock')
         const featured = searchParams.get('featured')
         const search = searchParams.get('search')
+        const price = searchParams.get('price')
+        const currency = searchParams.get('currency')
 
         if (inStock === 'true') {
           params.set('inStock', 'true')
@@ -130,6 +132,12 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
         if (search) {
           params.set('search', search)
         }
+
+        // Price: may be 'min-max' where either side may be empty
+        if (price) params.set('price', price)
+
+        // Currency filter
+        if (currency) params.set('currency', currency)
 
         // Fetch category if needed
         let category: Category | null = null
