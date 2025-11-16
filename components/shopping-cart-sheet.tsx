@@ -29,7 +29,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
 
   // For now, we'll use a simple formatter since cart items don't have currency info yet
   // You may want to store currency with cart items in the future
-  const formatPrice = (amount: number, currency?: Currency | number | string | null) => {
+  const formatPrice = (amount: number, currency?: Currency | string | null | undefined) => {
     return formatCurrencyPrice(amount, currency)
   }
 

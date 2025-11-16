@@ -17,7 +17,7 @@ interface ProductCardProps {
   description: string
   price: number
   regularPrice?: number
-  currency?: Currency | number | string | null
+  currency?: Currency | string | null
   image: string
   imageAlt?: string
   images?: Array<{
@@ -76,7 +76,10 @@ export const ProductCard = ({
     : 0
 
   const formatPrice = (amount: number) => {
-    return formatCurrencyPrice(amount, currency)
+    // Accept either a Currency object or a currency code string.
+    // If a number ID sneaks in, it's not expected; convert to string defensively.
+    const currencyArg = typeof currency === 'number' ? String(currency) : currency
+    return formatCurrencyPrice(amount, currencyArg)
   }
 
   const handleAddToCart = () => {

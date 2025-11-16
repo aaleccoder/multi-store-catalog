@@ -17,7 +17,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
+import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { useState } from 'react'
 
 interface WishlistSheetProps {

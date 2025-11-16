@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
 import { Edit, Trash2, Eye, Loader2, Trash } from 'lucide-react'
@@ -110,7 +110,7 @@ export default function ProductsPage() {
         { name: 'featured', label: 'Destacado', type: 'switch' },
     ]
 
-    const loadDependencies = async () => {
+    const loadDependencies = useCallback(async () => {
         const [catsRes, subRes] = await Promise.all([
             fetch('/api/admin/categories'),
             fetch('/api/admin/subcategories'),
@@ -124,7 +124,9 @@ export default function ProductsPage() {
             categoryId: mapOptions(cats),
             subcategoryId: mapOptions(subs),
         }
-    }
+    }, [])
+
+    const listTransform = useCallback((data: unknown) => ((data as { docs?: Product[] }).docs || (data as Product[])), [])
 
     return (
         <div className="min-h-screen bg-background">
@@ -137,7 +139,7 @@ export default function ProductsPage() {
                         <AdminResource<Product>
                             title="Productos"
                             fetchUrl={'/api/products?limit=100'}
-                            listTransform={(data: unknown) => ((data as { docs?: Product[] }).docs || (data as Product[]))}
+                            listTransform={listTransform}
                             columns={columns}
                             formFields={formFields}
                             createUrl={'/api/admin/products/'}

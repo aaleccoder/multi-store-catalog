@@ -4,7 +4,6 @@ import { CartProvider } from '@/components/cart-context'
 import { WishlistProvider } from '@/components/wishlist-context'
 import { Toaster } from '@/components/ui/sonner'
 import { Montserrat, Lobster } from 'next/font/google'
-import { ScrollToTop } from '@/components/ui/scroll-to-top'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 const lobster = Lobster({ subsets: ['latin'], weight: '400', variable: '--font-lobster' })

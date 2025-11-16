@@ -25,7 +25,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { ScrollToTop } from './ui/scroll-to-top'
 
 interface Product {
   id: number | string

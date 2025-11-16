@@ -249,8 +249,8 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                     <div className="mb-6">
                         <div className="relative max-w-sm">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder={`Search ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
-                            <p className="text-xs text-muted-foreground mt-2">Use search to filter results.</p>
+                            <Input placeholder={`Buscar ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
+                            <p className="text-xs text-muted-foreground mt-2">Usa la búsqueda para filtrar resultados.</p>
                         </div>
                     </div>
 
