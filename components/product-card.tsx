@@ -363,7 +363,7 @@ export const ProductCard = ({
             {featured && (
               <Badge className="bg-accent text-accent-foreground shadow-sm">Destacado</Badge>
             )}
-            {hasDiscount && (
+            {hasDiscount && discountPercentage > 0 && (
               <Badge className="bg-destructive/50 text-destructive-foreground shadow-sm">
                 -{discountPercentage}%
               </Badge>

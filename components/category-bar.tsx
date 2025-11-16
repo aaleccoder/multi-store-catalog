@@ -5,25 +5,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { trpc } from '@/trpc/client'
 
 interface Category {
   id: string
   name: string
   slug: string
-  image?: {
-    url: string
-  } | null
 }
 
 interface CategoryBarProps {
   selectedCategorySlug?: string
-  categories: Category[]
 }
 
-export const CategoryBar = ({ selectedCategorySlug, categories }: CategoryBarProps) => {
+export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const { data: categoriesData } = trpc.categories.list.useQuery()
+
+  const categories = (categoriesData?.docs || []) as Category[]
 
   const checkScroll = () => {
     const container = scrollContainerRef.current
@@ -60,9 +61,8 @@ export const CategoryBar = ({ selectedCategorySlug, categories }: CategoryBarPro
         <div className="relative flex items-center gap-2">
           {/* Left Scroll Button */}
           <div
-            className={`transition-all duration-300 ease-in-out ${
-              canScrollLeft ? 'w-8 opacity-100' : 'w-0 opacity-0'
-            }`}
+            className={`transition-all duration-300 ease-in-out ${canScrollLeft ? 'w-8 opacity-100' : 'w-0 opacity-0'
+              }`}
           >
             <Button
               variant="outline"
@@ -85,11 +85,10 @@ export const CategoryBar = ({ selectedCategorySlug, categories }: CategoryBarPro
             {/* All Products Button */}
             <Button
               onClick={() => (window.location.href = '/')}
-              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                !selectedCategorySlug
+              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategorySlug
                   ? 'bg-primary text-white backdrop-blur-md'
                   : 'hover:bg-primary/5 text-black foreground bg-transparent'
-              }`}
+                }`}
             >
               <Package className="h-4 w-4" />
               <span>Todos</span>
@@ -102,26 +101,12 @@ export const CategoryBar = ({ selectedCategorySlug, categories }: CategoryBarPro
                 <Button
                   key={category.id}
                   onClick={() => (window.location.href = `/category/${category.slug}`)}
-                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isSelected
+                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
                       ? 'bg-primary text-white backdrop-blur-md'
                       : 'hover:bg-primary/5 text-black bg-transparent'
-                  }`}
+                    }`}
                 >
-                  {category.image &&
-                  typeof category.image === 'object' &&
-                  'url' in category.image ? (
-                    <div className="relative h-4 w-4">
-                      <Image
-                        src={category.image.url as string}
-                        alt={category.name}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  ) : (
-                    <Package className="h-4 w-4" />
-                  )}
+                  <Package className="h-4 w-4" />
                   <span>{category.name}</span>
                 </Button>
               )
@@ -130,9 +115,8 @@ export const CategoryBar = ({ selectedCategorySlug, categories }: CategoryBarPro
 
           {/* Right Scroll Button */}
           <div
-            className={`transition-all duration-300 ease-in-out ${
-              canScrollRight ? 'w-8 opacity-100' : 'w-0 opacity-0'
-            }`}
+            className={`transition-all duration-300 ease-in-out ${canScrollRight ? 'w-8 opacity-100' : 'w-0 opacity-0'
+              }`}
           >
             <Button
               variant="outline"

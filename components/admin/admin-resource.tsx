@@ -1,14 +1,17 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import { trpc } from '@/trpc/client'
 import { Plus, Search, Loader2, Edit, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Link from 'next/link'
 import { Switch } from '@/components/ui/switch'
+import { toast } from 'sonner'
 // AdminNav is intentionally not included here; pages will include it as necessary
 
 type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
@@ -48,12 +51,12 @@ interface AdminResourceProps<T extends Record<string, unknown> = Record<string, 
     deleteUrl?: (id: string) => string
     keyField?: keyof T
     newButtonLabel?: string
-    /** If provided, the "New" button will navigate to this page instead of opening the create dialog */
     createPageUrl?: string
     searchKeys?: (keyof T | string)[]
     renderList?: (items: T[], loading: boolean, onEdit: (item: T) => void, onDelete: (id: string | number) => void) => React.ReactNode
     renderForm?: (options: { formData: Record<string, FormValue>; setFormData: React.Dispatch<React.SetStateAction<Record<string, FormValue>>> }) => React.ReactNode
     loadDependencies?: () => Promise<Record<string, unknown>>
+    trpcResource?: string
 }
 
 export function AdminResource<T extends Record<string, unknown> = Record<string, unknown>>(props: AdminResourceProps<T>) {
@@ -73,6 +76,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         renderList,
         renderForm,
         loadDependencies,
+        trpcResource,
     } = props
 
     const [items, setItems] = useState<T[]>([])
@@ -82,10 +86,94 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
     const [editing, setEditing] = useState<T | null>(null)
     const [formData, setFormData] = useState<Record<string, FormValue>>({})
     const [dependencies, setDependencies] = useState<Record<string, unknown> | null>(null)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState<T | null>(null)
+    const trpcAny = trpc as any
 
-    const fetchList = React.useCallback(async () => {
+    function mapFetchUrlToTrpcPath(url?: string | null) {
+        if (!url) return null
+        let base = url.split('?')[0]
+        if (base.endsWith('/')) base = base.slice(0, -1)
+        switch (base) {
+            case '/api/admin/categories':
+                return 'admin.categories'
+            case '/api/admin/subcategories':
+                return 'admin.subcategories'
+            case '/api/admin/currencies':
+                return 'admin.currencies'
+            case '/api/admin/products':
+                return 'admin.products'
+            case '/api/admin/media':
+                return 'admin.media'
+            case '/api/categories':
+                return 'categories'
+            case '/api/subcategories':
+                return 'subcategories'
+            case '/api/currencies':
+                return 'currencies'
+            case '/api/products':
+                return 'products'
+            default:
+                return null
+        }
+    }
+
+    const resolvedTrpcPath = trpcResource ?? mapFetchUrlToTrpcPath(fetchUrl)
+    const adminTrpcPath = trpcResource ?? mapFetchUrlToTrpcPath(createUrl ?? updateUrl?.('') ?? deleteUrl?.(''))
+    const useTrpc = !!resolvedTrpcPath
+
+    let trpcList: any = null
+    let trpcCreate: any = null
+    let trpcUpdate: any = null
+    let trpcDelete: any = null
+    if (useTrpc) {
+        const parts = resolvedTrpcPath!.split('.')
+        if (parts.length === 1) {
+            trpcList = trpcAny[parts[0]]?.list
+            trpcCreate = trpcAny[parts[0]]?.create
+            trpcUpdate = trpcAny[parts[0]]?.update
+            trpcDelete = trpcAny[parts[0]]?.delete
+        } else {
+            trpcList = trpcAny[parts[0]]?.[parts[1]]?.list
+            trpcCreate = trpcAny[parts[0]]?.[parts[1]]?.create
+            trpcUpdate = trpcAny[parts[0]]?.[parts[1]]?.update
+            trpcDelete = trpcAny[parts[0]]?.[parts[1]]?.delete
+        }
+    }
+
+    if (adminTrpcPath) {
+        const parts = adminTrpcPath.split('.')
+        if (parts.length === 1) {
+            trpcCreate = trpcCreate ?? trpcAny[parts[0]]?.create
+            trpcUpdate = trpcUpdate ?? trpcAny[parts[0]]?.update
+            trpcDelete = trpcDelete ?? trpcAny[parts[0]]?.delete
+        } else {
+            trpcCreate = trpcAny[parts[0]]?.[parts[1]]?.create ?? trpcCreate
+            trpcUpdate = trpcAny[parts[0]]?.[parts[1]]?.update ?? trpcUpdate
+            trpcDelete = trpcAny[parts[0]]?.[parts[1]]?.delete ?? trpcDelete
+        }
+    }
+
+    const queryParams = fetchUrl.includes('?') ? Object.fromEntries(new URLSearchParams(fetchUrl.split('?')[1])) : undefined
+
+    const listQueryHook = useTrpc && trpcList ? trpcList.useQuery(queryParams) : null
+
+
+
+    const fetchListRemote = React.useCallback(async () => {
         setLoading(true)
         try {
+            if (useTrpc && listQueryHook) {
+                const data = listQueryHook.data
+                if (!data) {
+                    setItems([])
+                    return
+                }
+                const list = listTransform ? listTransform(data) : (data as unknown as T[])
+                setItems(list || [])
+                return
+            }
+
             const res = await fetch(fetchUrl)
             const json = await res.json()
             const list = listTransform ? listTransform(json) : (json as unknown as T[])
@@ -95,11 +183,44 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         } finally {
             setLoading(false)
         }
-    }, [fetchUrl, listTransform])
+    }, [fetchUrl, listTransform, useTrpc, listQueryHook])
+
+    const fetchList = React.useCallback(async () => {
+        if (useTrpc && listQueryHook) {
+            try {
+                setLoading(true)
+                await listQueryHook.refetch()
+            } catch (err) {
+                console.error('tRPC list refetch failed', err)
+            } finally {
+                setLoading(false)
+            }
+
+            return
+        }
+
+        await fetchListRemote()
+    }, [useTrpc, listQueryHook, fetchListRemote])
+
+    // Mutations (create/update/delete) --- safe to define even if unused
+    const createMutation = useTrpc && trpcCreate ? trpcCreate.useMutation({ onSuccess: () => fetchList() }) : null
+    const updateMutation = useTrpc && trpcUpdate ? trpcUpdate.useMutation({ onSuccess: () => fetchList() }) : null
+    const deleteMutation = useTrpc && trpcDelete ? trpcDelete.useMutation({ onSuccess: () => fetchList() }) : null
 
     useEffect(() => {
+        // If the tRPC hook is handling the list, don't trigger a manual fetch
+        if (useTrpc && listQueryHook) return
         fetchList()
-    }, [fetchList])
+    }, [useTrpc, listQueryHook, fetchList])
+
+    // If using tRPC hooks directly, sync local items with the query result
+    useEffect(() => {
+        if (listQueryHook?.data) {
+            const list = listTransform ? listTransform(listQueryHook.data) : (listQueryHook.data as unknown as T[])
+            setItems(list || [])
+            setLoading(listQueryHook.isLoading ?? false)
+        }
+    }, [listQueryHook?.data, listQueryHook?.isLoading, listTransform])
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
@@ -111,17 +232,36 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         const method = editKeyVal ? 'PUT' : 'POST'
 
         try {
-            await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            })
+            if (useTrpc) {
+
+
+                if (editKeyVal && updateMutation) {
+                    await updateMutation.mutateAsync({ id: String(editKeyVal), data: formData })
+                } else if (!editKeyVal && createMutation) {
+                    await createMutation.mutateAsync(formData)
+                } else {
+                    // fallback to network
+                    await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData),
+                    })
+                }
+            } else {
+                await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                })
+            }
 
             setDialogOpen(false)
             resetForm()
             fetchList()
+            toast.success(editing ? 'Updated successfully' : 'Created successfully')
         } catch (err) {
             console.error('Failed to save', err)
+            toast.error('Failed to save')
         }
     }
 
@@ -141,15 +281,26 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
     }
 
     async function handleDelete(id: string | number) {
-        if (!confirm(`Are you sure you want to delete this ${title}?`)) return
-
         const url = deleteUrl?.(String(id)) ?? `${fetchUrl}/${String(id)}`
 
         try {
+            if (useTrpc && deleteMutation) {
+                await deleteMutation.mutateAsync(String(id))
+                fetchList()
+                toast.success('Deleted successfully')
+                setDeleteDialogOpen(false)
+                setItemToDelete(null)
+                return
+            }
+
             await fetch(url, { method: 'DELETE' })
             fetchList()
+            toast.success('Deleted successfully')
+            setDeleteDialogOpen(false)
+            setItemToDelete(null)
         } catch (err) {
             console.error('Failed to delete', err)
+            toast.error('Failed to delete')
         }
     }
 
@@ -210,22 +361,21 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                                             onCheckedChange={(val: boolean) => setFormData({ ...formData, [f.name]: val })}
                                                         />
                                                     ) : f.type === 'select' ? (
-                                                        <select
-                                                            id={f.name}
-                                                            value={String(formData[f.name] ?? '')}
-                                                            onChange={(e) => setFormData({ ...formData, [f.name]: e.target.value })}
-                                                            className="w-full border p-2 rounded"
-                                                        >
-                                                            <option value="">Select…</option>
-                                                            {(() => {
-                                                                const opts = (f.options ?? (dependencies?.[f.name] as OptionType[]) ?? []) as OptionType[]
-                                                                return opts.map((opt, idx) => (
-                                                                    <option key={String(opt.value ?? opt.id ?? opt.name ?? idx)} value={opt.value ?? opt.id}>
-                                                                        {opt.label ?? opt.name}
-                                                                    </option>
-                                                                ))
-                                                            })()}
-                                                        </select>
+                                                        <Select value={String(formData[f.name] ?? '')} onValueChange={(val) => setFormData({ ...formData, [f.name]: val })}>
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Select…" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {(() => {
+                                                                    const opts = (f.options ?? (dependencies?.[f.name] as OptionType[]) ?? []) as OptionType[]
+                                                                    return opts.map((opt, idx) => (
+                                                                        <SelectItem key={String(opt.value ?? opt.id ?? opt.name ?? idx)} value={String(opt.value ?? opt.id)}>
+                                                                            {opt.label ?? opt.name}
+                                                                        </SelectItem>
+                                                                    ))
+                                                                })()}
+                                                            </SelectContent>
+                                                        </Select>
                                                     ) : (
                                                         <Input
                                                             id={f.name}
@@ -242,6 +392,19 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                         <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
                                     </DialogFooter>
                                 </form>
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Confirm Delete</DialogTitle>
+                                </DialogHeader>
+                                <p>Are you sure you want to delete this {title.slice(0, -1)}?</p>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => { setDeleteDialogOpen(false); setItemToDelete(null) }}>Cancel</Button>
+                                    <Button variant="destructive" onClick={() => itemToDelete && handleDelete(String(itemToDelete[keyField as keyof T]))}>Delete</Button>
+                                </DialogFooter>
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -294,7 +457,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
-                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(String(item[keyField as keyof T]))}>
+                                                        <Button variant="ghost" size="icon" onClick={() => { setItemToDelete(item); setDeleteDialogOpen(true) }}>
                                                             <Trash className="h-4 w-4 hover:text-white" />
                                                         </Button>
                                                     </div>

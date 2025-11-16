@@ -20,6 +20,7 @@ import { Upload, X, Loader2, Plus, Trash2 } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { trpc } from '@/trpc/client'
 
 interface Category {
     id: string
@@ -72,15 +73,8 @@ interface ProductFormProps {
 
 export function ProductForm({ productId }: ProductFormProps) {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
-    const [categories, setCategories] = useState<Category[]>([])
-    const [categoriesLoading, setCategoriesLoading] = useState(false)
-    const [subcategories, setSubcategories] = useState<Subcategory[]>([])
-    const [subcategoriesLoading, setSubcategoriesLoading] = useState(false)
     const [uploadingImage, setUploadingImage] = useState(false)
-    const [currencies, setCurrencies] = useState<Currency[]>([])
-    const [currenciesLoading, setCurrenciesLoading] = useState(false)
 
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
@@ -98,57 +92,28 @@ export function ProductForm({ productId }: ProductFormProps) {
         featured: false,
     })
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const { data: categoriesData, isLoading: categoriesLoading } = trpc.categories.list.useQuery()
+    const categories: Category[] = (categoriesData as any)?.docs || []
+
+    const { data: subcategoriesData, isLoading: subcategoriesLoading } = trpc.subcategories.list.useQuery(
+        { categoryId: formData.categoryId },
+        { enabled: !!formData.categoryId }
+    )
+    const subcategories: Subcategory[] = (subcategoriesData as any)?.docs || []
+
+    const { data: currenciesData, isLoading: currenciesLoading } = trpc.currencies.list.useQuery()
+    const currencies: Currency[] = (currenciesData as Currency[]) || []
+
+    const { data: productData, isLoading: loading } = trpc.admin.products.get.useQuery(
+        productId || '',
+        {
+            enabled: !!productId,
+        }
+    )
+
     useEffect(() => {
-        fetchCategories()
-        if (productId) {
-            fetchProduct()
-        }
-        fetchCurrencies()
-    }, [productId])
-
-    useEffect(() => {
-        if (formData.categoryId) {
-            fetchSubcategories(formData.categoryId)
-        }
-    }, [formData.categoryId])
-
-    const fetchCategories = async () => {
-        setCategoriesLoading(true)
-        try {
-            const res = await fetch('/api/categories')
-            const data = await res.json()
-            setCategories(data.docs || [])
-        } catch (error) {
-            console.error('Error fetching categories:', error)
-            toast.error('Error al cargar categorías')
-        } finally {
-            setCategoriesLoading(false)
-        }
-    }
-
-    const fetchSubcategories = async (categoryId: string) => {
-        setSubcategoriesLoading(true)
-        try {
-            const res = await fetch(`/api/subcategories?categoryId=${categoryId}`)
-            const data = await res.json()
-            setSubcategories(data.docs || [])
-        } catch (error) {
-            console.error('Error fetching subcategories:', error)
-            toast.error('Error al cargar subcategorías')
-        } finally {
-            setSubcategoriesLoading(false)
-        }
-    }
-
-    const fetchProduct = async () => {
-        if (!productId) return
-
-        setLoading(true)
-        try {
-            const res = await fetch(`/api/admin/products/${productId}`)
-            const product = await res.json()
-
+        if (productData) {
+            const product = productData as any
             setFormData({
                 name: product.name,
                 slug: product.slug,
@@ -156,8 +121,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 shortDescription: product.shortDescription || '',
                 categoryId: product.categoryId,
                 subcategoryId: product.subcategoryId || '',
-                coverImages: (product.coverImages || []).map((img: { url: string; alt: string; isPrimary: boolean }) => ({ ...img, isUploaded: true })),
-                // We manage prices with `prices` instead of a single `pricing` JSON field
+                coverImages: (product.coverImages || []).map((img: any) => ({ ...img, isUploaded: true })),
                 prices: (product.prices || []).map((p: any) => ({
                     price: p.amount ?? p.price ?? 0,
                     salePrice: p.saleAmount ?? p.salePrice ?? undefined,
@@ -170,27 +134,11 @@ export function ProductForm({ productId }: ProductFormProps) {
                 inStock: product.inStock,
                 featured: product.featured,
             })
-        } catch (error) {
-            console.error('Error fetching product:', error)
-            toast.error('Error al cargar producto')
-        } finally {
-            setLoading(false)
         }
-    }
+    }, [productData])
 
-    const fetchCurrencies = async () => {
-        setCurrenciesLoading(true)
-        try {
-            const res = await fetch('/api/currencies')
-            const data = await res.json()
-            setCurrencies(data || [])
-        } catch (error) {
-            console.error('Error fetching currencies:', error)
-            toast.error('Error al cargar monedas')
-        } finally {
-            setCurrenciesLoading(false)
-        }
-    }
+    const createProductMutation = trpc.admin.products.create.useMutation()
+    const updateProductMutation = trpc.admin.products.update.useMutation()
 
     const generateSlug = (name: string) => {
         return name
@@ -287,11 +235,11 @@ export function ProductForm({ productId }: ProductFormProps) {
 
             const submitData = {
                 ...formData,
-                coverImages: updatedCoverImages.map((img) => ({ url: img.url, alt: img.alt, isPrimary: img.isPrimary, isUploaded: img.isUploaded })),
+                coverImages: updatedCoverImages.map((img) => ({ url: img.url, alt: img.alt, isPrimary: img.isPrimary })),
             }
             // If prices are provided, attach them to the payload using currency codes (server expects `currency` code)
             if (submitData.prices && submitData.prices.length > 0) {
-                submitData.prices = (submitData.prices as PriceInput[]).map((p) => ({
+                (submitData as any).prices = (submitData.prices as PriceInput[]).map((p) => ({
                     price: p.price,
                     salePrice: p.salePrice ?? null,
                     currency: p.currency,
@@ -300,25 +248,17 @@ export function ProductForm({ productId }: ProductFormProps) {
                 }))
             }
 
-            const url = productId
-                ? `/api/admin/products/${productId}`
-                : '/api/admin/products'
-            const method = productId ? 'PUT' : 'POST'
-
             savingToastId = toast.loading('Guardando producto...')
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(submitData),
-            })
 
-            if (res.ok) {
-                toast.success('Producto guardado', { id: savingToastId })
-                router.push('/admin/products')
-                router.refresh()
+            if (productId) {
+                await updateProductMutation.mutateAsync({ id: productId, data: submitData as any })
             } else {
-                toast.error('Error al guardar producto', { id: savingToastId })
+                await createProductMutation.mutateAsync(submitData as any)
             }
+
+            toast.success('Producto guardado', { id: savingToastId })
+            router.push('/admin/products')
+            router.refresh()
         } catch (error) {
             console.error('Error saving product:', error)
             toast.error('Error al guardar producto', { id: savingToastId })

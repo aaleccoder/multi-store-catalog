@@ -53,7 +53,13 @@ export const productSchema = z.object({
     isActive: z.boolean().optional(),
     inStock: z.boolean().optional(),
     featured: z.boolean().optional(),
-    prices: z.array(priceInputSchema).optional(),
+    prices: z.array(z.object({
+        currency: z.string().min(1),
+        price: z.number().optional(),
+        salePrice: z.number().optional().nullable(),
+        isDefault: z.boolean().optional(),
+        taxIncluded: z.boolean().optional().nullable(),
+    })).optional(),
 })
 
 export const mediaAltSchema = z.object({ alt: z.string().optional() })

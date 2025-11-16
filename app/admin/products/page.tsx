@@ -3,9 +3,10 @@
 import { useState, useCallback } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
-import { Edit, Trash2, Eye, Loader2, Trash } from 'lucide-react'
+import { Edit, Eye, Loader2, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 import AdminResource, { Column, FormField } from '@/components/admin/admin-resource'
+import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -110,13 +111,16 @@ export default function ProductsPage() {
         { name: 'featured', label: 'Destacado', type: 'switch' },
     ]
 
-    const loadDependencies = useCallback(async () => {
-        const [catsRes, subRes] = await Promise.all([
-            fetch('/api/admin/categories'),
-            fetch('/api/admin/subcategories'),
-        ])
+    const catsQuery = trpc.admin.categories.list.useQuery()
+    const subsQuery = trpc.admin.subcategories.list.useQuery()
 
-        const [cats, subs] = await Promise.all([catsRes.json(), subRes.json()])
+    const loadDependencies = useCallback(async () => {
+        // Ensure queries have run
+        if (catsQuery.isLoading) await catsQuery.refetch()
+        if (subsQuery.isLoading) await subsQuery.refetch()
+
+        const cats = (catsQuery.data ?? []) as CategoryList[]
+        const subs = (subsQuery.data ?? []) as SubcategoryList[]
 
         const mapOptions = (list: CategoryList[] | SubcategoryList[]) => list.map((c) => ({ value: c.id, label: c.name, id: c.id }))
 
@@ -124,9 +128,9 @@ export default function ProductsPage() {
             categoryId: mapOptions(cats),
             subcategoryId: mapOptions(subs),
         }
-    }, [])
+    }, [catsQuery, subsQuery])
 
-    const listTransform = useCallback((data: unknown) => ((data as { docs?: Product[] }).docs || (data as Product[])), [])
+    const listTransform = useCallback((data: unknown) => ((data as { docs?: Product[] } | null)?.docs || (data as Product[] || [])), [])
 
     return (
         <div className="min-h-screen bg-background">

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Providers from './providers'
 
 export const metadata: Metadata = {
     title: 'Catalog App',
@@ -13,7 +14,9 @@ export default function Layout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
-                {children}
+                <Providers>
+                    {children}
+                </Providers>
             </body>
         </html>
     )

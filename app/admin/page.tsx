@@ -1,4 +1,4 @@
-import { AdminNav } from '@/components/admin/admin-nav'
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 
 export default async function AdminDashboard() {
@@ -13,30 +13,29 @@ export default async function AdminDashboard() {
                 <div className="p-8">
                     <h1 className="text-3xl font-bold mb-6">Panel de Control</h1>
 
-                    <p className="text-sm text-muted-foreground mb-6">Una visión general de solo lectura de las métricas clave de la tienda. Haz clic en los enlaces de administración para gestionar recursos.</p>
+                    <p className="text-sm text-muted-foreground mb-6">Bienvenida!</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                        {/* Stats cards */}
-                        <div className="bg-card p-6 rounded-lg border border-border">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <Link href="/admin/products" className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-shadow block">
                             <h3 className="text-sm font-medium text-muted-foreground">Productos Totales</h3>
                             <p className="text-3xl font-bold mt-2">{totalProducts}</p>
-                        </div>
+                        </Link>
 
-                        <div className="bg-card p-6 rounded-lg border border-border">
+                        <Link href="/admin/categories" className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-shadow block">
                             <h3 className="text-sm font-medium text-muted-foreground">Categorías</h3>
                             <p className="text-3xl font-bold mt-2">{categoriesCount}</p>
-                        </div>
+                        </Link>
 
-                        <div className="bg-card p-6 rounded-lg border border-border">
+                        <Link href="/admin/products" className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-shadow block">
                             <h3 className="text-sm font-medium text-muted-foreground">Productos Activos</h3>
                             <p className="text-3xl font-bold mt-2">{activeProductsCount}</p>
-                        </div>
+                        </Link>
 
                         {/* Currencies */}
-                        <div className="bg-card p-6 rounded-lg border border-border">
+                        <Link href="/admin/currencies" className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-shadow block">
                             <h3 className="text-sm font-medium text-muted-foreground">Monedas</h3>
                             <p className="text-3xl font-bold mt-2">{totalCurrencies}</p>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </main>

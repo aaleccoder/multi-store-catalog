@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from './product-card'
 import { toNumber } from '@/lib/number'
@@ -25,33 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-
-interface Product {
-  id: number | string
-  name: string
-  slug: string
-  shortDescription?: string
-  // Legacy `pricing` removed — use `prices` relation instead
-  prices?: Array<{ amount?: number; saleAmount?: number; currency?: any; isDefault?: boolean }>
-  coverImages?: Array<{
-    // Some images are stored as { url }, others as nested { image: { url } } for legacy reasons
-    url?: string
-    image?: {
-      url?: string
-    }
-    alt?: string
-    isPrimary?: boolean
-  }>
-  featured?: boolean
-  inStock?: boolean
-}
-
-interface Category {
-  id: number | string
-  name: string
-  slug: string
-  description?: string
-}
+import { trpc } from '@/trpc/client'
 
 interface ProductGridClientProps {
   categorySlug?: string
@@ -62,16 +36,42 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
   const searchParams = useSearchParams()
   const router = useRouter()
   const { setIsLoading: setGlobalLoading } = useLoading()
-  const [products, setProducts] = useState<Product[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-  const [selectedSubcategory, setSelectedSubcategory] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalDocs, setTotalDocs] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1)
 
   const currentSort = searchParams.get('sort') || '-createdAt'
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
+
+  // tRPC queries
+  const categoryQuery = trpc.categories.list.useQuery(
+    categorySlug ? { slug: categorySlug } : {},
+    { enabled: !!categorySlug }
+  )
+  const selectedCategory = categoryQuery.data?.docs?.[0] || null
+
+  const subcategoryQuery = trpc.subcategories.list.useQuery(
+    subcategorySlug && selectedCategory ? { slug: subcategorySlug, categoryId: selectedCategory.id } : {},
+    { enabled: !!subcategorySlug && !!selectedCategory }
+  )
+  const selectedSubcategory = subcategoryQuery.data?.docs?.[0] || null
+
+  const productsQuery = trpc.products.list.useQuery({
+    page: pageFromUrl.toString(),
+    limit: '12',
+    sort: currentSort,
+    category: selectedCategory?.id,
+    subcategory: selectedSubcategory?.id,
+    inStock: searchParams.get('inStock') || undefined,
+    featured: searchParams.get('featured') || undefined,
+    search: searchParams.get('search') || undefined,
+    currency: searchParams.get('currency') || undefined,
+    price: searchParams.get('price') || undefined,
+  })
+
+  const products = productsQuery.data?.docs || []
+  const totalPages = productsQuery.data?.totalPages || 1
+  const totalDocs = productsQuery.data?.totalDocs || 0
+  const currentPage = productsQuery.data?.page || 1
+
+  const loading = categoryQuery.isLoading || subcategoryQuery.isLoading || productsQuery.isLoading
 
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -95,101 +95,6 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
     // Scroll to top of product grid
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true)
-      setGlobalLoading(true)
-      try {
-        // Build query parameters
-        const params = new URLSearchParams()
-
-        // Pagination
-        const limit = 12
-        const page = pageFromUrl || 1
-        params.set('limit', limit.toString())
-        params.set('page', page.toString())
-
-        // Sort
-        const sort = searchParams.get('sort') || '-createdAt'
-        params.set('sort', sort)
-
-        // Get filter params
-        const inStock = searchParams.get('inStock')
-        const featured = searchParams.get('featured')
-        const search = searchParams.get('search')
-        const price = searchParams.get('price')
-        const currency = searchParams.get('currency')
-
-        if (inStock === 'true') {
-          params.set('inStock', 'true')
-        }
-
-        if (featured === 'true') {
-          params.set('featured', 'true')
-        }
-
-        if (search) {
-          params.set('search', search)
-        }
-
-        // Price: may be 'min-max' where either side may be empty
-        if (price) params.set('price', price)
-
-        // Currency filter
-        if (currency) params.set('currency', currency)
-
-        // Fetch category if needed
-        let category: Category | null = null
-        if (categorySlug) {
-          const categoryRes = await fetch(`/api/categories?slug=${categorySlug}`)
-          const categoryData = await categoryRes.json()
-          if (categoryData.docs && categoryData.docs.length > 0) {
-            category = categoryData.docs[0]
-            setSelectedCategory(category)
-            if (category) {
-              params.set('category', category.id.toString())
-            }
-          }
-        } else {
-          setSelectedCategory(null)
-        }
-
-        // Fetch subcategory if needed
-        let subcategory: any = null
-        if (subcategorySlug && category) {
-          const subcategoryRes = await fetch(
-            `/api/subcategories?slug=${subcategorySlug}&categoryId=${category.id}`
-          )
-          const subcategoryData = await subcategoryRes.json()
-          if (subcategoryData.docs && subcategoryData.docs.length > 0) {
-            subcategory = subcategoryData.docs[0]
-            setSelectedSubcategory(subcategory)
-            params.set('subcategory', subcategory.id)
-          }
-        } else {
-          setSelectedSubcategory(null)
-        }
-
-        // Fetch products
-        const productsRes = await fetch(`/api/products?${params.toString()}`)
-        const productsData = await productsRes.json()
-
-        setProducts(productsData.docs || [])
-        setTotalPages(productsData.totalPages || 1)
-        setTotalDocs(productsData.totalDocs || 0)
-        setCurrentPage(productsData.page || 1)
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        setProducts([])
-      } finally {
-        setLoading(false)
-        setGlobalLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [categorySlug, subcategorySlug, searchParams, setGlobalLoading, pageFromUrl])
 
   if (loading) {
     return <ProductGridSkeleton />
@@ -282,23 +187,23 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {products.map((product) => {
+          {products.map((product: any) => {
             // Get primary image or first image
             // coverImages can come in two shapes depending on source:
             // - { url: string, alt?: string, isPrimary?: boolean }
             // - { image: { url: string }, alt?: string, isPrimary?: boolean }
-            const primaryImage = product.coverImages?.find((img) => img.isPrimary)
+            const primaryImage = product.coverImages?.find((img: any) => img.isPrimary)
             const imageData = primaryImage || product.coverImages?.[0]
             const image = ((imageData as any)?.url as string) ? { url: (imageData as any).url } : imageData?.image
 
             // Prepare all images for carousel
             const images = product.coverImages
-              ?.map((img) => ({
+              ?.map((img: any) => ({
                 // prefer `img.url` for our Media model, but keep support for legacy `img.image.url`
                 url: ((img as any).url as string) || img.image?.url || '',
                 alt: img.alt || product.name,
               }))
-              .filter((img) => img.url) // Filter out images without URL
+              .filter((img: any) => img.url) // Filter out images without URL
 
             return (
               <ProductCard
