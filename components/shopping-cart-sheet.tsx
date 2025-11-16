@@ -11,7 +11,7 @@ import {
   SheetTrigger,
   SheetFooter,
 } from '@/components/ui/sheet'
-import { useCart } from './CartContext'
+import { useCart } from './cart-context'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'

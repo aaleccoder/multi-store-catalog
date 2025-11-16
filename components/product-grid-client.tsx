@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ProductCard } from './ProductCard'
+import { ProductCard } from './product-card'
 import { toNumber } from '@/lib/number'
-import { ProductGridSkeleton } from './ProductGridSkeleton'
-import { useLoading } from './LoadingContext'
+import { ProductGridSkeleton } from './product-grid-skeleton'
+import { useLoading } from './loading-context'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { ScrollToTop } from './ui/scroll-to-top'
 
 interface Product {
   id: number | string
@@ -222,7 +223,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
   }
 
   return (
-    <ScrollArea className="w-full h-full">
+    <ScrollArea id="product-scroll-area" className="w-full h-full">
       <div className="p-4 md:p-8 mb-12">
         {/* Breadcrumb */}
         {(selectedCategory || selectedSubcategory) && (
@@ -408,6 +409,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
               </PaginationContent>
             </Pagination>
           </div>
+
         )}
       </div>
     </ScrollArea>

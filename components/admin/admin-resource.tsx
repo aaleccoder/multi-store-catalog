@@ -1,14 +1,14 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { Plus, Search, Loader2 } from 'lucide-react'
+import { Plus, Search, Loader2, Edit, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { AdminNav } from '@/components/admin/AdminNav'
+import { AdminNav } from '@/components/admin/admin-nav'
 
 type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
 
@@ -160,8 +160,6 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
 
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
-
             <main className="pt-20 lg:pt-0">
                 <div className="p-8">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -237,8 +235,8 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
 
                     <div className="mb-6">
                         <div className="relative max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder={`Search ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder={`Search ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
                             <p className="text-xs text-muted-foreground mt-2">Use search to filter results.</p>
                         </div>
                     </div>
@@ -281,10 +279,10 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                                 <TableCell className="text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                                                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                                            <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(String(item[keyField as keyof T]))}>
-                                                            <svg className="h-4 w-4 text-destructive" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M8 6v14a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                                            <Trash className="h-4 w-4 hover:text-white" />
                                                         </Button>
                                                     </div>
                                                 </TableCell>

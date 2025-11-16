@@ -1,12 +1,12 @@
 import '../globals.css'
-import { Header } from '@/components/Header'
-import { CategoryBarWrapper } from '@/components/CategoryBarWrapper'
-import { FilterSidebar, getFilterContent } from '@/components/FilterSidebar'
-import { ProductGridClient } from '@/components/ProductGridClient'
-import { NavigationLoadingBar } from '@/components/NavigationLoadingBar'
-import { LoadingProvider } from '@/components/LoadingContext'
-import { PageLayoutWrapper } from '@/components/PageLayoutWrapper'
-import { SearchAndFiltersBar } from '@/components/SearchAndFiltersBar'
+import { Header } from '@/components/header'
+import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
+import { FilterSidebar, getFilterContent } from '@/components/filter-sidebar'
+import { ProductGridClient } from '@/components/product-grid-client'
+import { NavigationLoadingBar } from '@/components/navigation-loading'
+import { LoadingProvider } from '@/components/loading-context'
+import { PageLayoutWrapper } from '@/components/page-layout-wrapper'
+import { SearchAndFiltersBar } from '@/components/search-and-filter-mobile'
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -21,7 +21,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const categorySlug = params.category
   const subcategorySlug = params.subcategory
 
-  // Get filter content for mobile sheet
   const filterContent = await getFilterContent(categorySlug, subcategorySlug)
 
   return (

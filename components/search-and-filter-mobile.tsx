@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { MobileFilterSheet } from './MobileFilterSheet'
+import { MobileFilterSheet } from './mobile-filter-sheet'
 
 interface SearchAndFiltersBarProps {
   filterContent?: React.ReactNode

@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { FilterSheetProviderWrapper } from './FilterSheetProviderWrapper'
+import { FilterSheetProviderWrapper } from './filter-sheet-provider-wrapper'
 
 interface PageLayoutWrapperProps {
   children: ReactNode

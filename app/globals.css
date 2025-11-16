@@ -398,4 +398,6 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Scroll to top handled by Tailwind classes only */
 }

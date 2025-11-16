@@ -21,6 +21,8 @@ import {
     SidebarFooter,
     SidebarTrigger,
 } from '@/components/ui/sidebar'
+import LeaLogo from '../lea-logo'
+import router from 'next/router'
 // `cn` helper intentionally not used here — removed to silence lint.
 
 const navigation = [
@@ -49,18 +51,27 @@ export function AdminNav() {
             </div>
 
             <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
-                <SidebarHeader className="p-6 border-b border-border">
-                    <h1 className="text-2xl font-bold text-foreground">Lea Admin</h1>
+                <SidebarHeader className="">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex-shrink-0 cursor-pointer"
+                        aria-label="Ir a inicio"
+                    >
+                        <LeaLogo
+                            className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
+                            aria-label="Lea Catalog logo"
+                        />
+                    </button>
                 </SidebarHeader>
 
-                <SidebarContent>
+                <SidebarContent className='px-4'>
                     <SidebarMenu>
                         {navigation.map((item) => {
                             const isActive = pathname === item.href
 
                             return (
-                                <SidebarMenuItem key={item.name}>
-                                    <SidebarMenuButton asChild isActive={isActive}>
+                                <SidebarMenuItem key={item.name} className=''>
+                                    <SidebarMenuButton asChild isActive={isActive} className='h-12 text-xl'>
                                         <Link href={item.href} className="flex items-center gap-3 w-full">
                                             <item.icon className="h-4 w-4" />
                                             <span>{item.name}</span>

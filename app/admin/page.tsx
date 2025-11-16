@@ -1,4 +1,4 @@
-import { AdminNav } from '@/components/admin/AdminNav'
+import { AdminNav } from '@/components/admin/admin-nav'
 import { prisma } from '@/lib/db'
 
 export default async function AdminDashboard() {
@@ -6,14 +6,10 @@ export default async function AdminDashboard() {
     const categoriesCount = await prisma.category.count()
     const activeProductsCount = await prisma.product.count({ where: { isActive: true } })
     const totalCurrencies = await prisma.currency.count()
-    // For server-side counts use prisma
-    // Note: This function is a Server Component; we can query prisma directly
-    // but keep the existing layout simple — we'll fetch currencies count later
-    // Session is already validated in the layout
     return (
         <div className="min-h-screen bg-background">
 
-            <main className="lg:pl-64 pt-20 lg:pt-0">
+            <main className="pt-20 lg:pt-0">
                 <div className="p-8">
                     <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 

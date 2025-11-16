@@ -1,6 +1,6 @@
 'use client'
 
-import { useLoading } from './LoadingContext'
+import { useLoading } from './loading-context'
 
 export const NavigationLoadingBar = () => {
   const { isLoading } = useLoading()

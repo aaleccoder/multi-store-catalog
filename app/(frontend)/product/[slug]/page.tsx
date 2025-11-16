@@ -5,14 +5,14 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ProductCard } from '@/components/ProductCard'
-import { Header } from '@/components/Header'
-import { CategoryBarWrapper } from '@/components/CategoryBarWrapper'
-import { LoadingProvider } from '@/components/LoadingContext'
-import { NavigationLoadingBar } from '@/components/NavigationLoadingBar'
+import { ProductCard } from '@/components/product-card'
+import { Header } from '@/components/header'
+import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
+import { LoadingProvider } from '@/components/loading-context'
+import { NavigationLoadingBar } from '@/components/navigation-loading'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
-import { AddToCartButton } from '@/components/AddToCartButton'
+import { AddToCartButton } from '@/components/add-to-cart-button'
 import type { Metadata } from 'next'
 import {
   Breadcrumb,
@@ -22,8 +22,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { RichTextRenderer } from '@/components/RichTextRenderer'
-import { ImageGallery } from '../../../../components/ImageGallery'
+import { RichTextRenderer } from '@/components/rich-text-editor'
+import { ImageGallery } from '../../../../components/image-gallery'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
 interface ProductDetailPageProps {
   params: Promise<{

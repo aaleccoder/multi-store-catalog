@@ -1,14 +1,13 @@
 "use client"
 
-import AdminResource from '@/components/admin/AdminResource'
-import { AdminNav } from '@/components/admin/AdminNav'
+import AdminResource from '@/components/admin/admin-resource'
+import { AdminNav } from '@/components/admin/admin-nav'
 
 export default function CategoriesPage() {
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
 
-            <main className="lg:pl-64 pt-20 lg:pt-0">
+            <main className=" pt-20 lg:pt-0">
                 <div className="p-8">
                     <AdminResource
                         title="Categories"

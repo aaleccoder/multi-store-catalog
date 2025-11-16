@@ -14,7 +14,8 @@ export const metadata = {
 }
 
 import '../globals.css'
-import { AdminNav } from '@/components/admin/AdminNav'
+import { AdminNav } from '@/components/admin/admin-nav'
+import ScrollToTop from '@/components/ui/scroll-to-top'
 
 export default async function AdminLayout({
     children,
@@ -31,7 +32,7 @@ export default async function AdminLayout({
     }
 
     return (
-        <html lang="es">
+        <html lang="es" suppressHydrationWarning>
             <body className={montserrat.className}>
                 <SidebarProvider>
                     <AdminNav />
@@ -40,6 +41,7 @@ export default async function AdminLayout({
                     </SidebarInset>
                 </SidebarProvider>
                 <Toaster />
+                <ScrollToTop />
             </body>
         </html>
     )

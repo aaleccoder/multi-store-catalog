@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db'
-import { CategoryBar } from './CategoryBar'
+import { CategoryBar } from './category-bar'
 
 interface CategoryBarWrapperProps {
   selectedCategorySlug?: string

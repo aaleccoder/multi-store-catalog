@@ -1,4 +1,4 @@
-import { ProductForm } from '@/components/admin/ProductForm'
+import { ProductForm } from '@/components/admin/product-form'
 
 interface ProductEditPageProps {
     params: Promise<{ id: string }>

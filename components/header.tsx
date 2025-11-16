@@ -1,12 +1,12 @@
 'use client'
 
 import { Home, Search } from 'lucide-react'
-import { ShoppingCartSheet } from '@/components/ShoppingCartSheet'
-import { WishlistSheet } from '@/components/WishlistSheet'
+import { ShoppingCartSheet } from '@/components/shopping-cart-sheet'
+import { WishlistSheet } from '@/components/wishlist-sheet'
 import { Input } from '@/components/ui/input'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import LeaLogo from '@/components/LeaLogo'
+import LeaLogo from '@/components/lea-logo'
 
 export const Header = () => {
   const router = useRouter()

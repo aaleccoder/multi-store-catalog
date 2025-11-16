@@ -3,12 +3,11 @@
 import { useState } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
-import { Edit, Trash2, Eye, Loader2 } from 'lucide-react'
+import { Edit, Trash2, Eye, Loader2, Trash } from 'lucide-react'
 import { toast } from 'sonner'
-import AdminResource, { Column, FormField } from '@/components/admin/AdminResource'
+import AdminResource, { Column, FormField } from '@/components/admin/admin-resource'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-// Input intentionally removed to rely on AdminResource search
 import {
     Table,
     TableBody,
@@ -18,7 +17,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { AdminNav } from '@/components/admin/AdminNav'
+import { AdminNav } from '@/components/admin/admin-nav'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -50,12 +49,10 @@ type CategoryList = { id: string; name: string }
 type SubcategoryList = { id: string; name: string }
 
 export default function ProductsPage() {
-    // Search handled inside AdminResource
     const [dialogOpen, setDialogOpen] = useState(false)
     const [productToDelete, setProductToDelete] = useState<Product | null>(null)
     const [deleteFn, setDeleteFn] = useState<((id: string | number) => void) | null>(null)
 
-    // AdminResource configuration
     const columns: Column<Product>[] = [
         {
             header: 'Image',
@@ -135,9 +132,7 @@ export default function ProductsPage() {
 
             <main className="pt-20 lg:pt-0">
                 <div>
-                    {/* AdminResource includes header and search; page-level header/search removed to avoid duplicates */}
 
-                    {/* Table handled by AdminResource */}
                     <div className="bg-card">
                         <AdminResource<Product>
                             title="Products"
@@ -250,7 +245,7 @@ export default function ProductsPage() {
                                                                     </Button>
                                                                 </Link>
                                                                 <Button variant="ghost" size="icon" onClick={() => { setProductToDelete(product); setDeleteFn(() => onDelete); setDialogOpen(true); }}>
-                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                    <Trash className="h-4 w-4 hover:text-white" />
                                                                 </Button>
                                                             </div>
                                                         </TableCell>
@@ -262,7 +257,6 @@ export default function ProductsPage() {
                                 </Table>
                             )}
                         />
-                        {/* confirmation dialog for deletion */}
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                             <DialogContent>
                                 <DialogHeader>
