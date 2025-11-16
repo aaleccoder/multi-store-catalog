@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
-import { Plus, Search, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
+import { Edit, Trash2, Eye, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import AdminResource, { Column, FormField } from '@/components/admin/AdminResource'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Input } from '@/components/ui/input'
+// Input intentionally removed to rely on AdminResource search
 import {
     Table,
     TableBody,
@@ -35,241 +36,274 @@ interface Product {
     slug: string
     categoryId: string
     category?: { name: string }
-    prices?: any[]
-    coverImages: any[]
+    prices?: PriceType[]
+    coverImages: Media[]
     inStock: boolean
     isActive: boolean
     featured: boolean
+    [key: string]: unknown
 }
 
+type Media = { id?: string; alt?: string; url?: string; isPrimary?: boolean }
+type PriceType = { id?: string; amount?: number | string; saleAmount?: number | string | null; currency?: string | null; isDefault?: boolean }
+type CategoryList = { id: string; name: string }
+type SubcategoryList = { id: string; name: string }
+
 export default function ProductsPage() {
-    const [products, setProducts] = useState<Product[]>([])
-    const [loading, setLoading] = useState(true)
-    const [search, setSearch] = useState('')
+    // Search handled inside AdminResource
     const [dialogOpen, setDialogOpen] = useState(false)
     const [productToDelete, setProductToDelete] = useState<Product | null>(null)
+    const [deleteFn, setDeleteFn] = useState<((id: string | number) => void) | null>(null)
 
-    useEffect(() => {
-        fetchProducts()
-    }, [])
+    // AdminResource configuration
+    const columns: Column<Product>[] = [
+        {
+            header: 'Image',
+            accessor: 'coverImages',
+            render: (p: Product) => {
+                const coverImages = (p.coverImages as Media[]) || []
+                const primaryImage = coverImages.find((img) => img.isPrimary)
+                const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
 
-    const fetchProducts = async () => {
-        try {
-            const res = await fetch('/api/products?limit=100')
-            const data = await res.json()
-            setProducts(data.docs || [])
-        } catch (error) {
-            console.error('Error fetching products:', error)
-            toast.error('Failed to load products')
-        } finally {
-            setLoading(false)
+                return imageUrl ? (
+                    <div className="relative w-12 h-12 rounded overflow-hidden">
+                        <Image src={imageUrl} alt={p.name} fill className="object-cover" />
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 bg-muted rounded" />
+                )
+            },
+        },
+        { header: 'Name', accessor: 'name' },
+        { header: 'Category', accessor: 'category.name' },
+        {
+            header: 'Price',
+            accessor: 'prices',
+            render: (p: Product) => {
+                const defaultPriceObj = (p as Product).prices?.find((pr) => pr.isDefault) || (p as Product).prices?.[0]
+                const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
+                return formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)
+            },
+        },
+        {
+            header: 'Status',
+            accessor: 'isActive',
+            render: (p: Product) => (
+                <div className="flex gap-1">
+                    {p.isActive ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700">Active</Badge>
+                    ) : (
+                        <Badge variant="secondary">Inactive</Badge>
+                    )}
+                    {p.featured && <Badge>Featured</Badge>}
+                    {!p.inStock && <Badge variant="destructive">Out of Stock</Badge>}
+                </div>
+            ),
+        },
+    ]
+
+    const formFields: FormField[] = [
+        { name: 'name', label: 'Name', type: 'text', required: true },
+        { name: 'slug', label: 'Slug', type: 'text' },
+        { name: 'shortDescription', label: 'Short description', type: 'textarea' },
+        { name: 'categoryId', label: 'Category', type: 'select' },
+        { name: 'subcategoryId', label: 'Subcategory', type: 'select' },
+        { name: 'isActive', label: 'Active', type: 'switch' },
+        { name: 'inStock', label: 'In stock', type: 'switch' },
+        { name: 'featured', label: 'Featured', type: 'switch' },
+    ]
+
+    const loadDependencies = async () => {
+        const [catsRes, subRes] = await Promise.all([
+            fetch('/api/admin/categories'),
+            fetch('/api/admin/subcategories'),
+        ])
+
+        const [cats, subs] = await Promise.all([catsRes.json(), subRes.json()])
+
+        const mapOptions = (list: CategoryList[] | SubcategoryList[]) => list.map((c) => ({ value: c.id, label: c.name, id: c.id }))
+
+        return {
+            categoryId: mapOptions(cats),
+            subcategoryId: mapOptions(subs),
         }
     }
-
-    const handleDelete = async (id: string) => {
-        const product = products.find(p => p.id === id)
-        if (product) {
-            setProductToDelete(product)
-            setDialogOpen(true)
-        }
-    }
-
-    const confirmDelete = async () => {
-        if (!productToDelete) return
-        const deletingToastId = toast.loading('Deleting product...')
-
-        try {
-            const res = await fetch(`/api/admin/products/${productToDelete.id}`, { method: 'DELETE' })
-            if (!res.ok) {
-                console.error('Failed to delete product:', res)
-                toast.error('Failed to delete product', { id: deletingToastId })
-                return
-            }
-
-            toast.success('Product deleted', { id: deletingToastId })
-            fetchProducts()
-            setDialogOpen(false)
-            setProductToDelete(null)
-        } catch (error) {
-            console.error('Error deleting product:', error)
-            toast.error('Failed to delete product', { id: deletingToastId })
-        }
-    }
-
-    const filteredProducts = products.filter((product) =>
-        product.name.toLowerCase().includes(search.toLowerCase()),
-    )
 
     return (
         <div className="min-h-screen bg-background">
             <AdminNav />
 
-            <main className="lg:pl-64 pt-20 lg:pt-0">
-                <div className="p-8">
-                    {/* Header */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                        <h1 className="text-3xl font-bold">Products</h1>
-                        <Link href="/admin/products/new">
-                            <Button>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Product
-                            </Button>
-                        </Link>
-                    </div>
+            <main className="pt-20 lg:pt-0">
+                <div>
+                    {/* AdminResource includes header and search; page-level header/search removed to avoid duplicates */}
 
-                    {/* Search */}
-                    <div className="mb-6">
-                        <div className="relative max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search products..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-10"
-                                aria-label="Search products by name"
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">Search by product name, slug or SKU. Results update as you type.</p>
-                        </div>
-                    </div>
-
-                    {/* Table */}
-                    <div className="bg-card rounded-lg border border-border" aria-busy={loading ? true : undefined}>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Image</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead className="hidden md:table-cell">Category</TableHead>
-                                    <TableHead className="hidden md:table-cell">Price</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <div className="flex gap-4 w-full justify-center">
-                                                    <Skeleton className="w-12 h-12 rounded" />
-                                                    <div className="flex-1 space-y-2">
-                                                        <Skeleton className="h-4 w-3/4" />
-                                                        <Skeleton className="h-4 w-1/2" />
-                                                    </div>
-                                                    <div className="hidden md:block">
-                                                        <Skeleton className="h-4 w-24" />
-                                                    </div>
-                                                    <div className="hidden md:block">
-                                                        <Skeleton className="h-4 w-20" />
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                                                    <Loader2 className="h-4 w-4 animate-spin" /> Fetching products...
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : filteredProducts.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8">
-                                            <div>
-                                                <div className="text-lg font-medium">No products found</div>
-                                                <div className="text-sm text-muted-foreground mt-2">Try clearing the search or add a new product.</div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredProducts.map((product) => {
-                                        const coverImages = (product.coverImages as any[]) || []
-                                        const primaryImage = coverImages.find((img: any) => img.isPrimary)
-                                        const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
-                                        const defaultPriceObj = (product as any).prices?.find((p: any) => p.isDefault) || (product as any).prices?.[0]
-                                        // Convert Prisma Decimal (serialized as string) or other types to number
-                                        const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
-
-                                        return (
-                                            <TableRow key={product.id}>
-                                                <TableCell>
-                                                    {imageUrl ? (
-                                                        <div className="relative w-12 h-12 rounded overflow-hidden">
-                                                            <Image
-                                                                src={imageUrl}
-                                                                alt={product.name}
-                                                                fill
-                                                                className="object-cover"
-                                                            />
+                    {/* Table handled by AdminResource */}
+                    <div className="bg-card">
+                        <AdminResource<Product>
+                            title="Products"
+                            fetchUrl={'/api/products?limit=100'}
+                            listTransform={(data: unknown) => ((data as { docs?: Product[] }).docs || (data as Product[]))}
+                            columns={columns}
+                            formFields={formFields}
+                            createUrl={'/api/admin/products'}
+                            updateUrl={(id: string) => `/api/admin/products/${id}`}
+                            deleteUrl={(id: string) => `/api/admin/products/${id}`}
+                            keyField={'id'}
+                            newButtonLabel={'Add Product'}
+                            searchKeys={['name', 'slug']}
+                            loadDependencies={loadDependencies}
+                            renderList={(items, loading, onEdit, onDelete) => (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Image</TableHead>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead className="hidden md:table-cell">Category</TableHead>
+                                            <TableHead className="hidden md:table-cell">Price</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {loading ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="text-center py-8">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="flex gap-4 w-full justify-center">
+                                                            <Skeleton className="w-12 h-12 rounded" />
+                                                            <div className="flex-1 space-y-2">
+                                                                <Skeleton className="h-4 w-3/4" />
+                                                                <Skeleton className="h-4 w-1/2" />
+                                                            </div>
+                                                            <div className="hidden md:block">
+                                                                <Skeleton className="h-4 w-24" />
+                                                            </div>
+                                                            <div className="hidden md:block">
+                                                                <Skeleton className="h-4 w-20" />
+                                                            </div>
                                                         </div>
-                                                    ) : (
-                                                        <div className="w-12 h-12 bg-muted rounded" />
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="font-medium">{product.name}</TableCell>
-                                                <TableCell className="hidden md:table-cell">{product.category?.name || 'N/A'}</TableCell>
-                                                <TableCell className="hidden md:table-cell">{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
-                                                <TableCell>
-                                                    <div className="flex gap-1">
-                                                        {product.isActive ? (
-                                                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                                                                Active
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge variant="secondary">Inactive</Badge>
-                                                        )}
-                                                        {product.featured && <Badge>Featured</Badge>}
-                                                        {!product.inStock && (
-                                                            <Badge variant="destructive">Out of Stock</Badge>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Link href={`/product/${product.slug}`} target="_blank">
-                                                            <Button variant="ghost" size="icon">
-                                                                <Eye className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                        <Link href={`/admin/products/${product.id}`}>
-                                                            <Button variant="ghost" size="icon">
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => handleDelete(product.id)}
-                                                        >
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </Button>
+                                                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                                                            <Loader2 className="h-4 w-4 animate-spin" /> Fetching products...
+                                                        </div>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
-                                        )
-                                    })
-                                )}
-                            </TableBody>
-                        </Table>
+                                        ) : items.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="text-center py-8">
+                                                    <div>
+                                                        <div className="text-lg font-medium">No products found</div>
+                                                        <div className="text-sm text-muted-foreground mt-2">Try clearing the search or add a new product.</div>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            items.map((product: Product) => {
+                                                const coverImages = (product.coverImages as Media[]) || []
+                                                const primaryImage = coverImages.find((img) => img.isPrimary)
+                                                const imageUrl = primaryImage?.url || coverImages[0]?.url || ''
+                                                const defaultPriceObj = (product as Product).prices?.find((p) => p.isDefault) || (product as Product).prices?.[0]
+                                                const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
+
+                                                return (
+                                                    <TableRow key={product.id}>
+                                                        <TableCell>
+                                                            {imageUrl ? (
+                                                                <div className="relative w-12 h-12 rounded overflow-hidden">
+                                                                    <Image
+                                                                        src={imageUrl}
+                                                                        alt={product.name}
+                                                                        fill
+                                                                        className="object-cover"
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-12 h-12 bg-muted rounded" />
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="font-medium">{product.name}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{product.category?.name || 'N/A'}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
+                                                        <TableCell>
+                                                            <div className="flex gap-1">
+                                                                {product.isActive ? (
+                                                                    <Badge variant="outline" className="bg-green-50 text-green-700">Active</Badge>
+                                                                ) : (
+                                                                    <Badge variant="secondary">Inactive</Badge>
+                                                                )}
+                                                                {product.featured && <Badge>Featured</Badge>}
+                                                                {!product.inStock && (
+                                                                    <Badge variant="destructive">Out of Stock</Badge>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Link href={`/product/${product.slug}`} target="_blank">
+                                                                    <Button variant="ghost" size="icon">
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                                <Link href={`/admin/products/${product.id}`}>
+                                                                    <Button variant="ghost" size="icon">
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                                <Button variant="ghost" size="icon" onClick={() => { setProductToDelete(product); setDeleteFn(() => onDelete); setDialogOpen(true); }}>
+                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            )}
+                        />
+                        {/* confirmation dialog for deletion */}
+                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Confirm Deletion</DialogTitle>
+                                    <DialogDescription>
+                                        Are you sure you want to delete &quot;{productToDelete?.name}&quot;? This action cannot be undone.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={async () => {
+                                            if (!productToDelete) return
+                                            const deletingToastId = toast.loading('Deleting product...')
+
+                                            try {
+                                                // call AdminResource delete handler
+                                                if (deleteFn) await deleteFn(productToDelete.id)
+                                                toast.success('Product deleted', { id: deletingToastId })
+                                            } catch (error) {
+                                                console.error(error)
+                                                toast.error('Failed to delete product', { id: deletingToastId })
+                                            } finally {
+                                                setDialogOpen(false)
+                                                setProductToDelete(null)
+                                            }
+                                        }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
             </main>
 
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Confirm Deletion</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete &quot;{productToDelete?.name}&quot;? This action cannot be undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={confirmDelete}>
-                            Delete
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {/* note: deletion handled within AdminResource's renderList */}
         </div>
     )
 }

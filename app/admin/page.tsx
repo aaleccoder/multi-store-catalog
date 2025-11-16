@@ -4,7 +4,6 @@ import { prisma } from '@/lib/db'
 export default async function AdminDashboard() {
     const totalProducts = await prisma.product.count()
     const categoriesCount = await prisma.category.count()
-    const mediaCount = await prisma.media.count()
     const activeProductsCount = await prisma.product.count({ where: { isActive: true } })
     const totalCurrencies = await prisma.currency.count()
     // For server-side counts use prisma
@@ -31,11 +30,6 @@ export default async function AdminDashboard() {
                         <div className="bg-card p-6 rounded-lg border border-border">
                             <h3 className="text-sm font-medium text-muted-foreground">Categories</h3>
                             <p className="text-3xl font-bold mt-2">{categoriesCount}</p>
-                        </div>
-
-                        <div className="bg-card p-6 rounded-lg border border-border">
-                            <h3 className="text-sm font-medium text-muted-foreground">Media Files</h3>
-                            <p className="text-3xl font-bold mt-2">{mediaCount}</p>
                         </div>
 
                         <div className="bg-card p-6 rounded-lg border border-border">
