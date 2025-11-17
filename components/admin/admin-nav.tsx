@@ -24,9 +24,9 @@ import {
     SidebarTrigger,
 } from '@/components/ui/sidebar'
 import LeaLogo from '../lea-logo'
-import router from 'next/router'
 import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
+import router from 'next/router'
 
 const navigation = [
     { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
@@ -45,9 +45,13 @@ export function AdminNav() {
     const pathname = usePathname()
     const { data: session } = authClient.useSession()
 
+
+    console.log('Session in AdminNav:', session);
+
+
     const handleLogout = async () => {
-        // Implement logout
-        window.location.href = '/api/auth/sign-out'
+        await authClient.signOut();
+        window.location.href = '/admin/login';
     }
 
     return (

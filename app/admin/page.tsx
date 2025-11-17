@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { Role } from '@/generated/prisma'
+import { Role } from '@/generated/prisma/enums'
 
 export default async function AdminDashboard() {
     const session = await getSession()
