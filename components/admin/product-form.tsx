@@ -313,10 +313,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         id="shortDescription"
                                         value={formData.shortDescription}
                                         onChange={(e) =>
-                                            setFormData({ ...formData, shortDescription: e.target.value })
+                                            setFormData({ ...formData, shortDescription: e.target.value.slice(0, 150) })
                                         }
                                         rows={2}
+                                        maxLength={150}
                                     />
+                                    <p className="text-xs text-muted-foreground">{formData.shortDescription?.length}/150 caracteres</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -377,11 +379,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             <Input
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={p.price}
                                                 onChange={(e) => {
                                                     const value = parseFloat(e.target.value)
                                                     const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], price: isNaN(value) ? 0 : value }
+                                                    newPrices[idx] = { ...newPrices[idx], price: isNaN(value) ? 0 : Math.max(0, value) }
                                                     setFormData({ ...formData, prices: newPrices })
                                                 }}
                                             />
@@ -392,11 +395,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             <Input
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={p.salePrice ?? ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value ? parseFloat(e.target.value) : undefined
                                                     const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], salePrice: value }
+                                                    newPrices[idx] = { ...newPrices[idx], salePrice: value !== undefined && value < 0 ? undefined : value }
                                                     setFormData({ ...formData, prices: newPrices })
                                                 }}
                                             />
@@ -613,13 +617,14 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             id="weight"
                                             type="number"
                                             step="0.01"
+                                            min="0"
                                             value={(formData.specifications || {}).weight || ''}
                                             onChange={(e) =>
                                                 setFormData({
                                                     ...formData,
                                                     specifications: {
                                                         ...(formData.specifications || {}),
-                                                        weight: e.target.value ? parseFloat(e.target.value) : undefined,
+                                                        weight: e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined,
                                                     },
                                                 })
                                             }
@@ -660,6 +665,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             id="volume"
                                             type="number"
                                             step="0.01"
+                                            min="0"
                                             value={(formData.specifications || {}).volume || ''}
                                             onChange={(e) => {
                                                 const value = e.target.value ? parseFloat(e.target.value) : undefined
@@ -667,7 +673,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                     ...formData,
                                                     specifications: {
                                                         ...(formData.specifications || {}),
-                                                        volume: value,
+                                                        volume: value !== undefined && value < 0 ? undefined : value,
                                                     },
                                                 })
                                             }}
@@ -710,6 +716,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                 id="length"
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={(formData.specifications || {}).dimensions?.length || ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value ? parseFloat(e.target.value) : undefined
@@ -717,7 +724,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         ...formData,
                                                         specifications: {
                                                             ...(formData.specifications || {}),
-                                                            dimensions: { ...(formData.specifications?.dimensions || {}), length: value },
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), length: value !== undefined && value < 0 ? undefined : value },
                                                         },
                                                     })
                                                 }}
@@ -729,6 +736,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                 id="width"
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={(formData.specifications || {}).dimensions?.width || ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value ? parseFloat(e.target.value) : undefined
@@ -736,7 +744,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         ...formData,
                                                         specifications: {
                                                             ...(formData.specifications || {}),
-                                                            dimensions: { ...(formData.specifications?.dimensions || {}), width: value },
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), width: value !== undefined && value < 0 ? undefined : value },
                                                         },
                                                     })
                                                 }}
@@ -748,6 +756,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                 id="height"
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={(formData.specifications || {}).dimensions?.height || ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value ? parseFloat(e.target.value) : undefined
@@ -755,7 +764,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         ...formData,
                                                         specifications: {
                                                             ...(formData.specifications || {}),
-                                                            dimensions: { ...(formData.specifications?.dimensions || {}), height: value },
+                                                            dimensions: { ...(formData.specifications?.dimensions || {}), height: value !== undefined && value < 0 ? undefined : value },
                                                         },
                                                     })
                                                 }}

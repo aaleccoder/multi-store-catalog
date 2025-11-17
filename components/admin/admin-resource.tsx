@@ -57,6 +57,7 @@ interface AdminResourceProps<T extends Record<string, unknown> = Record<string, 
     renderForm?: (options: { formData: Record<string, FormValue>; setFormData: React.Dispatch<React.SetStateAction<Record<string, FormValue>>> }) => React.ReactNode
     loadDependencies?: () => Promise<Record<string, unknown>>
     trpcResource?: string
+    renderHeaderExtra?: () => React.ReactNode
 }
 
 export function AdminResource<T extends Record<string, unknown> = Record<string, unknown>>(props: AdminResourceProps<T>) {
@@ -77,6 +78,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         renderForm,
         loadDependencies,
         trpcResource,
+        renderHeaderExtra,
     } = props
 
     const [items, setItems] = useState<T[]>([])
@@ -410,11 +412,14 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                     </div>
 
                     <div className="mb-6">
-                        <div className="relative max-w-sm">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder={`Buscar ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
-                            <p className="text-xs text-muted-foreground mt-2">Usa la búsqueda para filtrar resultados.</p>
+                        <div className="flex items-center gap-4">
+                            <div className="relative flex-1 max-w-sm">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder={`Buscar ${title.toLowerCase()}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
+                            </div>
+                            {renderHeaderExtra && renderHeaderExtra()}
                         </div>
+                        <p className="text-xs text-muted-foreground mt-2">Usa la búsqueda para filtrar resultados.</p>
                     </div>
 
                     {renderList ? (
