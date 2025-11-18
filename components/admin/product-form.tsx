@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Editor } from '@/components/ui/editor'
 import { Switch } from '@/components/ui/switch'
 import {
     Select,
@@ -323,17 +324,14 @@ export function ProductForm({ productId }: ProductFormProps) {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="description">Descripción *</Label>
-                                    <Textarea
-                                        id="description"
+                                    <Editor
                                         value={formData.description}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, description: e.target.value })
+                                        onChange={(value) =>
+                                            setFormData({ ...formData, description: value })
                                         }
-                                        rows={6}
-                                        required
-                                        aria-required={true}
+                                        placeholder="Escribe una descripción detallada del producto..."
                                     />
-                                    <p className="text-xs text-muted-foreground">Requerido — una descripción completa ayuda a los clientes y motores de búsqueda. Usa markdown si es soportado.</p>
+                                    <p className="text-xs text-muted-foreground">Requerido — una descripción completa ayuda a los clientes y motores de búsqueda. Usa el editor de texto enriquecido para dar formato.</p>
                                 </div>
                             </CardContent>
                         </Card>

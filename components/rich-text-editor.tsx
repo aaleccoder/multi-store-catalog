@@ -7,9 +7,23 @@ interface RichTextRendererProps {
 export function RichTextRenderer({ content }: RichTextRendererProps) {
   if (!content) return null
 
-  // If it's a string, just display it
+  // If it's a string, check if it contains HTML (from Quill)
   if (typeof content === 'string') {
-    return <p>{content}</p>
+    // Check if the string contains HTML tags (Quill format)
+    const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(content)
+
+    if (hasHtmlTags) {
+      // It's HTML from Quill, render it with Tailwind prose classes
+      return (
+        <div
+          className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-p:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-li:text-foreground"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      )
+    }
+
+    // Plain text
+    return <p className="text-muted-foreground">{content}</p>
   }
 
   // Use Payload's serialized format - render as HTML from Lexical nodes
@@ -72,7 +86,7 @@ export function RichTextRenderer({ content }: RichTextRendererProps) {
 
   return (
     <div
-      className="rich-text-content prose prose-sm max-w-none"
+      className="prose prose-slate dark:prose-invert max-w-none"
       dangerouslySetInnerHTML={{ __html: htmlContent }}
     />
   )
