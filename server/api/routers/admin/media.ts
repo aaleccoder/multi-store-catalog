@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { z } from 'zod'
 import { uploadFile, deleteFile, minioClient, BUCKET_NAME } from '@/lib/minio'
 import { TRPCError } from '@trpc/server'
+import { ErrorCode, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminMediaRouter = router({
     list: protectedProcedure.input(z.object({ page: z.number().optional(), limit: z.number().optional() }).optional()).query(async ({ input }) => {
@@ -31,7 +32,12 @@ export const adminMediaRouter = router({
                 }
             }
         });
-        if (!media) throw new Error('Media not found');
+        if (!media) {
+            throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                message: 'Media not found',
+                details: { resource: 'media', id }
+            })
+        }
 
         const objectName = media.url.split('/').pop();
         if (!objectName) throw new Error('Could not determine object name from URL');
@@ -71,13 +77,18 @@ export const adminMediaRouter = router({
         try {
             const id = input
             const media = await prisma.media.findUnique({ where: { id } })
-            if (!media) throw new TRPCError({ code: 'NOT_FOUND', message: 'Media no encontrado' })
+            if (!media) {
+                throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                    message: 'Media not found',
+                    details: { resource: 'media', id }
+                })
+            }
 
             // Check if the media is associated with a product
             if (media.productId) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'No se puede eliminar esta imagen porque está asociada a un producto'
+                throw createErrorWithCode(ErrorCode.RESOURCE_IN_USE, {
+                    message: 'Media is associated with a product',
+                    details: { resource: 'media', linkedTo: 'product', productId: media.productId }
                 })
             }
 
@@ -86,9 +97,14 @@ export const adminMediaRouter = router({
             await prisma.media.delete({ where: { id } })
             return { success: true }
         } catch (error: any) {
-            // If it's already a TRPCError, rethrow it
-            if (error.name === 'TRPCError') throw error
-            throw error
+            // If it's already a TRPCError (one we created), rethrow it
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in media.delete:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 })

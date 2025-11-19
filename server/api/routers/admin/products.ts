@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { productSchema, productUpdateSchema } from '@/lib/api-validators'
 import { toNumber } from '@/lib/number'
 import { TRPCError } from '@trpc/server'
+import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminProductsRouter = router({
     create: protectedProcedure.input(productSchema).mutation(async ({ input }) => {
@@ -12,7 +13,12 @@ export const adminProductsRouter = router({
         let resolvedSubcategoryId: string | undefined
         if (typeof payload.subcategoryId === 'string' && payload.subcategoryId.trim() !== '') {
             const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: payload.subcategoryId }, { slug: payload.subcategoryId }] } })
-            if (!subcategory) throw new Error('Subcategory not found')
+            if (!subcategory) {
+                throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                    message: 'Subcategory not found',
+                    details: { resource: 'subcategory', id: payload.subcategoryId }
+                })
+            }
             resolvedSubcategoryId = subcategory.id
         }
 
@@ -61,21 +67,32 @@ export const adminProductsRouter = router({
 
             return product
         } catch (error: any) {
-            // Check if it's a unique constraint error (duplicate slug)
-            if (error.code === 'P2002') {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in products.create:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 
     get: protectedProcedure.input(z.string()).query(async ({ input }) => {
         const id = input
         const product = await prisma.product.findUnique({ where: { id }, include: { coverImages: true, category: true, subcategory: true, prices: { include: { currency: true } } } })
-        if (!product) throw new Error('Product not found')
+        if (!product) {
+            throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                message: 'Product not found',
+                details: { resource: 'product', id }
+            })
+        }
 
         return {
             ...product,
@@ -93,7 +110,12 @@ export const adminProductsRouter = router({
         let resolvedSubcategoryId: string | undefined
         if (typeof data.subcategoryId === 'string' && data.subcategoryId.trim() !== '') {
             const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: data.subcategoryId }, { slug: data.subcategoryId }] } })
-            if (!subcategory) throw new Error('Subcategory not found')
+            if (!subcategory) {
+                throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                    message: 'Subcategory not found',
+                    details: { resource: 'subcategory', id: data.subcategoryId }
+                })
+            }
             resolvedSubcategoryId = subcategory.id
         }
 
@@ -142,14 +164,20 @@ export const adminProductsRouter = router({
 
             return product
         } catch (error: any) {
-            // Check if it's a unique constraint error (duplicate slug)
-            if (error.code === 'P2002') {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in products.update:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 

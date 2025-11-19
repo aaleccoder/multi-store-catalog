@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { categorySchema, categoryUpdateSchema } from '@/lib/api-validators'
 import { TRPCError } from '@trpc/server'
+import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminCategoriesRouter = router({
     list: protectedProcedure.query(async () => {
@@ -27,14 +28,20 @@ export const adminCategoriesRouter = router({
             })
             return category
         } catch (error: any) {
-            // Check if it's a unique constraint error (duplicate slug)
-            if (error.code === 'P2002') {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in categories.create:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 
@@ -55,14 +62,20 @@ export const adminCategoriesRouter = router({
                 })
                 return category
             } catch (error: any) {
-                // Check if it's a unique constraint error (duplicate slug)
-                if (error.code === 'P2002') {
-                    throw new TRPCError({
-                        code: 'BAD_REQUEST',
-                        message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                    })
+                // Check for Prisma errors and map to standardized codes
+                const prismaErrorCode = mapPrismaError(error)
+                if (prismaErrorCode) {
+                    throw createErrorWithCode(prismaErrorCode)
                 }
-                throw error
+
+                // If already a TRPCError (one we created), rethrow
+                if (error instanceof TRPCError) {
+                    throw error
+                }
+
+                // Handle unexpected errors
+                console.error('Unexpected error in categories.update:', error)
+                throw createErrorWithCode(ErrorCode.SERVER_ERROR)
             }
         }),
 
@@ -71,14 +84,20 @@ export const adminCategoriesRouter = router({
             await prisma.category.delete({ where: { id: input } })
             return { success: true }
         } catch (error: any) {
-            // Check if it's a foreign key constraint error
-            if (error.code === 'P2003' || error.message?.includes('Foreign key constraint')) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'No se puede eliminar esta categoría porque tiene productos asociados'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in categories.delete:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 })

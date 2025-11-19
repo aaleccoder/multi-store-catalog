@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { z } from 'zod'
 import { currencySchema, currencyUpdateSchema } from '@/lib/api-validators'
 import { TRPCError } from '@trpc/server'
+import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminCurrenciesRouter = router({
     list: protectedProcedure.query(async () => {
@@ -51,14 +52,20 @@ export const adminCurrenciesRouter = router({
             await prisma.currency.delete({ where: { id: input } })
             return { success: true }
         } catch (error: any) {
-            // Check if it's a foreign key constraint error
-            if (error.code === 'P2003' || error.message?.includes('Foreign key constraint')) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'No se puede eliminar esta moneda porque tiene productos asociados'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in currencies.delete:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 })

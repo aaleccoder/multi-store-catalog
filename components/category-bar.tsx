@@ -1,9 +1,10 @@
 'use client'
 
-import * as Icons from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/trpc/client'
+import { Icon, IconName } from '@/components/ui/icon-picker'
+import { Package, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Category {
   id: string
@@ -50,12 +51,6 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
     }
   }
 
-  const getIconComponent = (iconName?: string) => {
-    if (!iconName) return Icons.Package
-    const IconComponent = (Icons as any)[iconName]
-    return IconComponent && typeof IconComponent === 'function' ? IconComponent : Icons.Package
-  }
-
   if (!categories || categories.length === 0) {
     return null
   }
@@ -75,7 +70,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
-              <Icons.ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
 
@@ -93,14 +88,13 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
                 : 'hover:bg-primary/5 text-black foreground bg-transparent'
                 }`}
             >
-              <Icons.Package className="h-4 w-4" />
+              <Package className="h-4 w-4" />
               <span>Todos</span>
             </Button>
 
             {/* Category Buttons */}
             {categories.map((category) => {
               const isSelected = selectedCategorySlug === category.slug
-              const IconComponent = getIconComponent(category.icon)
 
               return (
                 <Button
@@ -111,7 +105,11 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
                     : 'hover:bg-primary/5 text-black bg-transparent'
                     }`}
                 >
-                  <IconComponent className="h-4 w-4" />
+                  {category.icon ? (
+                    <Icon name={category.icon as IconName} className="h-4 w-4" />
+                  ) : (
+                    <Package className="h-4 w-4" />
+                  )}
                   <span>{category.name}</span>
                 </Button>
               )
@@ -130,7 +128,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >
-              <Icons.ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

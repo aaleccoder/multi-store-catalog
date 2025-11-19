@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
+import { getErrorMessage } from '@/lib/error-messages'
 
 type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
 
@@ -264,9 +265,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
             toast.success(editing ? 'Actualizado exitosamente' : 'Creado exitosamente')
         } catch (err: any) {
             console.error('Failed to save', err)
-            // Extract error message from tRPC error or use default
-            const errorMessage = err?.message || err?.data?.message || 'Error al guardar'
-            toast.error(errorMessage)
+            toast.error(getErrorMessage(err))
         } finally {
             setSubmitting(false)
         }
@@ -308,8 +307,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
             setItemToDelete(null)
         } catch (err: any) {
             console.error('Failed to delete', err)
-            const errorMessage = err?.message || err?.data?.message || 'Error al eliminar'
-            toast.error(errorMessage)
+            toast.error(getErrorMessage(err))
             setDeleteDialogOpen(false)
             setItemToDelete(null)
         }

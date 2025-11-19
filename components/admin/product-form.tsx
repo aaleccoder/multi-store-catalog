@@ -20,6 +20,7 @@ import { Upload, Loader2, Plus, Trash2, Star } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { getErrorMessage } from '@/lib/error-messages'
 import { trpc } from '@/trpc/client'
 import { ProductInput, Specifications } from '@/lib/api-validators'
 
@@ -201,9 +202,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                     // Revoke object URLs
                     pendingImages.forEach(img => URL.revokeObjectURL(img.url))
                     toast.success('Imágenes subidas', { id: uploadToastId })
-                } catch (error) {
-                    console.error('Error uploading images:', error)
-                    toast.error('Error al subir imágenes', { id: uploadToastId })
+                } catch (uploadError) {
+                    console.error('Error uploading images:', uploadError)
+                    toast.error(getErrorMessage(uploadError), { id: uploadToastId })
                     setSaving(false)
                     return
                 }
@@ -241,7 +242,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             router.refresh()
         } catch (error) {
             console.error('Error saving product:', error)
-            toast.error('Error al guardar producto', { id: savingToastId })
+            toast.error(getErrorMessage(error), { id: savingToastId })
         } finally {
             setSaving(false)
         }

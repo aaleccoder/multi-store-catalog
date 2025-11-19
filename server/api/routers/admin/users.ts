@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { Role } from '@/generated/prisma/enums'
 import { auth } from '@/lib/auth'
+import { ErrorCode, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminUsersRouter = router({
     list: adminProcedure.query(async () => {
@@ -17,7 +18,10 @@ export const adminUsersRouter = router({
         .mutation(async ({ input, ctx }) => {
             const { id, role } = input
             if (id === ctx.session.user.id) {
-                throw new Error('You cannot edit your own role.')
+                throw createErrorWithCode(ErrorCode.CANNOT_MODIFY_SELF, {
+                    message: 'Cannot modify own role',
+                    details: { userId: id }
+                })
             }
             const user = await prisma.user.update({
                 where: { id },
@@ -28,7 +32,10 @@ export const adminUsersRouter = router({
 
     delete: adminProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         if (input === ctx.session.user.id) {
-            throw new Error('You cannot delete your own account.')
+            throw createErrorWithCode(ErrorCode.CANNOT_MODIFY_SELF, {
+                message: 'Cannot delete own account',
+                details: { userId: input }
+            })
         }
         await prisma.user.delete({ where: { id: input } })
         return { success: true }
@@ -58,10 +65,17 @@ export const adminUsersRouter = router({
                 })
                 return createdUser
             } catch (error: any) {
+                // Check for duplicate email
                 if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
-                    throw new Error('User with this email already exists')
+                    throw createErrorWithCode(ErrorCode.EMAIL_ALREADY_EXISTS, {
+                        message: 'User with this email already exists',
+                        details: { email }
+                    })
                 }
-                throw error
+
+                // Handle unexpected errors
+                console.error('Unexpected error in users.create:', error)
+                throw createErrorWithCode(ErrorCode.SERVER_ERROR)
             }
         }),
 })

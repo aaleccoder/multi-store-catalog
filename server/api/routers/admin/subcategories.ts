@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { z } from 'zod'
 import { subcategorySchema, subcategoryUpdateSchema } from '@/lib/api-validators'
 import { TRPCError } from '@trpc/server'
+import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminSubcategoriesRouter = router({
     list: protectedProcedure.query(async () => {
@@ -27,13 +28,20 @@ export const adminSubcategoriesRouter = router({
             })
             return subcategory
         } catch (error: any) {
-            if (error.code === 'P2002') {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in subcategories.create:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 
@@ -54,13 +62,20 @@ export const adminSubcategoriesRouter = router({
                 })
                 return subcategory
             } catch (error: any) {
-                if (error.code === 'P2002') {
-                    throw new TRPCError({
-                        code: 'BAD_REQUEST',
-                        message: 'El slug ya está en uso. Por favor, elige un slug diferente.'
-                    })
+                // Check for Prisma errors and map to standardized codes
+                const prismaErrorCode = mapPrismaError(error)
+                if (prismaErrorCode) {
+                    throw createErrorWithCode(prismaErrorCode)
                 }
-                throw error
+
+                // If already a TRPCError (one we created), rethrow
+                if (error instanceof TRPCError) {
+                    throw error
+                }
+
+                // Handle unexpected errors
+                console.error('Unexpected error in subcategories.update:', error)
+                throw createErrorWithCode(ErrorCode.SERVER_ERROR)
             }
         }),
 
@@ -69,13 +84,20 @@ export const adminSubcategoriesRouter = router({
             await prisma.subcategory.delete({ where: { id: input } })
             return { success: true }
         } catch (error: any) {
-            if (error.code === 'P2003' || error.message?.includes('Foreign key constraint')) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'No se puede eliminar esta subcategoría porque tiene productos asociados'
-                })
+            // Check for Prisma errors and map to standardized codes
+            const prismaErrorCode = mapPrismaError(error)
+            if (prismaErrorCode) {
+                throw createErrorWithCode(prismaErrorCode)
             }
-            throw error
+
+            // If already a TRPCError (one we created), rethrow
+            if (error instanceof TRPCError) {
+                throw error
+            }
+
+            // Handle unexpected errors
+            console.error('Unexpected error in subcategories.delete:', error)
+            throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 })
