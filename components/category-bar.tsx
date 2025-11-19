@@ -50,7 +50,6 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
     }
   }
 
-  // Helper function to get the icon component
   const getIconComponent = (iconName?: string) => {
     if (!iconName) return Icons.Package
     const IconComponent = (Icons as any)[iconName]

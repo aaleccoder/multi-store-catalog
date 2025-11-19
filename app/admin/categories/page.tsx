@@ -2,7 +2,7 @@
 
 import AdminResource from '@/components/admin/admin-resource'
 import { AdminNav } from '@/components/admin/admin-nav'
-import { IconPicker } from '@/components/admin/icon-picker'
+import { IconPicker, IconName } from '@/components/ui/icon-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -51,11 +51,13 @@ export default function CategoriesPage() {
                                         className="w-full border rounded p-2"
                                     />
                                 </div>
-                                <IconPicker
-                                    value={formData.icon as string | undefined}
-                                    onChange={(icon) => setFormData({ ...formData, icon })}
-                                    label="Icono"
-                                />
+                                <div className="space-y-2">
+                                    <Label>Icono</Label>
+                                    <IconPicker
+                                        value={formData.icon as IconName | undefined}
+                                        onValueChange={(icon) => setFormData({ ...formData, icon })}
+                                    />
+                                </div>
                                 <div className="flex items-center space-x-2">
                                     <Switch
                                         id="isActive"

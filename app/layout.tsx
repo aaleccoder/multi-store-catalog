@@ -12,8 +12,8 @@ export default function Layout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body>
+        <html lang="es" suppressHydrationWarning>
+            <body suppressHydrationWarning>
                 <Providers>
                     {children}
                 </Providers>
