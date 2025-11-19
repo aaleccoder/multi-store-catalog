@@ -9,8 +9,8 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 const montserrat = Montserrat({ subsets: ['latin'] })
 
 export const metadata = {
-    title: 'Admin - Lea Catalog',
-    description: 'Administration panel for Lea Catalog',
+    title: 'Admin - Wapa Catalog',
+    description: 'Catálogo para Wapa',
 }
 
 import '../globals.css'

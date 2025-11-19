@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Providers from './providers'
 
 export const metadata: Metadata = {
-    title: 'Catalog App',
-    description: 'A catalog application',
+    title: 'Wapa catálogo',
+    description: 'Catálogo para Wapa',
 }
 
 export default function Layout({

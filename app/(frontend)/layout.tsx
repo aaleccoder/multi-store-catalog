@@ -9,8 +9,8 @@ const montserrat = Montserrat({ subsets: ['latin'] })
 const lobster = Lobster({ subsets: ['latin'], weight: '400', variable: '--font-lobster' })
 
 export const metadata = {
-  description: "Lea's Catalogo de Productos",
-  title: 'Lea Catalog',
+  description: "Wapa, Catalogo de Productos",
+  title: 'Wapa Catalog',
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
