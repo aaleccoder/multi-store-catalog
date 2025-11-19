@@ -14,7 +14,7 @@ import { useVirtualizer, VirtualItem } from '@tanstack/react-virtual';
 import { Skeleton } from "@/components/ui/skeleton";
 import Fuse from 'fuse.js';
 import { useDebounceValue } from "usehooks-ts";
-
+  
 export type IconData = typeof iconsData[number];
 
 interface IconPickerProps extends Omit<React.ComponentPropsWithoutRef<typeof PopoverTrigger>, 'onSelect' | 'onOpenChange'> {
