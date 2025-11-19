@@ -2,6 +2,7 @@ import { router, protectedProcedure } from '../../trpc'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
 import { uploadFile, deleteFile, minioClient, BUCKET_NAME } from '@/lib/minio'
+import { TRPCError } from '@trpc/server'
 
 export const adminMediaRouter = router({
     list: protectedProcedure.input(z.object({ page: z.number().optional(), limit: z.number().optional() }).optional()).query(async ({ input }) => {
@@ -67,12 +68,27 @@ export const adminMediaRouter = router({
         }),
 
     delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
-        const id = input
-        const media = await prisma.media.findUnique({ where: { id } })
-        if (!media) throw new Error('Media not found')
-        const fileName = media.url.split('/').pop()
-        if (fileName) await deleteFile(fileName)
-        await prisma.media.delete({ where: { id } })
-        return { success: true }
+        try {
+            const id = input
+            const media = await prisma.media.findUnique({ where: { id } })
+            if (!media) throw new TRPCError({ code: 'NOT_FOUND', message: 'Media no encontrado' })
+
+            // Check if the media is associated with a product
+            if (media.productId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'No se puede eliminar esta imagen porque está asociada a un producto'
+                })
+            }
+
+            const fileName = media.url.split('/').pop()
+            if (fileName) await deleteFile(fileName)
+            await prisma.media.delete({ where: { id } })
+            return { success: true }
+        } catch (error: any) {
+            // If it's already a TRPCError, rethrow it
+            if (error.name === 'TRPCError') throw error
+            throw error
+        }
     }),
 })

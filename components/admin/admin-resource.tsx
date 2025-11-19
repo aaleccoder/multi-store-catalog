@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
-// AdminNav is intentionally not included here; pages will include it as necessary
 
 type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
 
@@ -90,6 +89,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
     const [dependencies, setDependencies] = useState<Record<string, unknown> | null>(null)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [itemToDelete, setItemToDelete] = useState<T | null>(null)
+    const [submitting, setSubmitting] = useState(false)
     const trpcAny = trpc as any
 
     function mapFetchUrlToTrpcPath(url?: string | null) {
@@ -226,6 +226,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
+        setSubmitting(true)
 
         const editKeyVal = editing?.[keyField as keyof T]
         const url = editKeyVal
@@ -260,16 +261,21 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
             setDialogOpen(false)
             resetForm()
             fetchList()
-            toast.success(editing ? 'Updated successfully' : 'Created successfully')
-        } catch (err) {
+            toast.success(editing ? 'Actualizado exitosamente' : 'Creado exitosamente')
+        } catch (err: any) {
             console.error('Failed to save', err)
-            toast.error('Failed to save')
+            // Extract error message from tRPC error or use default
+            const errorMessage = err?.message || err?.data?.message || 'Error al guardar'
+            toast.error(errorMessage)
+        } finally {
+            setSubmitting(false)
         }
     }
 
     function resetForm() {
         setEditing(null)
         setFormData({})
+        setSubmitting(false)
     }
 
     async function handleEdit(item: T) {
@@ -289,7 +295,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
             if (useTrpc && deleteMutation) {
                 await deleteMutation.mutateAsync(String(id))
                 fetchList()
-                toast.success('Deleted successfully')
+                toast.success('Eliminado exitosamente')
                 setDeleteDialogOpen(false)
                 setItemToDelete(null)
                 return
@@ -297,12 +303,15 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
 
             await fetch(url, { method: 'DELETE' })
             fetchList()
-            toast.success('Deleted successfully')
+            toast.success('Eliminado exitosamente')
             setDeleteDialogOpen(false)
             setItemToDelete(null)
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to delete', err)
-            toast.error('Failed to delete')
+            const errorMessage = err?.message || err?.data?.message || 'Error al eliminar'
+            toast.error(errorMessage)
+            setDeleteDialogOpen(false)
+            setItemToDelete(null)
         }
     }
 
@@ -323,23 +332,35 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                         <h1 className="text-3xl font-bold">{title}</h1>
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                             {createPageUrl ? (
-                                <Link href={createPageUrl} onClick={() => { resetForm(); loadDependencies?.() }}>
+                                <Link href={createPageUrl} onClick={async () => {
+                                    resetForm();
+                                    if (loadDependencies) {
+                                        const deps = await loadDependencies()
+                                        setDependencies(deps)
+                                    }
+                                }}>
                                     <Button>
                                         <Plus className="h-4 w-4 mr-2" />
-                                        {newButtonLabel ?? `Add ${title.slice(0, -1)}`}
+                                        {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
                                     </Button>
                                 </Link>
                             ) : (
                                 <DialogTrigger asChild>
-                                    <Button onClick={() => { resetForm(); loadDependencies?.() }}>
+                                    <Button onClick={async () => {
+                                        resetForm();
+                                        if (loadDependencies) {
+                                            const deps = await loadDependencies()
+                                            setDependencies(deps)
+                                        }
+                                    }}>
                                         <Plus className="h-4 w-4 mr-2" />
-                                        {newButtonLabel ?? `Add ${title.slice(0, -1)}`}
+                                        {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
                                     </Button>
                                 </DialogTrigger>
                             )}
                             <DialogContent>
                                 <DialogHeader>
-                                    <DialogTitle>{editing ? `Edit ${title.slice(0, -1)}` : `Create ${title.slice(0, -1)}`}</DialogTitle>
+                                    <DialogTitle>{editing ? `Editar ${title.slice(0, -1)}` : `Crear ${title.slice(0, -1)}`}</DialogTitle>
                                 </DialogHeader>
 
                                 <form onSubmit={handleSubmit}>
@@ -365,7 +386,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                                     ) : f.type === 'select' ? (
                                                         <Select value={String(formData[f.name] ?? '')} onValueChange={(val) => setFormData({ ...formData, [f.name]: val })}>
                                                             <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select…" />
+                                                                <SelectValue placeholder="Seleccionar…" />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {(() => {
@@ -391,7 +412,16 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                     </div>
 
                                     <DialogFooter>
-                                        <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
+                                        <Button type="submit" disabled={submitting}>
+                                            {submitting ? (
+                                                <>
+                                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                    {editing ? 'Actualizando...' : 'Creando...'}
+                                                </>
+                                            ) : (
+                                                editing ? 'Actualizar' : 'Crear'
+                                            )}
+                                        </Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -400,12 +430,12 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                             <DialogContent>
                                 <DialogHeader>
-                                    <DialogTitle>Confirm Delete</DialogTitle>
+                                    <DialogTitle>Confirmar Eliminación</DialogTitle>
                                 </DialogHeader>
-                                <p>Are you sure you want to delete this {title.slice(0, -1)}?</p>
+                                <p>¿Estás seguro de que quieres eliminar este {title.slice(0, -1)}?</p>
                                 <DialogFooter>
-                                    <Button variant="outline" onClick={() => { setDeleteDialogOpen(false); setItemToDelete(null) }}>Cancel</Button>
-                                    <Button variant="destructive" onClick={() => itemToDelete && handleDelete(String(itemToDelete[keyField as keyof T]))}>Delete</Button>
+                                    <Button variant="outline" onClick={() => { setDeleteDialogOpen(false); setItemToDelete(null) }}>Cancelar</Button>
+                                    <Button variant="destructive" onClick={() => itemToDelete && handleDelete(String(itemToDelete[keyField as keyof T]))}>Eliminar</Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
@@ -432,7 +462,7 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                         {columns.map((c, i) => (
                                             <TableHead key={i} className={c.className}>{c.header}</TableHead>
                                         ))}
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -441,13 +471,13 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                             <TableCell colSpan={columns.length + 1} className="text-center py-8">
                                                 <div className="flex items-center gap-2 justify-center">
                                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Loading…
+                                                    Cargando…
                                                 </div>
                                             </TableCell>
                                         </TableRow>
                                     ) : filtered.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={columns.length + 1} className="text-center py-8">No results</TableCell>
+                                            <TableCell colSpan={columns.length + 1} className="text-center py-8">Sin resultados</TableCell>
                                         </TableRow>
                                     ) : (
                                         filtered.map((item) => (

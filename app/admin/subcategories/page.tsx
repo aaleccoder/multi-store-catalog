@@ -1,22 +1,31 @@
 "use client"
 
+import { useCallback } from 'react'
 import AdminResource from '@/components/admin/admin-resource'
-import { AdminNav } from '@/components/admin/admin-nav'
+import { trpc } from '@/trpc/client'
+
+type CategoryList = { id: string; name: string }
 
 export default function SubcategoriesPage() {
-    const loadDependencies = async () => {
-        const res = await fetch('/api/categories')
-        const json = await res.json()
-        const docs = json.docs || []
-        return { categoryId: docs.map((c: any) => ({ value: c.id, label: c.name })) }
-    }
+    const catsQuery = trpc.admin.categories.list.useQuery()
+
+    const loadDependencies = useCallback(async () => {
+        if (catsQuery.isLoading) await catsQuery.refetch()
+
+        const cats = (catsQuery.data ?? []) as CategoryList[]
+
+        const mapOptions = (list: CategoryList[]) => list.map((c) => ({ value: c.id, label: c.name, id: c.id }))
+
+        return {
+            categoryId: mapOptions(cats),
+        }
+    }, [catsQuery])
 
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
 
-            <main className=" pt-20 lg:pt-0">
-                <div className="p-8">
+            <main className="md:pt-20 lg:pt-0">
+                <div className="">
                     <AdminResource
                         title="Subcategorías"
                         fetchUrl="/api/admin/subcategories"

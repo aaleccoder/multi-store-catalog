@@ -16,7 +16,6 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AdminNav } from '@/components/admin/admin-nav'
 import { Upload, Loader2, Plus, Trash2, Star } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
@@ -251,7 +250,6 @@ export function ProductForm({ productId }: ProductFormProps) {
     if (loading) {
         return (
             <div className="min-h-screen bg-background">
-                <AdminNav />
                 <main className=" pt-20 lg:pt-0">
                     <div className="p-8 flex items-center justify-center min-h-screen">
                         <Loader2 className="h-8 w-8 animate-spin" />
@@ -263,7 +261,6 @@ export function ProductForm({ productId }: ProductFormProps) {
 
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
             <main className=" pt-20 lg:pt-0">
                 <div className="md:p-8 md:max-w-4xl p-2 mx-auto">
                     <h1 className="text-3xl font-bold mb-6">

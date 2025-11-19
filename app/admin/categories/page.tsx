@@ -1,7 +1,6 @@
 "use client"
 
 import AdminResource from '@/components/admin/admin-resource'
-import { AdminNav } from '@/components/admin/admin-nav'
 import { IconPicker, IconName } from '@/components/ui/icon-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,8 +10,8 @@ export default function CategoriesPage() {
     return (
         <div className="min-h-screen bg-background">
 
-            <main className=" pt-20 lg:pt-0">
-                <div className="p-8">
+            <main className="md:pt-20 lg:pt-0">
+                <div className="">
                     <AdminResource
                         title="Categorías"
                         fetchUrl="/api/admin/categories"

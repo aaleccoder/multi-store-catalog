@@ -27,7 +27,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Loader2, Trash, Info, Upload } from 'lucide-react'
-import { AdminNav } from '@/components/admin/admin-nav'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 type Media = {
@@ -71,23 +70,23 @@ export default function MediaPage() {
 
     const updateMutation = trpc.admin.media.update.useMutation({
         onSuccess: () => {
-            toast.success('Media updated successfully')
+            toast.success('Medio actualizado exitosamente')
             queryClient.invalidateQueries()
         },
         onError: (error) => {
-            toast.error(`Error updating media: ${error.message}`)
+            toast.error(`Error al actualizar medio: ${error.message}`)
         },
     })
 
     const deleteMutation = trpc.admin.media.delete.useMutation({
         onSuccess: () => {
-            toast.success('Media deleted successfully')
+            toast.success('Medio eliminado exitosamente')
             setDeleteOpen(false)
             setSelectedMedia(null)
             queryClient.invalidateQueries()
         },
         onError: (error) => {
-            toast.error(`Error deleting media: ${error.message}`)
+            toast.error(`${error.message}`)
         },
     })
 
@@ -119,7 +118,7 @@ export default function MediaPage() {
                     <div>
                         <div className="space-y-4">
                             <div>
-                                <Label htmlFor="alt-text">Alt Text</Label>
+                                <Label htmlFor="alt-text">Texto Alternativo</Label>
                                 <Input id="alt-text" defaultValue={mediaDetails.alt} />
                             </div>
                             <div>
@@ -128,7 +127,7 @@ export default function MediaPage() {
                             </div>
                             {mediaDetails.product && (
                                 <div>
-                                    <Label>Related Product</Label>
+                                    <Label>Producto Relacionado</Label>
                                     <div className="text-sm text-blue-500 hover:underline">
                                         <Link href={`/admin/products/${mediaDetails.product.id}`}>
                                             {mediaDetails.product.name}
@@ -139,11 +138,11 @@ export default function MediaPage() {
                             {mediaDetails.stat && (
                                 <>
                                     <div>
-                                        <Label>File Size</Label>
+                                        <Label>Tamaño del Archivo</Label>
                                         <p className="text-sm text-muted-foreground">{formatBytes(mediaDetails.stat.size)}</p>
                                     </div>
                                     <div>
-                                        <Label>Last Modified</Label>
+                                        <Label>Última Modificación</Label>
                                         <p className="text-sm text-muted-foreground">{new Date(mediaDetails.stat.lastModified).toLocaleString()}</p>
                                     </div>
                                 </>
@@ -158,9 +157,9 @@ export default function MediaPage() {
                                 }}
                             >
                                 <Trash className="h-4 w-4 mr-2" />
-                                Delete
+                                Eliminar
                             </Button>
-                            <Button onClick={handleUpdateAlt}>Save changes</Button>
+                            <Button onClick={handleUpdateAlt}>Guardar cambios</Button>
                         </DialogFooter>
                     </div>
                 </div>
@@ -170,11 +169,10 @@ export default function MediaPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
-            <main className="pt-20 lg:pt-0">
-                <div className="p-8">
+            <main className="md:pt-20 lg:pt-0">
+                <div className="p-4 md:p-8">
                     <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-3xl font-bold">Media</h1>
+                        <h1 className="text-3xl font-bold">Medios</h1>
                         {/* TODO: Add Upload Button and functionality */}
                     </div>
 
@@ -186,7 +184,7 @@ export default function MediaPage() {
                         </div>
                     )}
 
-                    {isError && <p className="text-destructive">Error loading media.</p>}
+                    {isError && <p className="text-destructive">Error al cargar medios.</p>}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {data?.docs.map((media) => (
@@ -214,14 +212,14 @@ export default function MediaPage() {
                 <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
                     <DrawerContent>
                         <DrawerHeader>
-                            <DrawerTitle>Media Details</DrawerTitle>
+                            <DrawerTitle>Detalles del Medio</DrawerTitle>
                         </DrawerHeader>
                         <div className="p-4 overflow-y-auto flex-1">
                             {Content}
                         </div>
                         <DrawerFooter>
                             <DrawerClose asChild>
-                                <Button variant="outline">Cancel</Button>
+                                <Button variant="outline">Cancelar</Button>
                             </DrawerClose>
                         </DrawerFooter>
                     </DrawerContent>
@@ -230,7 +228,7 @@ export default function MediaPage() {
                 <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
                     <DialogContent className="max-w-4xl">
                         <DialogHeader>
-                            <DialogTitle>Media Details</DialogTitle>
+                            <DialogTitle>Detalles del Medio</DialogTitle>
                         </DialogHeader>
                         {Content}
                     </DialogContent>
@@ -241,18 +239,18 @@ export default function MediaPage() {
             <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Confirm Deletion</DialogTitle>
+                        <DialogTitle>Confirmar Eliminación</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete this media? This action cannot be undone.
+                            ¿Estás seguro de que deseas eliminar este medio? Esta acción no se puede deshacer.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
                             {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                            Delete
+                            Eliminar
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -27,7 +27,6 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { AdminNav } from '@/components/admin/admin-nav'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -220,7 +219,6 @@ export default function ProductsPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
 
             <main className="pt-20 lg:pt-0">
                 <AdminResource<Product>

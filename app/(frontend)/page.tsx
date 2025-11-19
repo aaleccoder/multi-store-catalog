@@ -28,8 +28,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div className="h-screen bg-background flex flex-col md:overflow-hidden pb-16 md:pb-0">
         <NavigationLoadingBar />
         <Header />
-        <SearchAndFiltersBar filterContent={filterContent} />
         <CategoryBarWrapper selectedCategorySlug={categorySlug} />
+        <SearchAndFiltersBar filterContent={filterContent} />
         <PageLayoutWrapper filterContent={filterContent}>
           <div className="flex flex-1 md:overflow-hidden">
             <FilterSidebar categorySlug={categorySlug} subcategorySlug={subcategorySlug} />

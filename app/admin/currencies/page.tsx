@@ -1,14 +1,12 @@
 "use client"
 
 import AdminResource from '@/components/admin/admin-resource'
-import { AdminNav } from '@/components/admin/admin-nav'
 export default function CurrenciesPage() {
     return (
         <div className="min-h-screen bg-background">
-            <AdminNav />
 
-            <main className=" pt-20 lg:pt-0">
-                <div className="p-8">
+            <main className="md:pt-20 lg:pt-0">
+                <div className="">
                     <AdminResource
                         title="Monedas"
                         fetchUrl="/api/admin/currencies"

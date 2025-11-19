@@ -16,8 +16,8 @@ export default async function AdminDashboard() {
     return (
         <div className="min-h-screen bg-background">
 
-            <main className="pt-20 lg:pt-0">
-                <div className="p-8">
+            <main className="md:pt-20 lg:pt-0">
+                <div className="p-4 md:p-8">
                     <h1 className="text-3xl font-bold mb-6">Panel de Control</h1>
 
                     <p className="text-sm text-muted-foreground mb-6">Bienvenida!</p>
