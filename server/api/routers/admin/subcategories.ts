@@ -6,13 +6,20 @@ import { TRPCError } from '@trpc/server'
 import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
 export const adminSubcategoriesRouter = router({
-    list: protectedProcedure.query(async () => {
-        const subcategories = await prisma.subcategory.findMany({
-            include: { category: true, _count: { select: { products: true } } },
-            orderBy: { name: 'asc' },
-        })
-        return subcategories
-    }),
+    list: protectedProcedure
+        .input(z.object({ categoryId: z.string().optional() }).optional())
+        .query(async ({ input }) => {
+            const where: any = {}
+            if (input?.categoryId) {
+                where.categoryId = input.categoryId
+            }
+            const subcategories = await prisma.subcategory.findMany({
+                where,
+                include: { category: true, _count: { select: { products: true } } },
+                orderBy: { name: 'asc' },
+            })
+            return subcategories
+        }),
 
     create: protectedProcedure.input(subcategorySchema).mutation(async ({ input }) => {
         try {

@@ -228,6 +228,11 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                 slug={product.slug}
                 featured={product.featured || false}
                 inStock={product.inStock || false}
+                unit={product.specifications?.unit}
+                weight={product.specifications?.weight}
+                weightUnit={product.specifications?.weightUnit}
+                volume={product.specifications?.volume}
+                volumeUnit={product.specifications?.volumeUnit}
               />
             )
           })}

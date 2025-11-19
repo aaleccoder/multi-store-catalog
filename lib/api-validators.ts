@@ -51,6 +51,7 @@ export const specificationsSchema = z.object({
     }).optional(),
     volume: z.number().optional(),
     volumeUnit: z.string().optional(),
+    unit: z.string().optional(),
 }).optional()
 
 export const productSchema = z.object({

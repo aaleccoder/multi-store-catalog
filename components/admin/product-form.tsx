@@ -72,14 +72,14 @@ export function ProductForm({ productId }: ProductFormProps) {
         featured: false,
     })
 
-    const { data: categoriesData, isLoading: categoriesLoading } = trpc.categories.list.useQuery()
-    const categories: Category[] = (categoriesData as any)?.docs || []
+    const { data: categoriesData, isLoading: categoriesLoading } = trpc.admin.categories.list.useQuery()
+    const categories: Category[] = categoriesData || []
 
-    const { data: subcategoriesData, isLoading: subcategoriesLoading } = trpc.subcategories.list.useQuery(
+    const { data: subcategoriesData, isLoading: subcategoriesLoading } = trpc.admin.subcategories.list.useQuery(
         { categoryId: formData.categoryId },
         { enabled: !!formData.categoryId }
     )
-    const subcategories: Subcategory[] = (subcategoriesData as any)?.docs || []
+    const subcategories: Subcategory[] = subcategoriesData || []
 
     const { data: currenciesData, isLoading: currenciesLoading } = trpc.currencies.list.useQuery()
     const currencies: Currency[] = (currenciesData as Currency[]) || []
@@ -106,7 +106,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                     price: p.amount ?? p.price ?? 0,
                     salePrice: p.saleAmount ?? p.salePrice ?? undefined,
                     currency: p.currency?.code || p.currency || '',
-                    isDefault: p.isDefault ?? false,
+                    isDefault: (product.prices || []).length === 1 ? true : (p.isDefault ?? false),
                     taxIncluded: p.taxIncluded ?? true,
                 })),
                 specifications: product.specifications || {},
@@ -342,7 +342,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {(formData.prices ?? []).map((p, idx) => (
-                                    <div key={idx} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
+                                    <div key={idx} className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end p-4 rounded-lg border ${p.isDefault ? 'border-primary bg-primary/5' : 'border-border'}`}>
                                         <div className="space-y-2">
                                             <Label>Moneda</Label>
                                             <Select
@@ -418,16 +418,22 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             <Label>Predeterminado</Label>
                                             <div className="flex gap-2">
                                                 <Button
+                                                    type="button"
                                                     size="sm"
+                                                    variant={p.isDefault ? "default" : "outline"}
+                                                    disabled={p.isDefault}
                                                     onClick={() => {
                                                         const newPrices = (formData.prices || []).map((x, i) => ({ ...x, isDefault: i === idx }))
                                                         setFormData({ ...formData, prices: newPrices })
                                                     }}
                                                 >
-                                                    Establecer
+                                                    {p.isDefault ? 'Predeterminado' : 'Establecer'}
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => {
-                                                    const newPrices = (formData.prices || []).filter((_, i) => i !== idx)
+                                                    let newPrices = (formData.prices || []).filter((_, i) => i !== idx)
+                                                    if (newPrices.length === 1) {
+                                                        newPrices[0] = { ...newPrices[0], isDefault: true }
+                                                    }
                                                     setFormData({ ...formData, prices: newPrices })
                                                 }}>
                                                     <Trash2 className="h-4 w-4" />
@@ -604,6 +610,22 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             })
                                         }
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="unit">Unidad</Label>
+                                    <Input
+                                        id="unit"
+                                        placeholder="ej. 6 unidades, 1 paquete"
+                                        value={(formData.specifications || {}).unit || ''}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                specifications: { ...(formData.specifications || {}), unit: e.target.value },
+                                            })
+                                        }
+                                    />
+                                    <p className="text-xs text-muted-foreground">Opcional - cantidad que trae el producto (ej. 6 unidades)</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

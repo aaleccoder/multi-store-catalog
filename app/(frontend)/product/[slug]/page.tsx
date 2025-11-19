@@ -220,6 +220,19 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <span className="text-4xl font-bold text-primary">
                     {formatCurrencyPrice(price, currency)}
                   </span>
+                  {specifications?.unit && (
+                    <span className="text-xl text-muted-foreground self-end mb-1">
+                      / {specifications.unit.replace(/^(\d+)(\w)$/, '$1 $2')}
+                    </span>
+                  )}
+                  {(specifications?.weight || specifications?.volume) && (
+                    <span className="text-xl text-muted-foreground self-end mb-1">
+                      {' * '}
+                      {specifications.weight
+                        ? `${specifications.weight} ${specifications.weightUnit || 'g'}`
+                        : `${specifications.volume} ${specifications.volumeUnit || 'ml'}`}
+                    </span>
+                  )}
                   {hasDiscount && (
                     <span className="text-xl text-muted-foreground line-through">
                       {formatCurrencyPrice(regularPrice, currency)}
@@ -336,6 +349,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                       slug={relatedProduct.slug}
                       featured={relatedProduct.featured}
                       inStock={relatedProduct.inStock}
+                      unit={(relatedProduct.specifications as any)?.unit}
+                      weight={(relatedProduct.specifications as any)?.weight}
+                      weightUnit={(relatedProduct.specifications as any)?.weightUnit}
+                      volume={(relatedProduct.specifications as any)?.volume}
+                      volumeUnit={(relatedProduct.specifications as any)?.volumeUnit}
                     />
                   )
                 })}

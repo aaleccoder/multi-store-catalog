@@ -27,6 +27,11 @@ interface ProductCardProps {
   slug: string
   featured?: boolean
   inStock?: boolean
+  unit?: string
+  weight?: number
+  weightUnit?: string
+  volume?: number
+  volumeUnit?: string
 }
 
 export const ProductCard = ({
@@ -42,6 +47,11 @@ export const ProductCard = ({
   slug,
   featured = false,
   inStock = true,
+  unit,
+  weight,
+  weightUnit,
+  volume,
+  volumeUnit,
 }: ProductCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem, updateQuantity, items } = useCart()
@@ -238,7 +248,16 @@ export const ProductCard = ({
               </h3>
 
               <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                  {unit && <span className="text-[10px] text-muted-foreground">/ {unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
+                  {(weight || volume) && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {' * '}
+                      {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}
+                    </span>
+                  )}
+                </div>
                 {/* {hasDiscount && (
                   <span className="text-xs text-muted-foreground line-through">
                     {formatPrice(regularPrice)}
@@ -401,7 +420,16 @@ export const ProductCard = ({
 
             <div className="flex items-center justify-between pt-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                  {unit && <span className="text-[10px] text-muted-foreground">/ {unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
+                  {(weight || volume) && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {' * '}
+                      {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}
+                    </span>
+                  )}
+                </div>
                 {/* {hasDiscount && (
                   <span className="text-sm text-muted-foreground line-through">
                     {formatPrice(regularPrice)}
