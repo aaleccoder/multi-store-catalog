@@ -23,7 +23,7 @@ import {
     SidebarFooter,
     SidebarTrigger,
 } from '@/components/ui/sidebar'
-import LeaLogo from '../lea-logo'
+import LogoProps from '../logo'
 import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
 import router from 'next/router'
@@ -68,10 +68,10 @@ export function AdminNav() {
                 <SidebarHeader className="">
                     <button
                         onClick={() => router.push('/')}
-                        className="flex-shrink-0 cursor-pointer"
+                        className="shrink-0 cursor-pointer"
                         aria-label="Ir a inicio"
                     >
-                        <LeaLogo
+                        <LogoProps
                             className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
                             aria-label="Logo de Lea Catalog"
                         />

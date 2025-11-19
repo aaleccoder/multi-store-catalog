@@ -61,10 +61,9 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
   }
 
   return (
-    <div className="bg-white md:border md:border-border">
+    <div className="bg-primary/10 md:border md:border-border">
       <div className="container px-6 py-4">
         <div className="relative flex items-center gap-2">
-          {/* Left Scroll Button */}
           <div
             className={`transition-all duration-300 ease-in-out ${canScrollLeft ? 'w-8 opacity-100' : 'w-0 opacity-0'
               }`}
@@ -80,7 +79,6 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
             </Button>
           </div>
 
-          {/* Scrollable Container */}
           <div
             ref={scrollContainerRef}
             onScroll={checkScroll}
@@ -107,7 +105,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               return (
                 <Button
                   key={category.id}
-                  onClick={() => (window.location.href = `/category/${category.slug}`)}
+                  onClick={() => (window.location.href = `?category=${category.slug}`)}
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
                     ? 'bg-primary text-white backdrop-blur-md'
                     : 'hover:bg-primary/5 text-black bg-transparent'

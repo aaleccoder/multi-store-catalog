@@ -1,5 +1,5 @@
 
-import LeaLogo from "@/components/lea-logo"
+import LogoProps from "@/components/logo"
 
 export default function Loading() {
     return (
@@ -9,7 +9,7 @@ export default function Loading() {
                 role="status"
                 aria-live="polite"
             >
-                <LeaLogo className="h-20 w-20 text-[#c90606]" aria-hidden={false} />
+                <LogoProps className="h-20 w-20 text-[#c90606]" aria-hidden={false} />
                 <div className="w-8 h-8 border-4 border-[#c90606] border-t-transparent rounded-full animate-spin"></div>
 
                 <span className="sr-only">Loading content...</span>

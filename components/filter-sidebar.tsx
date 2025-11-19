@@ -14,15 +14,12 @@ interface FilterSidebarProps {
   subcategorySlug?: string
 }
 
-// Export function to get filter content (used by both desktop sidebar and mobile sheet)
 export const getFilterContent = async (
   categorySlug?: string,
   subcategorySlug?: string,
 ): Promise<ReactElement> => {
-  // Fetch active currencies
   const currencies = await getCurrencies()
 
-  // Fetch active categories
   const categories = await prisma.category.findMany({
     where: {
       isActive: true,
@@ -32,7 +29,6 @@ export const getFilterContent = async (
     },
   })
 
-  // Get selected category if categorySlug is provided
   let selectedCategory: Category | null = null
   if (categorySlug) {
     selectedCategory = await prisma.category.findFirst({
@@ -42,7 +38,6 @@ export const getFilterContent = async (
     })
   }
 
-  // Fetch subcategories for the selected category
   let subcategoriesForCategory: Subcategory[] = []
   if (selectedCategory) {
     subcategoriesForCategory = await prisma.subcategory.findMany({
@@ -56,7 +51,6 @@ export const getFilterContent = async (
     })
   }
 
-  // Count products per category
   const categoryCounts = await Promise.all(
     categories.map(async (category) => {
       const count = await prisma.product.count({
@@ -71,7 +65,6 @@ export const getFilterContent = async (
 
   const categoryCountMap = Object.fromEntries(categoryCounts.map(({ id, count }) => [id, count]))
 
-  // Count products per subcategory for the selected category
   const subcategoryCountMap: Record<string | number, number> = {}
   if (selectedCategory && subcategoriesForCategory.length > 0) {
     const subcategoryCounts = await Promise.all(
@@ -91,7 +84,6 @@ export const getFilterContent = async (
     })
   }
 
-  // Get filters for the selected category and subcategory
   const activeFilters = new Map<
     string,
     {
@@ -146,10 +138,8 @@ export const getFilterContent = async (
     }
   }
 
-  // Filter content component to reuse in both desktop and mobile
   const filterContent = (
     <div className="p-4 pb-12 space-y-6">
-      {/* Categories - Only show if no category is selected */}
       {!categorySlug && categories.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Categorías</h3>
@@ -171,7 +161,6 @@ export const getFilterContent = async (
         </div>
       )}
 
-      {/* Subcategories - Only show if category is selected */}
       {selectedCategory && subcategoriesForCategory.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
@@ -206,7 +195,6 @@ export const getFilterContent = async (
         </div>
       )}
 
-      {/* Client-side filters */}
       <FilterSidebarClient
         activeFilters={Array.from(activeFilters.values())}
         categorySlug={categorySlug}
@@ -224,17 +212,14 @@ export const FilterSidebar = async ({ categorySlug, subcategorySlug }: FilterSid
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex sticky top-0 w-64 min-w-64 bg-sidebar border-r border-border h-full flex-col">
-        {/* Header */}
-        <div className="flex-shrink-0 bg-sidebar border-b border-border p-4">
+      <aside className="hidden md:flex sticky top-0 w-64 min-w-64 bg-primary/10 border-r border-border h-full flex-col">
+        <div className="shrink-0 bg-sidebar border-b border-border p-4">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-5 w-5 text-foreground" />
             <h2 className="text-lg font-semibold text-foreground">Filtros</h2>
           </div>
         </div>
 
-        {/* Scrollable Content */}
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full">{filterContent}</ScrollArea>
         </div>

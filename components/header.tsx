@@ -6,7 +6,7 @@ import { WishlistSheet } from '@/components/wishlist-sheet'
 import { Input } from '@/components/ui/input'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import LeaLogo from '@/components/lea-logo'
+import Logo from '@/components/logo'
 
 export const Header = () => {
   const router = useRouter()
@@ -33,24 +33,25 @@ export const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4">
-        {/* Logo and Search Section */}
-        <div className="flex w-full md:w-auto items-center gap-4">
-          {/* Logo */}
+    <header className="sticky top-0 z-50 w-full backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
+      <div className="flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4 bg-primary/30">
+        <div className="flex w-full items-center gap-4">
           <button
             onClick={() => router.push('/')}
-            className="flex-shrink-0 cursor-pointer"
+            className="shrink-0 cursor-pointer"
             aria-label="Ir a inicio"
           >
-            <LeaLogo
+            <Logo
               className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
               aria-label="Lea Catalog logo"
             />
           </button>
 
-          {/* Search Bar - Hidden on mobile, shown on desktop */}
-          <div className="hidden md:flex relative flex-1 max-w-md">
+
+        </div>
+
+        <div className="flex items-center gap-2 md:gap-4 md:ml-auto">
+          <div className="hidden md:flex relative flex-1 items-center w-md bg-white">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar..."
@@ -79,18 +80,6 @@ export const Header = () => {
               </button>
             )}
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 md:gap-4 md:ml-auto">
-          {/* <button
-            onClick={() => router.push('/')}
-            className="hidden md:flex flex-col items-center justify-center gap-1 text-foreground hover:text-primary transition-colors"
-            aria-label="Ir a inicio"
-          >
-            <Home className="h-5 w-5" />
-          </button> */}
-
           <WishlistSheet />
           <ShoppingCartSheet />
         </div>

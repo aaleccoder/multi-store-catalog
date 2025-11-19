@@ -7,59 +7,38 @@
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.25rem;
   --background: oklch(99% 0.001 0);
-  /* Clean white background */
   --foreground: oklch(20% 0.02 0);
-  /* Deep charcoal for text */
   --card: oklch(100% 0 0);
-  /* Pure white cards */
   --card-foreground: oklch(20% 0.02 0);
   --popover: oklch(100% 0 0);
   --popover-foreground: oklch(20% 0.02 0);
-  --primary: #d94545;
-  /* Bold red #c90606 equivalent in OKLCH */
-  --primary-foreground: oklch(100% 0 0);
-  /* White text */
-  --secondary: oklch(88% 0.04 80);
-  /* Warm beige-grey */
-  --secondary-foreground: oklch(25% 0.02 0);
-  --muted: oklch(92% 0.01 0);
-  /* Light grey */
-  --muted-foreground: oklch(55% 0.03 0);
-  /* Medium grey text */
-  --accent: oklch(45% 0.22 28);
-  /* Deep orange for accents */
-  --accent-foreground: oklch(100% 0 0);
-  --destructive: oklch(45% 0.22 28);
-  /* Same as primary - bold red */
+  --primary: #F4B639;
+  --primary-foreground: #4A3428;
+  --secondary: #924E43;
+  --secondary-foreground: oklch(98% 0.01 0);
+  --muted: oklch(95% 0.015 50);
+  --muted-foreground: oklch(45% 0.04 50);
+  --accent: #4A3428;
+  --accent-foreground: #F4B639;
+  --destructive: #924E43;
   --destructive-foreground: oklch(100% 0 0);
-  --border: oklch(90% 0.01 0);
-  /* Light border */
-  --input: oklch(96% 0.01 0);
-  /* Very light input background */
-  --ring: oklch(45% 0.22 28);
-  /* Red focus ring */
-  --chart-1: oklch(45% 0.22 28);
-  /* Bold red */
-  --chart-2: oklch(55% 0.18 40);
-  /* Deep orange */
-  --chart-3: oklch(50% 0.15 260);
-  /* Deep blue */
-  --chart-4: oklch(65% 0.12 190);
-  /* Teal */
-  --chart-5: oklch(75% 0.15 130);
-  /* Lime */
-  --sidebar: oklch(96% 0.01 0);
-  /* Very light sidebar */
-  --sidebar-foreground: oklch(20% 0.02 0);
-  --sidebar-primary: oklch(45% 0.22 28);
-  /* Red primary */
-  --sidebar-primary-foreground: oklch(100% 0 0);
-  --sidebar-accent: oklch(88% 0.04 80);
-  /* Warm beige-grey hover */
-  --sidebar-accent-foreground: oklch(45% 0.22 28);
-  --sidebar-border: oklch(90% 0.01 0);
-  --sidebar-ring: oklch(45% 0.22 28);
-  --font-sans: Inter, sans-serif;
+  --border: oklch(88% 0.02 50);
+  --input: oklch(98% 0.01 50);
+  --ring: #F4B639;
+  --chart-1: #F4B639;
+  --chart-2: #924E43;
+  --chart-3: #4A3428;
+  --chart-4: #D48A47;
+  --chart-5: #6B4E3D;
+  --sidebar: oklch(97% 0.015 50);
+  --sidebar-foreground: #4A3428;
+  --sidebar-primary: #F4B639;
+  --sidebar-primary-foreground: #4A3428;
+  --sidebar-accent: #FDF5E6;
+  --sidebar-accent-foreground: #4A3428;
+  --sidebar-border: oklch(88% 0.02 50);
+  --sidebar-ring: #F4B639;
+  --font-sans: Montserrat, sans-serif;
   --font-serif: Merriweather, serif;
   --shadow-color: hsl(0 0% 0%);
   --shadow-opacity: 0.08;
