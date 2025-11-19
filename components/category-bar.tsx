@@ -1,8 +1,6 @@
 'use client'
 
-import { Package, ChevronLeft, ChevronRight } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
+import * as Icons from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/trpc/client'
@@ -11,6 +9,7 @@ interface Category {
   id: string
   name: string
   slug: string
+  icon?: string
 }
 
 interface CategoryBarProps {
@@ -51,6 +50,13 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
     }
   }
 
+  // Helper function to get the icon component
+  const getIconComponent = (iconName?: string) => {
+    if (!iconName) return Icons.Package
+    const IconComponent = (Icons as any)[iconName]
+    return IconComponent && typeof IconComponent === 'function' ? IconComponent : Icons.Package
+  }
+
   if (!categories || categories.length === 0) {
     return null
   }
@@ -71,7 +77,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <Icons.ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
 
@@ -86,27 +92,29 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
             <Button
               onClick={() => (window.location.href = '/')}
               className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategorySlug
-                  ? 'bg-primary text-white backdrop-blur-md'
-                  : 'hover:bg-primary/5 text-black foreground bg-transparent'
+                ? 'bg-primary text-white backdrop-blur-md'
+                : 'hover:bg-primary/5 text-black foreground bg-transparent'
                 }`}
             >
-              <Package className="h-4 w-4" />
+              <Icons.Package className="h-4 w-4" />
               <span>Todos</span>
             </Button>
 
             {/* Category Buttons */}
             {categories.map((category) => {
               const isSelected = selectedCategorySlug === category.slug
+              const IconComponent = getIconComponent(category.icon)
+
               return (
                 <Button
                   key={category.id}
                   onClick={() => (window.location.href = `/category/${category.slug}`)}
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
-                      ? 'bg-primary text-white backdrop-blur-md'
-                      : 'hover:bg-primary/5 text-black bg-transparent'
+                    ? 'bg-primary text-white backdrop-blur-md'
+                    : 'hover:bg-primary/5 text-black bg-transparent'
                     }`}
                 >
-                  <Package className="h-4 w-4" />
+                  <IconComponent className="h-4 w-4" />
                   <span>{category.name}</span>
                 </Button>
               )
@@ -125,7 +133,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >
-              <ChevronRight className="h-4 w-4" />
+              <Icons.ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

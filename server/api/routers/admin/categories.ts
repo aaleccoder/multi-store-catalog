@@ -18,6 +18,7 @@ export const adminCategoriesRouter = router({
                 name: input.name,
                 slug: input.slug,
                 description: input.description,
+                icon: input.icon,
                 isActive: input.isActive ?? true,
                 filters: input.filters || [],
             }
@@ -34,6 +35,7 @@ export const adminCategoriesRouter = router({
                     name: data.name,
                     slug: data.slug,
                     description: data.description,
+                    icon: data.icon,
                     isActive: data.isActive,
                     filters: data.filters,
                 }

@@ -2,6 +2,10 @@
 
 import AdminResource from '@/components/admin/admin-resource'
 import { AdminNav } from '@/components/admin/admin-nav'
+import { IconPicker } from '@/components/admin/icon-picker'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 
 export default function CategoriesPage() {
     return (
@@ -18,12 +22,50 @@ export default function CategoriesPage() {
                             { header: 'Productos', render: (x: any) => x._count?.products || 0 },
                             { header: 'Estado', render: (x: any) => (x.isActive ? 'Activo' : 'Inactivo') },
                         ]}
-                        formFields={[
-                            { name: 'name', label: 'Nombre', type: 'text', required: true },
-                            { name: 'slug', label: 'Slug', type: 'text', required: true },
-                            { name: 'description', label: 'Descripción', type: 'textarea' },
-                            { name: 'isActive', label: 'Activo', type: 'switch' },
-                        ]}
+                        renderForm={({ formData, setFormData }) => (
+                            <>
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Nombre</Label>
+                                    <Input
+                                        id="name"
+                                        value={String(formData.name ?? '')}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="slug">Slug</Label>
+                                    <Input
+                                        id="slug"
+                                        value={String(formData.slug ?? '')}
+                                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="description">Descripción</Label>
+                                    <textarea
+                                        id="description"
+                                        value={String(formData.description ?? '')}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="w-full border rounded p-2"
+                                    />
+                                </div>
+                                <IconPicker
+                                    value={formData.icon as string | undefined}
+                                    onChange={(icon) => setFormData({ ...formData, icon })}
+                                    label="Icono"
+                                />
+                                <div className="flex items-center space-x-2">
+                                    <Switch
+                                        id="isActive"
+                                        checked={!!formData.isActive}
+                                        onCheckedChange={(val) => setFormData({ ...formData, isActive: val })}
+                                    />
+                                    <Label htmlFor="isActive">Activo</Label>
+                                </div>
+                            </>
+                        )}
                         searchKeys={['name', 'slug']}
                         newButtonLabel="Agregar Categoría"
                     />
