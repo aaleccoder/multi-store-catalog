@@ -161,7 +161,7 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
                       {/* Product Image */}
                       <Link
                         href={`/product/${item.slug}`}
-                        className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border/30"
+                        className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/30"
                       >
                         {item.image ? (
                           <Image
@@ -179,63 +179,68 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
                       </Link>
 
                       {/* Product Info */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <Link href={`/product/${item.slug}`}>
-                              <h4 className="font-medium text-xs text-foreground leading-snug mb-1.5 hover:text-primary transition-colors line-clamp-2">
-                                {item.name}
-                              </h4>
-                            </Link>
-                            <p className="text-sm font-bold text-primary">
-                              {formatPrice(item.price)}
-                            </p>
-                          </div>
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <Link href={`/product/${item.slug}`}>
+                            <h4 className="font-medium text-xs text-foreground leading-snug hover:text-primary transition-colors line-clamp-2">
+                              {item.name}
+                            </h4>
+                          </Link>
                           {/* Delete Button */}
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                             onClick={() => handleRemoveItem(item.id)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
 
-                        {/* Add to Cart Button or Quantity Controls */}
-                        <div className="flex gap-2 mt-2">
+                        {/* Price and Quantity Controls Row */}
+                        <p className="text-sm font-bold text-primary whitespace-nowrap text-left">
+                          {formatPrice(item.price)}
+                        </p>
+                        <div className="flex items-center gap-2 w-full">
                           {quantityInCart > 0 ? (
-                            <div className="flex-1 inline-flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-r border-border/60"
-                                onClick={() => handleDecrement(item.id)}
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </Button>
-                              <span className="text-xs font-semibold flex-1 text-center tabular-nums">
-                                {quantityInCart}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-l border-border/60"
-                                onClick={() => handleIncrement(item)}
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
+                            <>
+                              <div className="w-full flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-r border-border/60"
+                                  onClick={() => handleDecrement(item.id)}
+                                >
+                                  <Minus className="h-3.5 w-3.5" />
+                                </Button>
+                                <span className="text-xs font-semibold text-center flex-1">
+                                  {quantityInCart}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-l border-border/60"
+                                  onClick={() => handleIncrement(item)}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </>
                           ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 h-8 text-xs"
-                              onClick={() => handleAddToCart(item)}
-                            >
-                              <ShoppingCart className="h-3 w-3 mr-1" />
-                              Agregar al Carrito
-                            </Button>
+                            <>
+                              <p className="text-sm font-bold text-primary whitespace-nowrap text-left">
+                                {formatPrice(item.price)}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-8 text-xs"
+                                onClick={() => handleAddToCart(item)}
+                              >
+                                <ShoppingCart className="h-3 w-3 mr-1" />
+                                Agregar al Carrito
+                              </Button>
+                            </>
                           )}
                         </div>
                       </div>

@@ -130,7 +130,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                 >
                   <div className="flex gap-4">
                     {/* Product Image */}
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border/30">
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/30">
                       {item.image ? (
                         <Image
                           src={item.image}
@@ -148,29 +148,34 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h4 className="font-medium text-xs text-foreground leading-snug mb-1.5">
-                            {item.name}
-                          </h4>
-                          <p className="text-[10px] text-muted-foreground font-normal">
-                            {formatPrice(item.price)} c/u
-                          </p>
-                        </div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-medium text-xs text-foreground leading-snug line-clamp-2">
+                          {item.name}
+                        </h4>
                         {/* Delete Button */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                           onClick={() => handleRemoveItem(item.id)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
 
-                      {/* Quantity Controls & Total Price */}
-                      <div className="flex items-center justify-between gap-2 mt-2">
-                        <div className="inline-flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
+                      {/* Total Price Row */}
+                      <div className="flex flex-row items-center gap-2 mb-2">
+                        <p className="text-sm font-bold text-foreground text-left">
+                          {formatPrice(item.price * item.quantity)}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-normal whitespace-nowrap text-left">
+                          {formatPrice(item.price)} c/u
+                        </p>
+                      </div>
+
+                      {/* Quantity Controls and Price per unit Row */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 inline-flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -179,7 +184,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                           >
                             <Minus className="h-3.5 w-3.5" />
                           </Button>
-                          <span className="text-xs font-semibold w-10 text-center tabular-nums">
+                          <span className="text-xs font-semibold flex-1 text-center tabular-nums">
                             {item.quantity}
                           </span>
                           <Button
@@ -191,9 +196,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                             <Plus className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                        <p className="text-sm font-bold text-foreground tabular-nums">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
+
                       </div>
                     </div>
                   </div>
