@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/error-messages'
 import { trpc } from '@/trpc/client'
 import { ProductInput, Specifications } from '@/lib/api-validators'
+import { ProductVariantsForm, Variant } from './product-variants-form'
 
 interface Category {
     id: string
@@ -38,6 +39,8 @@ interface Subcategory {
 type ProductFormData = Omit<ProductInput, 'coverImages' | 'specifications'> & {
     coverImages: Array<{ url: string; alt: string; isPrimary: boolean; isUploaded: boolean; file?: File }>
     specifications: Specifications
+    variants: Variant[]
+    hasVariants: boolean
 }
 
 interface PriceInput {
@@ -52,9 +55,28 @@ interface ProductFormProps {
     productId?: string
 }
 
+const generateSlug = (name: string) => {
+    return name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+}
+
+const sanitizeSlugInput = (value: string) => {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+}
+
 export function ProductForm({ productId }: ProductFormProps) {
     const router = useRouter()
     const [saving, setSaving] = useState(false)
+    const [manuallyEditedSlug, setManuallyEditedSlug] = useState(false)
 
     const [formData, setFormData] = useState<ProductFormData>({
         name: '',
@@ -70,6 +92,8 @@ export function ProductForm({ productId }: ProductFormProps) {
         isActive: true,
         inStock: true,
         featured: false,
+        variants: [],
+        hasVariants: false,
     })
 
     const { data: categoriesData, isLoading: categoriesLoading } = trpc.admin.categories.list.useQuery()
@@ -113,21 +137,28 @@ export function ProductForm({ productId }: ProductFormProps) {
                 isActive: product.isActive,
                 inStock: product.inStock,
                 featured: product.featured,
+                variants: (product.variants || []).map((v: any) => ({
+                    id: v.id,
+                    name: v.name,
+                    sku: v.sku,
+                    stock: v.stock,
+                    isActive: v.isActive,
+                    prices: (v.prices || []).map((p: any) => ({
+                        price: Number(p.amount),
+                        salePrice: p.saleAmount ? Number(p.saleAmount) : undefined,
+                        currency: p.currency?.code || p.currency || '',
+                        isDefault: p.isDefault ?? false,
+                        taxIncluded: p.taxIncluded ?? true,
+                    }))
+                })),
+                hasVariants: (product.variants || []).length > 0,
             })
+            setManuallyEditedSlug(product.slug !== generateSlug(product.name))
         }
     }, [productData])
 
     const createProductMutation = trpc.admin.products.create.useMutation()
     const updateProductMutation = trpc.admin.products.update.useMutation()
-
-    const generateSlug = (name: string) => {
-        return name
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '')
-    }
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
@@ -229,6 +260,28 @@ export function ProductForm({ productId }: ProductFormProps) {
                 }))
             }
 
+            // Handle variants
+            if (submitData.hasVariants) {
+                (submitData as any).variants = submitData.variants.map(v => ({
+                    id: v.id,
+                    name: v.name,
+                    sku: v.sku,
+                    stock: v.stock,
+                    isActive: v.isActive,
+                    attributes: v.attributes,
+                    image: v.image,
+                    prices: v.prices?.map(p => ({
+                        price: p.price,
+                        salePrice: p.salePrice ?? null,
+                        currency: p.currency,
+                        isDefault: p.isDefault ?? false,
+                        taxIncluded: p.taxIncluded ?? true,
+                    }))
+                }))
+            } else {
+                (submitData as any).variants = []
+            }
+
             savingToastId = toast.loading('Guardando producto...')
 
             if (productId) {
@@ -285,7 +338,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                             setFormData({
                                                 ...formData,
                                                 name,
-                                                slug: formData.slug || generateSlug(name),
+                                                slug: manuallyEditedSlug ? formData.slug : generateSlug(name),
                                             })
                                         }}
                                         required
@@ -299,7 +352,16 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     <Input
                                         id="slug"
                                         value={formData.slug}
-                                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            if (value === '') {
+                                                setManuallyEditedSlug(false)
+                                                setFormData({ ...formData, slug: generateSlug(formData.name) })
+                                            } else {
+                                                setManuallyEditedSlug(true)
+                                                setFormData({ ...formData, slug: sanitizeSlugInput(value) })
+                                            }
+                                        }}
                                         required
                                         aria-required={true}
                                     />
@@ -334,127 +396,156 @@ export function ProductForm({ productId }: ProductFormProps) {
                             </CardContent>
                         </Card>
 
-                        {/* Prices (multiple currencies) */}
+                        {/* Variants Toggle & Section */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Precios (múltiples monedas)</CardTitle>
-                                <p className="text-xs text-muted-foreground mt-1">Agrega precios para todas las monedas que soportas. Un precio debe marcarse como predeterminado para la moneda principal.</p>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle>Variantes de Producto</CardTitle>
+                                    <div className="flex items-center gap-2">
+                                        <Label htmlFor="hasVariants">¿Tiene variantes?</Label>
+                                        <Switch
+                                            id="hasVariants"
+                                            checked={formData.hasVariants}
+                                            onCheckedChange={(checked) => setFormData({ ...formData, hasVariants: checked })}
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">Activa esto si el producto tiene múltiples opciones (ej. tallas, colores) con diferentes precios o stock.</p>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                {(formData.prices ?? []).map((p, idx) => (
-                                    <div key={idx} className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end p-4 rounded-lg border ${p.isDefault ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                                        <div className="space-y-2">
-                                            <Label>Moneda</Label>
-                                            <Select
-                                                value={p.currency || currencies[0]?.code || 'USD'}
-                                                onValueChange={(value) => {
-                                                    const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], currency: value }
-                                                    setFormData({ ...formData, prices: newPrices })
-                                                }}
-                                                aria-busy={currenciesLoading}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Seleccionar moneda" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {currenciesLoading ? (
-                                                        <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando monedas...</div>
-                                                    ) : currencies.length === 0 ? (
-                                                        <div className="px-4 py-2 text-sm text-muted-foreground">No hay monedas disponibles</div>
-                                                    ) : (
-                                                        currencies.map((c) => (
-                                                            <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                            {formData.hasVariants && (
+                                <CardContent>
+                                    <ProductVariantsForm
+                                        variants={formData.variants}
+                                        onChange={(variants) => setFormData({ ...formData, variants })}
+                                        currencies={currencies}
+                                    />
+                                </CardContent>
+                            )}
+                        </Card>
 
-                                        <div className="space-y-2">
-                                            <Label>Precio</Label>
-                                            <Input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={p.price}
-                                                onChange={(e) => {
-                                                    const value = parseFloat(e.target.value)
-                                                    const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], price: isNaN(value) ? 0 : Math.max(0, value) }
-                                                    setFormData({ ...formData, prices: newPrices })
-                                                }}
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label>Precio de Venta</Label>
-                                            <Input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={p.salePrice ?? ''}
-                                                onChange={(e) => {
-                                                    const value = e.target.value ? parseFloat(e.target.value) : undefined
-                                                    const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], salePrice: value !== undefined && value < 0 ? undefined : value }
-                                                    setFormData({ ...formData, prices: newPrices })
-                                                }}
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2 hidden">
-                                            <Label>Impuesto Incluido</Label>
-                                            <Switch
-                                                checked={p.taxIncluded ?? true}
-                                                onCheckedChange={(checked) => {
-                                                    const newPrices = [...(formData.prices || [])]
-                                                    newPrices[idx] = { ...newPrices[idx], taxIncluded: checked }
-                                                    setFormData({ ...formData, prices: newPrices })
-                                                }}
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label>Predeterminado</Label>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    type="button"
-                                                    size="sm"
-                                                    variant={p.isDefault ? "default" : "outline"}
-                                                    disabled={p.isDefault}
-                                                    onClick={() => {
-                                                        const newPrices = (formData.prices || []).map((x, i) => ({ ...x, isDefault: i === idx }))
+                        {/* Prices (multiple currencies) - Hide if has variants */}
+                        {!formData.hasVariants && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Precios (múltiples monedas)</CardTitle>
+                                    <p className="text-xs text-muted-foreground mt-1">Agrega precios para todas las monedas que soportas. Un precio debe marcarse como predeterminado para la moneda principal.</p>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {(formData.prices ?? []).map((p, idx) => (
+                                        <div key={idx} className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end p-4 rounded-lg border ${p.isDefault ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                                            <div className="space-y-2">
+                                                <Label>Moneda</Label>
+                                                <Select
+                                                    value={p.currency || currencies[0]?.code || 'USD'}
+                                                    onValueChange={(value) => {
+                                                        const newPrices = [...(formData.prices || [])]
+                                                        newPrices[idx] = { ...newPrices[idx], currency: value }
                                                         setFormData({ ...formData, prices: newPrices })
                                                     }}
-                                                >
-                                                    {p.isDefault ? 'Predeterminado' : 'Establecer'}
-                                                </Button>
-                                                <Button size="sm" variant="destructive" onClick={() => {
-                                                    let newPrices = (formData.prices || []).filter((_, i) => i !== idx)
-                                                    if (newPrices.length === 1) {
-                                                        newPrices[0] = { ...newPrices[0], isDefault: true }
-                                                    }
-                                                    setFormData({ ...formData, prices: newPrices })
-                                                }}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                    aria-busy={currenciesLoading}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Seleccionar moneda" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {currenciesLoading ? (
+                                                            <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando monedas...</div>
+                                                        ) : currencies.length === 0 ? (
+                                                            <div className="px-4 py-2 text-sm text-muted-foreground">No hay monedas disponibles</div>
+                                                        ) : (
+                                                            currencies.map((c) => (
+                                                                <SelectItem key={c.id} value={c.code}>{c.symbol} {c.code} - {c.name}</SelectItem>
+                                                            ))
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Precio</Label>
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    value={p.price}
+                                                    onChange={(e) => {
+                                                        const value = parseFloat(e.target.value)
+                                                        const newPrices = [...(formData.prices || [])]
+                                                        newPrices[idx] = { ...newPrices[idx], price: isNaN(value) ? 0 : Math.max(0, value) }
+                                                        setFormData({ ...formData, prices: newPrices })
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Precio de Venta</Label>
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    value={p.salePrice ?? ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value ? parseFloat(e.target.value) : undefined
+                                                        const newPrices = [...(formData.prices || [])]
+                                                        newPrices[idx] = { ...newPrices[idx], salePrice: value !== undefined && value < 0 ? undefined : value }
+                                                        setFormData({ ...formData, prices: newPrices })
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2 hidden">
+                                                <Label>Impuesto Incluido</Label>
+                                                <Switch
+                                                    checked={p.taxIncluded ?? true}
+                                                    onCheckedChange={(checked) => {
+                                                        const newPrices = [...(formData.prices || [])]
+                                                        newPrices[idx] = { ...newPrices[idx], taxIncluded: checked }
+                                                        setFormData({ ...formData, prices: newPrices })
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Predeterminado</Label>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant={p.isDefault ? "default" : "outline"}
+                                                        disabled={p.isDefault}
+                                                        onClick={() => {
+                                                            const newPrices = (formData.prices || []).map((x, i) => ({ ...x, isDefault: i === idx }))
+                                                            setFormData({ ...formData, prices: newPrices })
+                                                        }}
+                                                    >
+                                                        {p.isDefault ? 'Predeterminado' : 'Establecer'}
+                                                    </Button>
+                                                    <Button size="sm" variant="destructive" onClick={() => {
+                                                        let newPrices = (formData.prices || []).filter((_, i) => i !== idx)
+                                                        if (newPrices.length === 1) {
+                                                            newPrices[0] = { ...newPrices[0], isDefault: true }
+                                                        }
+                                                        setFormData({ ...formData, prices: newPrices })
+                                                    }}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
 
-                                <div>
-                                    <Button type="button" onClick={() => {
-                                        const defaultCurrency = currencies[0]?.code || 'USD'
-                                        const newPrices = [...(formData.prices || []), { price: 0, salePrice: undefined, currency: defaultCurrency, isDefault: (formData.prices?.length ?? 0) === 0, taxIncluded: true }]
-                                        setFormData({ ...formData, prices: newPrices })
-                                    }}>
-                                        <Plus className="h-4 w-4 mr-2" /> Agregar Precio
-                                    </Button>
-                                    <p className="text-sm text-muted-foreground mt-2">Consejo: Agrega precios localizados para cada moneda que soportas. Marca uno como predeterminado. Puedes agregar más de uno por moneda para diferentes puntos de precio.</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    <div>
+                                        <Button type="button" onClick={() => {
+                                            const defaultCurrency = currencies[0]?.code || 'USD'
+                                            const newPrices = [...(formData.prices || []), { price: 0, salePrice: undefined, currency: defaultCurrency, isDefault: (formData.prices?.length ?? 0) === 0, taxIncluded: true }]
+                                            setFormData({ ...formData, prices: newPrices })
+                                        }}>
+                                            <Plus className="h-4 w-4 mr-2" /> Agregar Precio
+                                        </Button>
+                                        <p className="text-sm text-muted-foreground mt-2">Consejo: Agrega precios localizados para cada moneda que soportas. Marca uno como predeterminado. Puedes agregar más de uno por moneda para diferentes puntos de precio.</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         {/* Category */}
                         <Card>
@@ -877,7 +968,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         </div>
                     </form>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }

@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from './product-card'
 import { toNumber } from '@/lib/number'
 import { ProductGridSkeleton } from './product-grid-skeleton'
 import { useLoading } from './loading-context'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
+import { FilterSheet } from './filter-sheet'
 import {
   Select,
   SelectContent,
@@ -30,12 +32,14 @@ import { trpc } from '@/trpc/client'
 interface ProductGridClientProps {
   categorySlug?: string
   subcategorySlug?: string
+  filterContent?: React.ReactNode
 }
 
-export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGridClientProps) => {
+export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent }: ProductGridClientProps) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { setIsLoading: setGlobalLoading } = useLoading()
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const currentSort = searchParams.get('sort') || '-createdAt'
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
@@ -168,7 +172,15 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
             </p>
           </div>
           {/* Desktop Sort Dropdown */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setIsFilterOpen(true)}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+            </Button>
             <Select value={currentSort} onValueChange={handleSortChange}>
               <SelectTrigger className="w-[200px] text-black">
                 <SelectValue placeholder="Ordenar por" />
@@ -207,6 +219,19 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                 description={product.shortDescription || ''}
                 price={
                   (() => {
+                    // Check for variants first
+                    if (product.variants && product.variants.length > 0) {
+                      const variantPrices = product.variants
+                        .filter((v: any) => v.isActive && v.prices?.length > 0)
+                        .flatMap((v: any) => v.prices)
+                        .map((p: any) => toNumber(p.saleAmount ?? p.amount))
+                        .filter((p: number) => !isNaN(p))
+
+                      if (variantPrices.length > 0) {
+                        return Math.min(...variantPrices)
+                      }
+                    }
+
                     const rawPrice =
                       product.prices?.find((p: any) => p.isDefault)?.saleAmount ??
                       product.prices?.find((p: any) => p.isDefault)?.amount ??
@@ -215,8 +240,10 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
                     return toNumber(rawPrice)
                   })()
                 }
+                pricePrefix={product.variants && product.variants.length > 0 ? 'Desde' : undefined}
                 regularPrice={
                   (() => {
+                    if (product.variants && product.variants.length > 0) return undefined // Don't show regular price for variants range
                     const raw = product.prices?.find((p: any) => p.isDefault)?.amount ?? 0
                     return toNumber(raw)
                   })()
@@ -315,6 +342,9 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug }: ProductGrid
 
         )}
       </div>
+      <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+        {filterContent}
+      </FilterSheet>
     </ScrollArea>
   )
 }

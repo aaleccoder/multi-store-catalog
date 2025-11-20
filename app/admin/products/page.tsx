@@ -198,6 +198,20 @@ export default function ProductsPage() {
 
     const catsQuery = trpc.admin.categories.list.useQuery()
     const subsQuery = trpc.admin.subcategories.list.useQuery()
+    const currenciesQuery = trpc.admin.currencies.list.useQuery()
+
+    const hasCategories = (catsQuery.data?.length ?? 0) > 0
+    const hasCurrencies = (currenciesQuery.data?.length ?? 0) > 0
+    const createEnabled = hasCategories && hasCurrencies
+
+    let createDisabledMessage = ""
+    if (!hasCategories && !hasCurrencies) {
+        createDisabledMessage = "Debes crear categorías y monedas antes de crear un producto."
+    } else if (!hasCategories) {
+        createDisabledMessage = "Debes crear al menos una categoría antes de crear un producto."
+    } else if (!hasCurrencies) {
+        createDisabledMessage = "Debes crear al menos una moneda antes de crear un producto."
+    }
 
     const loadDependencies = useCallback(async () => {
         // Ensure queries have run
@@ -235,6 +249,8 @@ export default function ProductsPage() {
                     createPageUrl={'/admin/products/new'}
                     searchKeys={['name', 'slug']}
                     loadDependencies={loadDependencies}
+                    createEnabled={createEnabled}
+                    createDisabledMessage={createDisabledMessage}
                     renderHeaderExtra={() => (
                         <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
                             <SheetTrigger asChild>

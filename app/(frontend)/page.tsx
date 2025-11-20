@@ -1,7 +1,7 @@
 import '../globals.css'
 import { Header } from '@/components/header'
 import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
-import { FilterSidebar, getFilterContent } from '@/components/filter-sidebar'
+import { getFilterContent } from '@/components/filter-sidebar'
 import { ProductGridClient } from '@/components/product-grid-client'
 import { NavigationLoadingBar } from '@/components/navigation-loading'
 import { LoadingProvider } from '@/components/loading-context'
@@ -32,9 +32,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <SearchAndFiltersBar filterContent={filterContent} />
         <PageLayoutWrapper filterContent={filterContent}>
           <div className="flex flex-1 md:overflow-hidden">
-            <FilterSidebar categorySlug={categorySlug} subcategorySlug={subcategorySlug} />
             <main className="flex-1 md:overflow-hidden bg-white">
-              <ProductGridClient categorySlug={categorySlug} subcategorySlug={subcategorySlug} />
+              <ProductGridClient
+                categorySlug={categorySlug}
+                subcategorySlug={subcategorySlug}
+                filterContent={filterContent}
+              />
             </main>
           </div>
         </PageLayoutWrapper>

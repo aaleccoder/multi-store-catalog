@@ -2,7 +2,7 @@
 
 import { useState, ReactNode } from 'react'
 import { FilterSheetProvider } from './mobile-toolbar'
-import { MobileFilterSheet } from './mobile-filter-sheet'
+import { FilterSheet } from './filter-sheet'
 
 interface FilterSheetProviderWrapperProps {
   children: ReactNode
@@ -18,9 +18,9 @@ export const FilterSheetProviderWrapper = ({
   return (
     <FilterSheetProvider onOpenFilters={() => setOpen(true)}>
       {children}
-      <MobileFilterSheet open={open} onOpenChange={setOpen}>
+      <FilterSheet open={open} onOpenChange={setOpen}>
         {filterContent}
-      </MobileFilterSheet>
+      </FilterSheet>
     </FilterSheetProvider>
   )
 }

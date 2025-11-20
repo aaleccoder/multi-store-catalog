@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { MobileFilterSheet } from './mobile-filter-sheet'
+import { FilterSheet } from './filter-sheet'
 
 interface SearchAndFiltersBarProps {
   filterContent?: React.ReactNode
@@ -105,7 +105,7 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
           {/* Mobile Sort Dropdown */}
           <div className="md:hidden">
             <Select value={currentSort} onValueChange={handleSortChange}>
-              <SelectTrigger className="border h-10 !text-white">
+              <SelectTrigger className="border h-10 text-white!">
                 <ArrowUpDown className="h-4 w-4 text-black" />
               </SelectTrigger>
               <SelectContent>
@@ -123,9 +123,9 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
       </div>
 
       {/* Mobile Filter Sheet */}
-      <MobileFilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+      <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         {filterContent}
-      </MobileFilterSheet>
+      </FilterSheet>
     </div>
   )
 }

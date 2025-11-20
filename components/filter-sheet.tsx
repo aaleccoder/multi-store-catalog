@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
-interface MobileFilterSheetProps {
+interface FilterSheetProps {
   children: React.ReactNode
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export const MobileFilterSheet = ({ children, open, onOpenChange }: MobileFilterSheetProps) => {
+export const FilterSheet = ({ children, open, onOpenChange }: FilterSheetProps) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-80 p-0">

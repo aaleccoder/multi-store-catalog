@@ -14,7 +14,7 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/error-messages'
 
-type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select'
+type FieldType = 'text' | 'number' | 'textarea' | 'switch' | 'select' | 'hidden'
 
 export interface FormField {
     name: string
@@ -22,6 +22,8 @@ export interface FormField {
     type?: FieldType
     required?: boolean
     options?: OptionType[]
+    defaultValue?: FormValue
+    hidden?: boolean
 }
 
 type OptionType = {
@@ -58,6 +60,8 @@ interface AdminResourceProps<T extends Record<string, unknown> = Record<string, 
     loadDependencies?: () => Promise<Record<string, unknown>>
     trpcResource?: string
     renderHeaderExtra?: () => React.ReactNode
+    createEnabled?: boolean
+    createDisabledMessage?: string
 }
 
 export function AdminResource<T extends Record<string, unknown> = Record<string, unknown>>(props: AdminResourceProps<T>) {
@@ -79,6 +83,8 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
         loadDependencies,
         trpcResource,
         renderHeaderExtra,
+        createEnabled = true,
+        createDisabledMessage = "No se puede crear en este momento.",
     } = props
 
     const [items, setItems] = useState<T[]>([])
@@ -273,7 +279,13 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
 
     function resetForm() {
         setEditing(null)
-        setFormData({})
+        const defaults = formFields.reduce((acc, field) => {
+            if (field.defaultValue !== undefined) {
+                acc[field.name] = field.defaultValue
+            }
+            return acc
+        }, {} as Record<string, FormValue>)
+        setFormData(defaults)
         setSubmitting(false)
     }
 
@@ -330,31 +342,43 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                         <h1 className="text-3xl font-bold">{title}</h1>
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                             {createPageUrl ? (
-                                <Link href={createPageUrl} onClick={async () => {
+                                <Link href={createEnabled ? createPageUrl : '#'} onClick={async (e) => {
+                                    if (!createEnabled) {
+                                        e.preventDefault()
+                                        toast.error(createDisabledMessage)
+                                        return
+                                    }
                                     resetForm();
                                     if (loadDependencies) {
                                         const deps = await loadDependencies()
                                         setDependencies(deps)
                                     }
                                 }}>
-                                    <Button>
+                                    <Button className={!createEnabled ? "opacity-50 cursor-not-allowed" : ""}>
                                         <Plus className="h-4 w-4 mr-2" />
                                         {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
                                     </Button>
                                 </Link>
                             ) : (
-                                <DialogTrigger asChild>
-                                    <Button onClick={async () => {
-                                        resetForm();
-                                        if (loadDependencies) {
-                                            const deps = await loadDependencies()
-                                            setDependencies(deps)
-                                        }
-                                    }}>
+                                createEnabled ? (
+                                    <DialogTrigger asChild>
+                                        <Button onClick={async () => {
+                                            resetForm();
+                                            if (loadDependencies) {
+                                                const deps = await loadDependencies()
+                                                setDependencies(deps)
+                                            }
+                                        }}>
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
+                                        </Button>
+                                    </DialogTrigger>
+                                ) : (
+                                    <Button onClick={() => toast.error(createDisabledMessage)} className="opacity-50 cursor-not-allowed">
                                         <Plus className="h-4 w-4 mr-2" />
                                         {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
                                     </Button>
-                                </DialogTrigger>
+                                )
                             )}
                             <DialogContent>
                                 <DialogHeader>
@@ -365,48 +389,53 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
                                     <div className="space-y-4 py-4">
                                         {renderForm
                                             ? renderForm({ formData, setFormData })
-                                            : formFields.map((f) => (
-                                                <div key={f.name} className="space-y-2">
-                                                    <Label htmlFor={f.name}>{f.label}</Label>
-                                                    {f.type === 'textarea' ? (
-                                                        <textarea
-                                                            id={f.name}
-                                                            value={String(formData[f.name] ?? '')}
-                                                            onChange={(e) => setFormData({ ...formData, [f.name]: e.target.value })}
-                                                            className="w-full border rounded p-2"
-                                                        />
-                                                    ) : f.type === 'switch' ? (
-                                                        <Switch
-                                                            id={f.name}
-                                                            checked={!!formData[f.name]}
-                                                            onCheckedChange={(val: boolean) => setFormData({ ...formData, [f.name]: val })}
-                                                        />
-                                                    ) : f.type === 'select' ? (
-                                                        <Select value={String(formData[f.name] ?? '')} onValueChange={(val) => setFormData({ ...formData, [f.name]: val })}>
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Seleccionar…" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {(() => {
-                                                                    const opts = (f.options ?? (dependencies?.[f.name] as OptionType[]) ?? []) as OptionType[]
-                                                                    return opts.map((opt, idx) => (
-                                                                        <SelectItem key={String(opt.value ?? opt.id ?? opt.name ?? idx)} value={String(opt.value ?? opt.id)}>
-                                                                            {opt.label ?? opt.name}
-                                                                        </SelectItem>
-                                                                    ))
-                                                                })()}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    ) : (
-                                                        <Input
-                                                            id={f.name}
-                                                            value={String(formData[f.name] ?? '')}
-                                                            onChange={(e) => setFormData({ ...formData, [f.name]: e.target.value })}
-                                                            required={f.required}
-                                                        />
-                                                    )}
-                                                </div>
-                                            ))}
+                                            : formFields.map((f) => {
+                                                if (f.type === 'hidden' || f.hidden) return null
+
+                                                return (
+                                                    <div key={f.name} className="space-y-2">
+                                                        <Label htmlFor={f.name}>{f.label}</Label>
+                                                        {f.type === 'textarea' ? (
+                                                            <textarea
+                                                                id={f.name}
+                                                                value={String(formData[f.name] ?? '')}
+                                                                onChange={(e) => setFormData({ ...formData, [f.name]: e.target.value })}
+                                                                className="w-full border rounded p-2"
+                                                            />
+                                                        ) : f.type === 'switch' ? (
+                                                            <Switch
+                                                                id={f.name}
+                                                                checked={!!formData[f.name]}
+                                                                onCheckedChange={(val: boolean) => setFormData({ ...formData, [f.name]: val })}
+                                                            />
+                                                        ) : f.type === 'select' ? (
+                                                            <Select value={String(formData[f.name] ?? '')} onValueChange={(val) => setFormData({ ...formData, [f.name]: val })}>
+                                                                <SelectTrigger className="w-full">
+                                                                    <SelectValue placeholder="Seleccionar…" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {(() => {
+                                                                        const opts = (f.options ?? (dependencies?.[f.name] as OptionType[]) ?? []) as OptionType[]
+                                                                        return opts.map((opt, idx) => (
+                                                                            <SelectItem key={String(opt.value ?? opt.id ?? opt.name ?? idx)} value={String(opt.value ?? opt.id)}>
+                                                                                {opt.label ?? opt.name}
+                                                                            </SelectItem>
+                                                                        ))
+                                                                    })()}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        ) : (
+                                                            <Input
+                                                                id={f.name}
+                                                                value={String(formData[f.name] ?? '')}
+                                                                onChange={(e) => setFormData({ ...formData, [f.name]: e.target.value })}
+                                                                required={f.required}
+                                                                type={f.type === 'number' ? 'number' : 'text'}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
                                     </div>
 
                                     <DialogFooter>

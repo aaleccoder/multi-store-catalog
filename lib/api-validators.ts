@@ -34,7 +34,7 @@ export const currencySchema = z.object({
 export const priceInputSchema = z.object({
     currency: z.string().min(1),
     price: z.number().optional(),
-    salePrice: z.number().optional(),
+    salePrice: z.number().optional().nullable(),
     isDefault: z.boolean().optional(),
     taxIncluded: z.boolean().optional(),
 })
@@ -75,6 +75,16 @@ export const productSchema = z.object({
         salePrice: z.number().optional().nullable(),
         isDefault: z.boolean().optional(),
         taxIncluded: z.boolean().optional().nullable(),
+    })).optional(),
+    variants: z.array(z.object({
+        id: z.string().optional(),
+        name: z.string().min(1),
+        sku: z.string().optional(),
+        stock: z.number().int().optional(),
+        attributes: z.any().optional(),
+        image: z.string().optional(),
+        isActive: z.boolean().optional(),
+        prices: z.array(priceInputSchema).optional(),
     })).optional(),
 })
 

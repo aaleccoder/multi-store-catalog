@@ -12,6 +12,7 @@ interface AddToCartButtonProps {
     price: number
     image: string
     slug: string
+    variantName?: string
   }
   inStock?: boolean
 }
@@ -44,7 +45,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
 
     // Build the message for this specific product
     let message = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n'
-    message += `1. ${product.name}\n`
+    message += `1. ${product.name}${product.variantName ? ` (${product.variantName})` : ''}\n`
     message += `   Cantidad: ${quantity}\n`
     message += `   Precio unitario: ${formatPrice(product.price)}\n`
     message += `   Subtotal: ${formatPrice(product.price * quantity)}\n\n`

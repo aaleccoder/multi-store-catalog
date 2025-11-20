@@ -108,6 +108,13 @@ export const productsRouter = router({
                             inStock: true,
                             isActive: true,
                             featured: true,
+                            variants: {
+                                where: { isActive: true },
+                                select: {
+                                    id: true,
+                                    prices: { include: { currency: true } }
+                                }
+                            }
                         },
                     }),
                     prisma.product.count({ where }),

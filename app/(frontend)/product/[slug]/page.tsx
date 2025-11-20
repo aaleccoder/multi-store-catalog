@@ -23,7 +23,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { RichTextRenderer } from '@/components/rich-text-editor'
-import { ImageGallery } from '../../../../components/image-gallery'
+import { ProductDetailClient } from './product-detail-client'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
 interface ProductDetailPageProps {
   params: Promise<{
@@ -89,6 +89,12 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       subcategory: true,
       prices: { include: { currency: true } },
       coverImages: true,
+      variants: {
+        where: { isActive: true },
+        include: {
+          prices: { include: { currency: true } }
+        }
+      }
     },
   })
 
@@ -175,134 +181,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </div>
 
           {/* Product Details Section */}
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {/* Image Gallery */}
-            <ImageGallery
-              images={allImages}
-              productName={product.name}
-              primaryImageUrl={primaryImageUrl}
-              primaryImageAlt={primaryImageAlt}
-            />
-
-            {/* Product Info */}
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
-                {specifications?.sku && (
-                  <p className="text-sm text-muted-foreground">SKU: {specifications.sku}</p>
-                )}
-              </div>
-
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2">
-                {product.featured && (
-                  <Badge className="bg-accent text-accent-foreground">Destacado</Badge>
-                )}
-                {hasDiscount && (
-                  <Badge className="bg-destructive text-destructive-foreground">
-                    -{discountPercentage}% descuento
-                  </Badge>
-                )}
-                {product.inStock ? (
-                  <Badge variant="outline" className="border-green-500 text-green-500">
-                    En stock
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="bg-muted text-muted-foreground">
-                    Agotado
-                  </Badge>
-                )}
-              </div>
-
-              {/* Price */}
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold text-primary">
-                    {formatCurrencyPrice(price, currency)}
-                  </span>
-                  {specifications?.unit && (
-                    <span className="text-xl text-muted-foreground self-end mb-1">
-                      / {specifications.unit.replace(/^(\d+)(\w)$/, '$1 $2')}
-                    </span>
-                  )}
-                  {(specifications?.weight || specifications?.volume) && (
-                    <span className="text-xl text-muted-foreground self-end mb-1">
-                      {' * '}
-                      {specifications.weight
-                        ? `${specifications.weight} ${specifications.weightUnit || 'g'}`
-                        : `${specifications.volume} ${specifications.volumeUnit || 'ml'}`}
-                    </span>
-                  )}
-                  {hasDiscount && (
-                    <span className="text-xl text-muted-foreground line-through">
-                      {formatCurrencyPrice(regularPrice, currency)}
-                    </span>
-                  )}
-                </div>
-                {defaultPriceObj?.taxIncluded && (
-                  <p className="text-sm text-muted-foreground">Impuestos incluidos</p>
-                )}
-              </div>
-
-              {/* Short Description */}
-              {product.shortDescription && (
-                <p className="text-muted-foreground leading-relaxed">{product.shortDescription}</p>
-              )}
-
-              {/* Sizes */}
-              {specifications?.sizes && specifications.sizes.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold">Tallas disponibles:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {specifications.sizes.map((sizeObj: any, idx: number) => (
-                      <Badge
-                        key={idx}
-                        variant={sizeObj.inStock ? 'outline' : 'secondary'}
-                        className={!sizeObj.inStock ? 'opacity-50' : ''}
-                      >
-                        {sizeObj.size}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Dimensions */}
-              {specifications?.dimensions?.length && (
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-semibold mb-1">Dimensiones:</p>
-                  <p>
-                    {specifications.dimensions.length} x{' '}
-                    {specifications.dimensions.width} x{' '}
-                    {specifications.dimensions.height}{' '}
-                    {specifications.dimensions.unit || 'cm'}
-                  </p>
-                </div>
-              )}
-
-              {/* Weight */}
-              {specifications?.weight && (
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-semibold mb-1">Peso:</p>
-                  <p>
-                    {specifications.weight} {specifications.weightUnit || 'g'}
-                  </p>
-                </div>
-              )}
-
-              {/* Add to Cart */}
-              <AddToCartButton
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  price,
-                  image: primaryImageUrl,
-                  slug: product.slug,
-                }}
-                inStock={product.inStock ?? true}
-              />
-            </div>
-          </div>
+          <ProductDetailClient product={product} />
 
           {/* Description Section */}
           {product.description && (

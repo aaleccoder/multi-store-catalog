@@ -32,6 +32,7 @@ interface ProductCardProps {
   weightUnit?: string
   volume?: number
   volumeUnit?: string
+  pricePrefix?: string
 }
 
 export const ProductCard = ({
@@ -52,6 +53,7 @@ export const ProductCard = ({
   weightUnit,
   volume,
   volumeUnit,
+  pricePrefix,
 }: ProductCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem, updateQuantity, items } = useCart()
@@ -249,7 +251,10 @@ export const ProductCard = ({
 
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                  <span className="text-xs font-bold text-primary">
+                    {pricePrefix && <span className="text-[10px] font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
+                    {formatPrice(price)}
+                  </span>
                   {unit && <span className="text-[10px] text-muted-foreground">/ {unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
                   {(weight || volume) && (
                     <span className="text-[10px] text-muted-foreground">
@@ -421,7 +426,10 @@ export const ProductCard = ({
             <div className="flex items-center justify-between pt-3">
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xs font-bold text-primary">{formatPrice(price)}</span>
+                  <span className="text-xs font-bold text-primary">
+                    {pricePrefix && <span className="text-[10px] font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
+                    {formatPrice(price)}
+                  </span>
                   {unit && <span className="text-[10px] text-muted-foreground">/ {unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
                   {(weight || volume) && (
                     <span className="text-[10px] text-muted-foreground">

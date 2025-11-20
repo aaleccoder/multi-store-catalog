@@ -21,11 +21,11 @@ export default function CurrenciesPage() {
                             { name: 'name', label: 'Nombre', type: 'text', required: true },
                             { name: 'code', label: 'Código', type: 'text', required: true },
                             { name: 'symbol', label: 'Símbolo', type: 'text', required: true },
-                            { name: 'symbolPosition', label: 'Posición del Símbolo', type: 'select', options: [{ value: 'before', label: 'Antes' }, { value: 'after', label: 'Después' }] },
-                            { name: 'decimalSeparator', label: 'Separador Decimal', type: 'text' },
-                            { name: 'thousandsSeparator', label: 'Separador de Miles', type: 'text' },
-                            { name: 'decimalPlaces', label: 'Lugares Decimales', type: 'number' },
-                            { name: 'isActive', label: 'Activo', type: 'switch' },
+                            { name: 'symbolPosition', label: 'Posición del Símbolo', type: 'hidden', defaultValue: 'before' },
+                            { name: 'decimalSeparator', label: 'Separador Decimal', type: 'hidden', defaultValue: '.' },
+                            { name: 'thousandsSeparator', label: 'Separador de Miles', type: 'hidden', defaultValue: ',' },
+                            { name: 'decimalPlaces', label: 'Lugares Decimales', type: 'hidden', defaultValue: 2 },
+                            { name: 'isActive', label: 'Activo', type: 'hidden', defaultValue: true },
                         ]}
                         searchKeys={['name', 'code']}
                     />
