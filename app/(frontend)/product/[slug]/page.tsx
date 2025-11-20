@@ -78,7 +78,6 @@ interface ProductDetailPageProps {
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params
 
-  // Fetch the product
   const product = await prisma.product.findFirst({
     where: {
       slug,
@@ -92,7 +91,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       variants: {
         where: { isActive: true },
         include: {
-          prices: { include: { currency: true } }
+          prices: { include: { currency: true } },
+          images: true
         }
       }
     },

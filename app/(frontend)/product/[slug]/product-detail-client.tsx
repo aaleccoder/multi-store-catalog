@@ -4,26 +4,23 @@ import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { AddToCartButton } from '@/components/add-to-cart-button'
 import { ImageGallery } from '@/components/image-gallery'
-import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
+import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
 import { cn } from '@/lib/utils'
 
 interface ProductDetailClientProps {
-    product: any // We'll use 'any' for now to avoid complex type duplication, but ideally should be typed
+    product: any
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null)
 
-    // Find default variant or use first one if exists
     useEffect(() => {
         if (product.variants && product.variants.length > 0) {
-            // Try to find a variant that is in stock
             const inStockVariant = product.variants.find((v: any) => v.stock > 0 && v.isActive)
             if (inStockVariant) {
                 setSelectedVariantId(inStockVariant.id)
             } else {
-                // Fallback to first variant
                 setSelectedVariantId(product.variants[0].id)
             }
         }
@@ -65,13 +62,18 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
         : 0
 
     // Images
-    // If variant has specific image, use it. Otherwise use product images.
-    // Note: The current schema has `image` string for variant, but `coverImages` array for product.
-    // We'll prepend variant image to gallery if it exists.
+    // Priority: variant images array > variant single image > product images
     const productImages = (product.coverImages as any[]) || []
-    const allImages = selectedVariant?.image
-        ? [{ url: selectedVariant.image, alt: selectedVariant.name, isPrimary: true }, ...productImages]
-        : productImages
+
+    let allImages = productImages
+    if (selectedVariant) {
+        const variantImages = (selectedVariant.images as any[]) || []
+        if (variantImages.length > 0) {
+            allImages = variantImages
+        } else if (selectedVariant.image) {
+            allImages = [{ url: selectedVariant.image, alt: selectedVariant.name, isPrimary: true }, ...productImages]
+        }
+    }
 
     const primaryImageUrl = allImages[0]?.url || ''
     const primaryImageAlt = allImages[0]?.alt || product.name

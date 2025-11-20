@@ -59,6 +59,7 @@ interface Product {
     categoryId: string
     category?: { name: string }
     prices?: PriceType[]
+    variants?: VariantType[]
     coverImages: Media[]
     inStock: boolean
     isActive: boolean
@@ -68,6 +69,7 @@ interface Product {
 
 type Media = { id: string; alt: string; url: string; productId?: string | null }
 type PriceType = { id?: string; amount?: number | string; saleAmount?: number | string | null; currency?: string | null; isDefault?: boolean }
+type VariantType = { id: string; isActive: boolean; prices?: PriceType[] }
 type CategoryList = { id: string; name: string }
 type SubcategoryList = { id: string; name: string }
 
@@ -112,7 +114,20 @@ export default function ProductsPage() {
             header: 'Precio',
             accessor: 'prices',
             render: (p: Product) => {
-                const defaultPriceObj = (p as Product).prices?.find((pr) => pr.isDefault) || (p as Product).prices?.[0]
+                if (p.variants && p.variants.length > 0) {
+                    const variantPrices = p.variants
+                        .filter((v: VariantType) => v.isActive && v.prices && v.prices.length > 0)
+                        .flatMap((v: VariantType) => v.prices!)
+                        .map((pr: PriceType) => toNumber(pr.saleAmount ?? pr.amount))
+                        .filter((price: number) => !isNaN(price))
+
+                    if (variantPrices.length > 0) {
+                        const minPrice = Math.min(...variantPrices)
+                        const defaultPriceObj = p.prices?.find((pr) => pr.isDefault) || p.prices?.[0]
+                        return `Desde ${formatCurrencyPrice(minPrice, defaultPriceObj?.currency ?? null)}`
+                    }
+                }
+                const defaultPriceObj = p.prices?.find((pr) => pr.isDefault) || p.prices?.[0]
                 const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
                 return formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)
             },
@@ -534,8 +549,27 @@ export default function ProductsPage() {
                                             sortedProducts.map((product: Product) => {
                                                 const coverImages = product.coverImages || []
                                                 const imageUrl = coverImages[0]?.url || ''
-                                                const defaultPriceObj = (product as Product).prices?.find((p) => p.isDefault) || (product as Product).prices?.[0]
-                                                const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
+
+                                                let priceDisplay = ''
+                                                if (product.variants && product.variants.length > 0) {
+                                                    const variantPrices = product.variants
+                                                        .filter((v: VariantType) => v.isActive && v.prices && v.prices.length > 0)
+                                                        .flatMap((v: VariantType) => v.prices!)
+                                                        .map((p: PriceType) => toNumber(p.saleAmount ?? p.amount))
+                                                        .filter((price: number) => !isNaN(price))
+
+                                                    if (variantPrices.length > 0) {
+                                                        const minPrice = Math.min(...variantPrices)
+                                                        const defaultPriceObj = product.prices?.find((p) => p.isDefault) || product.prices?.[0]
+                                                        priceDisplay = `Desde ${formatCurrencyPrice(minPrice, defaultPriceObj?.currency ?? null)}`
+                                                    }
+                                                }
+
+                                                if (!priceDisplay) {
+                                                    const defaultPriceObj = product.prices?.find((p) => p.isDefault) || product.prices?.[0]
+                                                    const price = toNumber(defaultPriceObj ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount) : 0)
+                                                    priceDisplay = formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)
+                                                }
 
                                                 return (
                                                     <TableRow key={product.id}>
@@ -555,7 +589,7 @@ export default function ProductsPage() {
                                                         </TableCell>
                                                         <TableCell className="font-medium">{product.name}</TableCell>
                                                         <TableCell className="hidden md:table-cell">{product.category?.name || 'N/A'}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{formatCurrencyPrice(price, defaultPriceObj?.currency ?? null)}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{priceDisplay}</TableCell>
                                                         <TableCell>
                                                             <div className="flex gap-1">
                                                                 {product.isActive ? (

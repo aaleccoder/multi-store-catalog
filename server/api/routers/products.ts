@@ -108,10 +108,12 @@ export const productsRouter = router({
                             inStock: true,
                             isActive: true,
                             featured: true,
+                            specifications: true,
                             variants: {
                                 where: { isActive: true },
                                 select: {
                                     id: true,
+                                    isActive: true,
                                     prices: { include: { currency: true } }
                                 }
                             }
@@ -129,6 +131,14 @@ export const productsRouter = router({
                             ...p,
                             amount: toNumber(p.amount),
                             saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                        })) || [],
+                        variants: prod.variants?.map((v) => ({
+                            ...v,
+                            prices: v.prices?.map((p) => ({
+                                ...p,
+                                amount: toNumber(p.amount),
+                                saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                            })) || [],
                         })) || [],
                     })),
                     totalDocs,

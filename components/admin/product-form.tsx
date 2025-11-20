@@ -143,6 +143,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                     sku: v.sku,
                     stock: v.stock,
                     isActive: v.isActive,
+                    description: v.description,
+                    shortDescription: v.shortDescription,
+                    specifications: v.specifications || {},
+                    coverImages: (v.images || []).map((img: any, index: number) => ({ ...img, isUploaded: true, isPrimary: index === 0 })),
                     prices: (v.prices || []).map((p: any) => ({
                         price: Number(p.amount),
                         salePrice: p.saleAmount ? Number(p.saleAmount) : undefined,
@@ -200,6 +204,13 @@ export function ProductForm({ productId }: ProductFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        // Validate required fields
+        if (!formData.categoryId) {
+            toast.error('Por favor selecciona una categoría')
+            return
+        }
+
         setSaving(true)
         let savingToastId: string | number | undefined
 
@@ -262,22 +273,63 @@ export function ProductForm({ productId }: ProductFormProps) {
 
             // Handle variants
             if (submitData.hasVariants) {
-                (submitData as any).variants = submitData.variants.map(v => ({
-                    id: v.id,
-                    name: v.name,
-                    sku: v.sku,
-                    stock: v.stock,
-                    isActive: v.isActive,
-                    attributes: v.attributes,
-                    image: v.image,
-                    prices: v.prices?.map(p => ({
-                        price: p.price,
-                        salePrice: p.salePrice ?? null,
-                        currency: p.currency,
-                        isDefault: p.isDefault ?? false,
-                        taxIncluded: p.taxIncluded ?? true,
-                    }))
-                }))
+                const processedVariants = await Promise.all(submitData.variants.map(async (v) => {
+                    let variantImages = v.coverImages || []
+                    const pendingVariantImages = variantImages.filter(img => !img.isUploaded)
+
+                    if (pendingVariantImages.length > 0) {
+                        const uploadPromises = pendingVariantImages.map(async (img) => {
+                            const formDataToUpload = new FormData()
+                            formDataToUpload.append('file', img.file!)
+                            formDataToUpload.append('alt', img.alt)
+
+                            const res = await fetch('/api/admin/media', {
+                                method: 'POST',
+                                body: formDataToUpload,
+                            })
+
+                            if (!res.ok) throw new Error('Failed to upload variant image')
+
+                            const media = await res.json()
+                            return { ...img, url: media.url, alt: media.alt, isUploaded: true }
+                        })
+
+                        const uploadedImages = await Promise.all(uploadPromises)
+                        variantImages = variantImages.map(img => {
+                            const uploaded = uploadedImages.find(u => u.file === img.file)
+                            return uploaded || img
+                        })
+
+                        // Revoke object URLs for this variant
+                        pendingVariantImages.forEach(img => URL.revokeObjectURL(img.url))
+                    }
+
+                    const primaryImage = variantImages.find(img => img.isPrimary);
+                    const otherImages = variantImages.filter(img => !img.isPrimary);
+                    const orderedImages = primaryImage ? [primaryImage, ...otherImages] : otherImages;
+
+                    return {
+                        id: v.id,
+                        name: v.name,
+                        sku: v.sku,
+                        stock: v.stock,
+                        isActive: v.isActive,
+                        attributes: v.attributes,
+                        image: v.image, // Keep legacy image field if needed, or maybe remove it?
+                        description: v.description,
+                        shortDescription: v.shortDescription,
+                        specifications: v.specifications,
+                        coverImages: orderedImages.map((img) => ({ url: img.url, alt: img.alt })),
+                        prices: v.prices?.map(p => ({
+                            price: p.price,
+                            salePrice: p.salePrice ?? null,
+                            currency: p.currency,
+                            isDefault: p.isDefault ?? false,
+                            taxIncluded: p.taxIncluded ?? true,
+                        }))
+                    }
+                }));
+                (submitData as any).variants = processedVariants
             } else {
                 (submitData as any).variants = []
             }

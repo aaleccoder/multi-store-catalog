@@ -56,6 +56,15 @@ export const adminProductsRouter = router({
                             attributes: variant.attributes || {},
                             isActive: variant.isActive ?? true,
                             image: variant.image,
+                            description: variant.description,
+                            shortDescription: variant.shortDescription,
+                            specifications: variant.specifications || {},
+                            images: {
+                                create: (variant.coverImages || []).map((image: any) => ({
+                                    url: image.url,
+                                    alt: image.alt,
+                                })),
+                            },
                             prices: {
                                 create: (variant.prices || []).map((p: any) => {
                                     const currencyId = currencyMap.get(p.currency)
@@ -120,7 +129,7 @@ export const adminProductsRouter = router({
                 category: true,
                 subcategory: true,
                 prices: { include: { currency: true } },
-                variants: { include: { prices: { include: { currency: true } } } }
+                variants: { include: { prices: { include: { currency: true } }, images: true } }
             }
         })
         if (!product) {
@@ -240,6 +249,9 @@ export const adminProductsRouter = router({
                                 attributes: v.attributes,
                                 isActive: v.isActive,
                                 image: v.image,
+                                description: v.description,
+                                shortDescription: v.shortDescription,
+                                specifications: v.specifications,
                             }
                         })
                     } else {
@@ -253,9 +265,26 @@ export const adminProductsRouter = router({
                                 attributes: v.attributes || {},
                                 isActive: v.isActive ?? true,
                                 image: v.image,
+                                description: v.description,
+                                shortDescription: v.shortDescription,
+                                specifications: v.specifications || {},
                             }
                         })
                         variantId = newVariant.id
+                    }
+
+                    // Update images for this variant
+                    if (v.coverImages) {
+                        await prisma.media.deleteMany({ where: { productVariantId: variantId } })
+                        if (v.coverImages.length > 0) {
+                            await prisma.media.createMany({
+                                data: v.coverImages.map((image: any) => ({
+                                    url: image.url,
+                                    alt: image.alt,
+                                    productVariantId: variantId,
+                                })),
+                            })
+                        }
                     }
 
                     // 4. Update prices for this variant
