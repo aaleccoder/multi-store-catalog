@@ -11,13 +11,13 @@ import {
   SheetTrigger,
   SheetFooter,
 } from '@/components/ui/sheet'
-import { useCart } from '../context/cart-context'
+import { useCart } from '@/context/cart-context'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState, useEffect } from 'react'
 import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
-import { QuantityPicker } from './ui/quantity-picker'
+import { QuantityPicker } from '@/components/ui/quantity-picker'
 import { openWhatsApp } from '@/lib/whatsapp'
 
 

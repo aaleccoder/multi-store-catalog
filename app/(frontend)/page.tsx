@@ -2,10 +2,10 @@ import '../globals.css'
 import { Header } from '@/components/layout/header'
 import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
 import { getFilterContent } from '@/components/filters/filter-sidebar'
-import { ProductGridClient } from '@/components/product-grid-client'
+import { ProductGridClient } from '@/components/products/product-grid-client'
 import { NavigationLoadingBar } from '@/components/utils/navigation-loading'
 import { LoadingProvider } from '@/components/utils/loading-context'
-import { PageLayoutWrapper } from '@/components/page-layout-wrapper'
+import { PageLayoutWrapper } from '@/components/layout/page-layout-wrapper'
 import { SearchAndFiltersBar } from '@/components/search/search-and-filter-mobile'
 
 interface HomePageProps {

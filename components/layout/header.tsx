@@ -1,7 +1,7 @@
 'use client'
 
 import { Search } from 'lucide-react'
-import { ShoppingCartSheet } from '@/components/shopping-cart-sheet'
+import { ShoppingCartSheet } from '@/components/cart/shopping-cart-sheet'
 import { WishlistSheet } from '@/components/wishlist/wishlist-sheet'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'

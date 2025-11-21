@@ -5,12 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from './product-card'
 import { toNumber } from '@/lib/number'
 import { ProductGridSkeleton } from './product-grid-skeleton'
-import { useLoading } from './loading-context'
 import Link from 'next/link'
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { FilterSheet } from './filters/filter-sheet'
 import {
   Select,
   SelectContent,
@@ -28,7 +26,9 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { trpc } from '@/trpc/client'
-import { SearchAndFiltersBar } from './search-and-filter-mobile'
+import { useLoading } from '@/components/utils/loading-context'
+import { SearchAndFiltersBar } from '../search/search-and-filter-mobile'
+import { FilterSheet } from '@/components/filters/filter-sheet'
 
 interface ProductGridClientProps {
   categorySlug?: string

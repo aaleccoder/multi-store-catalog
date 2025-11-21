@@ -10,9 +10,7 @@ import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
-import { Input } from './ui/input'
-import { QuantityPicker } from './ui/quantity-picker'
-
+import { QuantityPicker } from '@/components/ui/quantity-picker'
 
 
 interface ProductCardProps {

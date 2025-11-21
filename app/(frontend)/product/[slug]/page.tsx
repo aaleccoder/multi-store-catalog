@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/layout/header'
 import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
 import { LoadingProvider } from '@/components/utils/loading-context'
@@ -25,11 +24,13 @@ import {
 import { RichTextRenderer } from '@/components/utils/rich-text-editor'
 import { ProductDetailClient } from './product-detail-client'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
+import { ProductCard } from '@/components/products/product-card'
 interface ProductDetailPageProps {
   params: Promise<{
     slug: string
   }>
 }
+
 
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params

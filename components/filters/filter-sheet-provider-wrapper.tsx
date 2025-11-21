@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, ReactNode } from 'react'
-import { FilterSheetProvider } from '../layout/mobile-toolbar'
-import { FilterSheet } from './filter-sheet'
+import { FilterSheetProvider } from '@/components/layout/mobile-toolbar'
+import { FilterSheet } from '@/components/filters/filter-sheet'
 
 interface FilterSheetProviderWrapperProps {
   children: ReactNode
