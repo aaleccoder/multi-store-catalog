@@ -372,13 +372,13 @@ export const ProductCard = ({
         </div>
 
         <CardContent className="p-0">
-          <div className="p-3 flex flex-col h-24">
+          <div className="px-3 pb-4 flex flex-col h-28 space-y-4">
             <div className="space-y-1">
               <h3 className="font-semibold text-base text-card-foreground group-hover:text-primary transition-colors line-clamp-1 leading-tight h-[1.5rem]">
                 {name}
               </h3>
               {description && (
-                <p className="text-md line-clamp-1 leading-relaxed h-[1.25rem]">
+                <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed h-[1.25rem]">
                   {description}
                 </p>
               )}

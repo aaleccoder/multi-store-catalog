@@ -86,6 +86,7 @@ export const productsRouter = router({
                             id: true,
                             name: true,
                             slug: true,
+                            shortDescription: true,
                             categoryId: true,
                             category: {
                                 select: {
