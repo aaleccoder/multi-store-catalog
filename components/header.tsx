@@ -42,7 +42,7 @@ export const Header = () => {
             aria-label="Ir a inicio"
           >
             <Logo
-              className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
+              className="h-28 w-28   md:h-32 md:w-32 text-[#c90606]"
               aria-label="Lea Catalog logo"
             />
           </button>

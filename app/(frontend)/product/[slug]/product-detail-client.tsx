@@ -160,9 +160,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                             </span>
                         )}
                     </div>
-                    {taxIncluded && (
+                    {/* {taxIncluded && (
                         <p className="text-sm text-muted-foreground">Impuestos incluidos</p>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Variants Selector */}
@@ -244,7 +244,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         price,
                         image: primaryImageUrl,
                         slug: product.slug,
-                        variantName: selectedVariant?.name
+                        variantName: selectedVariant?.name,
+                        currency
                     }}
                     inStock={inStock}
                 />

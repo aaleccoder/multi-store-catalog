@@ -58,9 +58,9 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
   return (
     <div className="md:hidden md:border-b md:border-border bg-background">
       <div className="container px-6 py-3">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center justify-end">
           {/* Search Input - Takes most space on mobile */}
-          <div className="relative">
+          {/* <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               id="mobile-search-input"
@@ -89,7 +89,7 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
                 <X className="h-4 w-4" />
               </button>
             )}
-          </div>
+          </div> */}
 
           {/* Mobile Filter Button */}
           <div className="md:hidden">

@@ -137,13 +137,29 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     take: 4,
   })
 
-  // Get category information for breadcrumb
   const category = product.category
   const categoryName = category?.name || 'Categoría'
   const categorySlug = category?.slug || ''
 
   const specifications = product.specifications as any
   const tags = product.tags as any[]
+
+  const serializedProduct = {
+    ...product,
+    prices: product.prices.map((p: any) => ({
+      ...p,
+      amount: toNumber(p.amount),
+      saleAmount: p.saleAmount ? toNumber(p.saleAmount) : null,
+    })),
+    variants: product.variants.map((v: any) => ({
+      ...v,
+      prices: v.prices.map((p: any) => ({
+        ...p,
+        amount: toNumber(p.amount),
+        saleAmount: p.saleAmount ? toNumber(p.saleAmount) : null,
+      })),
+    })),
+  }
 
   return (
     <LoadingProvider>
@@ -180,8 +196,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             </Breadcrumb>
           </div>
 
-          {/* Product Details Section */}
-          <ProductDetailClient product={product} />
+          <ProductDetailClient product={serializedProduct} />
 
           {/* Description Section */}
           {product.description && (

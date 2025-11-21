@@ -1,6 +1,6 @@
 'use client'
 
-import { Minus, Plus, ShoppingCart, Trash2, X, ArrowRight } from 'lucide-react'
+import { ShoppingCart, Trash2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -15,8 +15,12 @@ import { useCart } from './cart-context'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
+import { QuantityPicker } from './ui/quantity-picker'
+import { openWhatsApp } from '@/lib/whatsapp'
+
+
 
 interface ShoppingCartSheetProps {
   isMobileNav?: boolean
@@ -27,35 +31,12 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
   const [removingItemId, setRemovingItemId] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
 
-  // For now, we'll use a simple formatter since cart items don't have currency info yet
-  // You may want to store currency with cart items in the future
   const formatPrice = (amount: number, currency?: Currency | string | null | undefined) => {
     return formatCurrencyPrice(amount, currency)
   }
 
   const handleWhatsAppOrder = () => {
-    // WhatsApp number (change this to your actual number)
-    const phoneNumber = '+5355145384'
-
-    // Build the message
-    let message = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n'
-
-    items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`
-      message += `   Cantidad: ${item.quantity}\n`
-      message += `   Precio unitario: ${formatPrice(item.price)}\n`
-      message += `   Subtotal: ${formatPrice(item.price * item.quantity)}\n\n`
-    })
-
-    message += `*Total: ${formatPrice(total)}*\n\n`
-    message += 'Gracias!'
-
-    // Encode the message for URL
-    const encodedMessage = encodeURIComponent(message)
-
-    // Open WhatsApp
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
-    window.open(whatsappUrl, '_blank')
+    openWhatsApp(items, total)
   }
 
   const handleRemoveItem = (id: string | number) => {
@@ -63,14 +44,14 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
     setTimeout(() => {
       removeItem(id)
       setRemovingItemId(null)
-    }, 300) // Match animation duration
+    }, 300)
   }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild className='hover:bg-accent'>
         {isMobileNav ? (
-          <button className="flex flex-col items-center justify-center gap-1 text-white hover:text-primary transition-colors">
+          <Button className="">
             <div className="relative">
               <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
@@ -80,12 +61,12 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
               )}
             </div>
             <span className="text-xs">Carrito</span>
-          </button>
+          </Button>
         ) : (
-          <Button variant="ghost" size="icon" className="hover:bg-primary/70 relative">
+          <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs">
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-black text-white text-xs">
                 {itemCount}
               </Badge>
             )}
@@ -166,35 +147,23 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                       {/* Total Price Row */}
                       <div className="flex flex-row items-center gap-2 mb-2">
                         <p className="text-sm font-bold text-foreground text-left">
-                          {formatPrice(item.price * item.quantity)}
+                          {formatPrice(item.price * item.quantity, item.currency)}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-normal whitespace-nowrap text-left">
-                          {formatPrice(item.price)} c/u
+                          {formatPrice(item.price, item.currency)} c/u
                         </p>
                       </div>
 
                       {/* Quantity Controls and Price per unit Row */}
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 inline-flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-r border-border/60"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            <Minus className="h-3.5 w-3.5" />
-                          </Button>
-                          <span className="text-xs font-semibold flex-1 text-center tabular-nums">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-l border-border/60"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                          </Button>
+                        <div className="flex-1 max-w-[120px]">
+                          <QuantityPicker
+                            value={item.quantity}
+                            onChange={(val) => updateQuantity(item.id, val)}
+                            min={1}
+                            size="sm"
+                            className="bg-transparent shadow-sm text-black"
+                          />
                         </div>
 
                       </div>
@@ -211,14 +180,8 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
             {/* Total Section with enhanced styling */}
             <div className="border-t border-border/40 pt-4 space-y-2">
               <div className="flex justify-between items-baseline">
-                <span className="text-xs text-muted-foreground font-medium">Subtotal</span>
-                <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {formatPrice(total)}
-                </span>
-              </div>
-              <div className="flex justify-between items-baseline">
                 <span className="text-base font-bold text-foreground">Total</span>
-                <span className="text-lg font-bold text-primary tabular-nums">
+                <span className="text-lg font-bold text-accent tabular-nums">
                   {formatPrice(total)}
                 </span>
               </div>

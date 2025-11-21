@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { type Currency } from '@/lib/currency-client'
 
 export interface CartItem {
   id: number | string
@@ -10,6 +11,7 @@ export interface CartItem {
   quantity: number
   slug: string
   variantName?: string
+  currency?: Currency | string | null
 }
 
 interface CartContextType {

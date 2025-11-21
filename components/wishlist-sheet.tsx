@@ -93,9 +93,9 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild className='hover:bg-accent'>
         {isMobileNav ? (
-          <button className="flex flex-col items-center justify-center gap-1 text-white hover:text-primary transition-colors">
+          <Button className="flex flex-col items-center justify-center gap-1 text-white hover:text-black transition-colors">
             <div className="relative">
               <Heart className="h-5 w-5" />
               {wishlistItems.length > 0 && (
@@ -105,9 +105,9 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
               )}
             </div>
             <span className="text-xs">Favoritos</span>
-          </button>
+          </Button>
         ) : (
-          <Button variant="ghost" size="icon" className="hover:bg-primary/70 relative">
+          <Button variant="ghost" size="icon" className="relative">
             <Heart className="h-5 w-5" />
             {wishlistItems.length > 0 && (
               <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
@@ -196,43 +196,20 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-
-                        {/* Price and Quantity Controls Row */}
-                        <p className="text-sm font-bold text-primary whitespace-nowrap text-left">
-                          {formatPrice(item.price)}
-                        </p>
-                        <div className="flex items-center gap-2 w-full">
+                        <div className="flex w-full flex-col">
+                          <p className="text-sm font-bold text-primary whitespace-nowrap text-left">
+                            {formatPrice(item.price)}
+                          </p>
                           {quantityInCart > 0 ? (
                             <>
-                              <div className="w-full flex items-center rounded-lg border border-border/60 bg-background/50 shadow-sm overflow-hidden">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-r border-border/60"
-                                  onClick={() => handleDecrement(item.id)}
-                                >
-                                  <Minus className="h-3.5 w-3.5" />
-                                </Button>
-                                <span className="text-xs font-semibold text-center flex-1">
-                                  {quantityInCart}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-none hover:bg-muted/50 transition-colors border-l border-border/60"
-                                  onClick={() => handleIncrement(item)}
-                                >
-                                  <Plus className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
+                              <Button variant={"outline"} onClick={() => updateQuantity(item.id, 0)} className='flex-1 h-8 text-xs bg-destructive text-primary'>
+                                <Trash2 className='h-3 w-3 mr-1' />
+                                Quitar del carrito
+                              </Button>
                             </>
                           ) : (
                             <>
-                              <p className="text-sm font-bold text-primary whitespace-nowrap text-left">
-                                {formatPrice(item.price)}
-                              </p>
                               <Button
-                                size="sm"
                                 variant="outline"
                                 className="flex-1 h-8 text-xs"
                                 onClick={() => handleAddToCart(item)}
