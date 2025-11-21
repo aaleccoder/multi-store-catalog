@@ -1,10 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useCart } from '@/components/cart-context'
+import { useCart } from '@/context/cart-context'
 import { ShoppingCart, Send } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { QuantityPicker } from './ui/quantity-picker'
+import { QuantityPicker } from '../ui/quantity-picker'
 import { openWhatsApp } from '@/lib/whatsapp'
 import { type Currency } from '@/lib/currency-client'
 

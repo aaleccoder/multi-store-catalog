@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Header } from '@/components/header'
-import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
+import { Header } from '@/components/layout/header'
+import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
 
 export default function NotFound() {
   return (

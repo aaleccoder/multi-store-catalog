@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { FilterSheet } from './filter-sheet'
+import { FilterSheet } from './filters/filter-sheet'
 import {
   Select,
   SelectContent,

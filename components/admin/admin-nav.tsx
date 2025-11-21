@@ -23,7 +23,7 @@ import {
     SidebarFooter,
     SidebarTrigger,
 } from '@/components/ui/sidebar'
-import LogoProps from '../logo'
+import LogoProps from '../layout/logo'
 import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
 import router from 'next/router'

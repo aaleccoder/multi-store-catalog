@@ -1,4 +1,4 @@
-import { CategoryBar } from './category-bar'
+import { CategoryBar } from "@/components/categories/category-bar"
 
 interface CategoryBarWrapperProps {
   selectedCategorySlug?: string

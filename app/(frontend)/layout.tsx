@@ -1,7 +1,7 @@
 import React from 'react'
 import '../globals.css'
-import { CartProvider } from '@/components/cart-context'
-import { WishlistProvider } from '@/components/wishlist-context'
+import { CartProvider } from '@/context/cart-context'
+import { WishlistProvider } from '@/context/wishlist-context'
 import { Toaster } from '@/components/ui/sonner'
 import { Montserrat, Lobster } from 'next/font/google'
 

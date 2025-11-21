@@ -11,8 +11,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
-import { useWishlist } from '@/components/wishlist-context'
-import { useCart } from '@/components/cart-context'
+import { useWishlist } from '@/context/wishlist-context'
+import { useCart } from '@/context/cart-context'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ScrollArea } from '@/components/ui/scroll-area'

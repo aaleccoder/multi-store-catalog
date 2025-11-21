@@ -1,12 +1,12 @@
 import '../globals.css'
-import { Header } from '@/components/header'
-import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
-import { getFilterContent } from '@/components/filter-sidebar'
+import { Header } from '@/components/layout/header'
+import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
+import { getFilterContent } from '@/components/filters/filter-sidebar'
 import { ProductGridClient } from '@/components/product-grid-client'
-import { NavigationLoadingBar } from '@/components/navigation-loading'
-import { LoadingProvider } from '@/components/loading-context'
+import { NavigationLoadingBar } from '@/components/utils/navigation-loading'
+import { LoadingProvider } from '@/components/utils/loading-context'
 import { PageLayoutWrapper } from '@/components/page-layout-wrapper'
-import { SearchAndFiltersBar } from '@/components/search-and-filter-mobile'
+import { SearchAndFiltersBar } from '@/components/search/search-and-filter-mobile'
 
 interface HomePageProps {
   searchParams: Promise<{

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { FilterSheet } from './filter-sheet'
+import { FilterSheet } from '../filters/filter-sheet'
 
 interface SearchAndFiltersBarProps {
   filterContent?: React.ReactNode

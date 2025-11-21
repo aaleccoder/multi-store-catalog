@@ -6,13 +6,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductCard } from '@/components/product-card'
-import { Header } from '@/components/header'
-import { CategoryBarWrapper } from '@/components/category-bar-wrapper'
-import { LoadingProvider } from '@/components/loading-context'
-import { NavigationLoadingBar } from '@/components/navigation-loading'
+import { Header } from '@/components/layout/header'
+import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
+import { LoadingProvider } from '@/components/utils/loading-context'
+import { NavigationLoadingBar } from '@/components/utils/navigation-loading'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
-import { AddToCartButton } from '@/components/add-to-cart-button'
+import { AddToCartButton } from '@/components/cart/add-to-cart-button'
 import type { Metadata } from 'next'
 import {
   Breadcrumb,
@@ -22,7 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { RichTextRenderer } from '@/components/rich-text-editor'
+import { RichTextRenderer } from '@/components/utils/rich-text-editor'
 import { ProductDetailClient } from './product-detail-client'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
 interface ProductDetailPageProps {

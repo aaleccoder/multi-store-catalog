@@ -1,5 +1,5 @@
 
-import LogoProps from "@/components/logo"
+import LogoProps from "@/components/layout/logo"
 
 export default function Loading() {
     return (

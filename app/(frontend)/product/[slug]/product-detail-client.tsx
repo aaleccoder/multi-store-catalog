@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { AddToCartButton } from '@/components/add-to-cart-button'
-import { ImageGallery } from '@/components/image-gallery'
+import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { ImageGallery } from '@/components/utils/image-gallery'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
 import { cn } from '@/lib/utils'
@@ -141,25 +141,25 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         <span className="text-4xl font-bold text-primary">
                             {formatCurrencyPrice(price, currency)}
                         </span>
-                        {specifications?.unit && (
-                            <span className="text-xl text-muted-foreground self-end mb-1">
-                                / {specifications.unit.replace(/^(\d+)(\w)$/, '$1 $2')}
-                            </span>
-                        )}
-                        {(specifications?.weight || specifications?.volume) && (
-                            <span className="text-xl text-muted-foreground self-end mb-1">
-                                {' * '}
-                                {specifications.weight
-                                    ? `${specifications.weight} ${specifications.weightUnit || 'g'}`
-                                    : `${specifications.volume} ${specifications.volumeUnit || 'ml'}`}
-                            </span>
-                        )}
                         {hasDiscount && (
                             <span className="text-xl text-muted-foreground line-through">
                                 {formatCurrencyPrice(regularPrice, currency)}
                             </span>
                         )}
                     </div>
+                    {(specifications?.unit || specifications?.weight || specifications?.volume) && (
+                        <div className="text-base text-muted-foreground flex items-center gap-1 leading-none">
+                            {specifications?.unit && <span>{specifications.unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
+                            {specifications?.unit && (specifications?.weight || specifications?.volume) && <span>•</span>}
+                            {(specifications?.weight || specifications?.volume) && (
+                                <span>
+                                    {specifications.weight
+                                        ? `${specifications.weight} ${specifications.weightUnit || 'g'}`
+                                        : `${specifications.volume} ${specifications.volumeUnit || 'ml'}`}
+                                </span>
+                            )}
+                        </div>
+                    )}
                     {/* {taxIncluded && (
                         <p className="text-sm text-muted-foreground">Impuestos incluidos</p>
                     )} */}
