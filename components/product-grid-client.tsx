@@ -28,6 +28,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { trpc } from '@/trpc/client'
+import { SearchAndFiltersBar } from './search-and-filter-mobile'
 
 interface ProductGridClientProps {
   categorySlug?: string
@@ -120,12 +121,51 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
               </Link>
             </div>
           )}
+
+          {/* Filters and Sorting - Same as when products exist */}
+          <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className='flex flex-row items-center justify-between w-full'>
+              <p className="text-sm text-muted-foreground">
+                No se encontraron productos
+              </p>
+              <SearchAndFiltersBar filterContent={filterContent} />
+            </div>
+
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setIsFilterOpen(true)}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filtros
+              </Button>
+              <Select value={currentSort} onValueChange={handleSortChange}>
+                <SelectTrigger className="w-[200px] text-black">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="-createdAt">Más recientes</SelectItem>
+                  <SelectItem value="createdAt">Más antiguos</SelectItem>
+                  <SelectItem value="name">Nombre (A-Z)</SelectItem>
+                  <SelectItem value="-name">Nombre (Z-A)</SelectItem>
+                  <SelectItem value="price">Precio (menor a mayor)</SelectItem>
+                  <SelectItem value="-price">Precio (mayor a menor)</SelectItem>
+                  <SelectItem value="-featured">Destacados primero</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="text-center py-12">
             <p className="text-muted-foreground">
               No hay productos disponibles {categorySlug ? 'en esta categoría' : 'en este momento'}.
             </p>
           </div>
         </div>
+        <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          {filterContent}
+        </FilterSheet>
       </ScrollArea>
     )
   }
@@ -164,14 +204,15 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
         )}
 
         <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
+          <div className='flex flex-row items-center justify-between w-full'>
             <p className="text-sm text-muted-foreground">
               Mostrando {products.length > 0 ? (currentPage - 1) * 12 + 1 : 0} -{' '}
               {Math.min(currentPage * 12, totalDocs)} de {totalDocs}{' '}
               {totalDocs === 1 ? 'producto' : 'productos'}
             </p>
+            <SearchAndFiltersBar filterContent={filterContent} />
           </div>
-          {/* Desktop Sort Dropdown */}
+
           <div className="hidden md:flex items-center gap-2">
             <Button
               variant="outline"
@@ -283,15 +324,12 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
                   />
                 </PaginationItem>
 
-                {/* Page Numbers */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  // Show first page, last page, current page, and pages around current
                   const showPage =
                     page === 1 ||
                     page === totalPages ||
                     (page >= currentPage - 1 && page <= currentPage + 1)
 
-                  // Show ellipsis
                   const showEllipsisBefore = page === currentPage - 2 && currentPage > 3
                   const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2
 

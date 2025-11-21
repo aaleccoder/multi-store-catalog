@@ -29,13 +29,15 @@ export const productsRouter = router({
 
                 const sort = searchParams.sort ?? '-createdAt'
                 let orderBy: any = {}
+                let shouldSortByPrice = false
 
                 if (sort === '-createdAt') orderBy = { id: 'desc' }
                 else if (sort === 'createdAt') orderBy = { id: 'asc' }
                 else if (sort === 'name') orderBy = { name: 'asc' }
                 else if (sort === '-name') orderBy = { name: 'desc' }
-                else if (sort === 'price') orderBy = { prices: { _min: { amount: 'asc' } } }
-                else if (sort === '-price') orderBy = { prices: { _max: { amount: 'desc' } } }
+                else if (sort === 'price' || sort === '-price') {
+                    shouldSortByPrice = true
+                }
 
                 const where: any = { isActive: true }
 
@@ -74,10 +76,10 @@ export const productsRouter = router({
                     }
                 }
 
-                const [products, totalDocs] = await Promise.all([
+                const [rawProducts, totalDocs] = await Promise.all([
                     prisma.product.findMany({
                         where,
-                        orderBy,
+                        orderBy: shouldSortByPrice ? { id: 'asc' } : orderBy,
                         skip,
                         take: limit,
                         select: {
@@ -122,25 +124,63 @@ export const productsRouter = router({
                     prisma.product.count({ where }),
                 ])
 
-                const totalPages = Math.ceil(totalDocs / limit)
-
-                return {
-                    docs: products.map((prod) => ({
-                        ...prod,
-                        prices: prod.prices?.map((p) => ({
+                let products = rawProducts.map((prod) => ({
+                    ...prod,
+                    prices: prod.prices?.map((p) => ({
+                        ...p,
+                        amount: toNumber(p.amount),
+                        saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                    })) || [],
+                    variants: prod.variants?.map((v) => ({
+                        ...v,
+                        prices: v.prices?.map((p) => ({
                             ...p,
                             amount: toNumber(p.amount),
                             saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
                         })) || [],
-                        variants: prod.variants?.map((v) => ({
-                            ...v,
-                            prices: v.prices?.map((p) => ({
-                                ...p,
-                                amount: toNumber(p.amount),
-                                saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
-                            })) || [],
-                        })) || [],
-                    })),
+                    })) || [],
+                }))
+
+                if (shouldSortByPrice) {
+                    const getMinPrice = (product: any) => {
+                        const prices: number[] = []
+
+                        if (product.variants?.length > 0) {
+                            product.variants.forEach((variant: any) => {
+                                if (variant.isActive && variant.prices?.length > 0) {
+                                    variant.prices.forEach((price: any) => {
+                                        const effectivePrice = price.saleAmount ?? price.amount
+                                        if (typeof effectivePrice === 'number' && !isNaN(effectivePrice)) {
+                                            prices.push(effectivePrice)
+                                        }
+                                    })
+                                }
+                            })
+                        }
+
+                        if (prices.length === 0 && product.prices?.length > 0) {
+                            product.prices.forEach((price: any) => {
+                                const effectivePrice = price.saleAmount ?? price.amount
+                                if (typeof effectivePrice === 'number' && !isNaN(effectivePrice)) {
+                                    prices.push(effectivePrice)
+                                }
+                            })
+                        }
+
+                        return prices.length > 0 ? Math.min(...prices) : Infinity
+                    }
+
+                    products = products.sort((a, b) => {
+                        const priceA = getMinPrice(a)
+                        const priceB = getMinPrice(b)
+                        return sort === 'price' ? priceA - priceB : priceB - priceA
+                    })
+                }
+
+                const totalPages = Math.ceil(totalDocs / limit)
+
+                return {
+                    docs: products,
                     totalDocs,
                     page,
                     limit,

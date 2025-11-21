@@ -29,7 +29,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <NavigationLoadingBar />
         <Header />
         <CategoryBarWrapper selectedCategorySlug={categorySlug} />
-        <SearchAndFiltersBar filterContent={filterContent} />
         <PageLayoutWrapper filterContent={filterContent}>
           <div className="flex flex-1 md:overflow-hidden">
             <main className="flex-1 md:overflow-hidden bg-white">

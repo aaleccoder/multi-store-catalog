@@ -108,7 +108,7 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
               <SelectTrigger className="border h-10 text-white!">
                 <ArrowUpDown className="h-4 w-4 text-black" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className=''>
                 <SelectItem value="-createdAt">Más recientes</SelectItem>
                 <SelectItem value="createdAt">Más antiguos</SelectItem>
                 <SelectItem value="name">A-Z</SelectItem>
