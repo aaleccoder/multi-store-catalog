@@ -30,11 +30,9 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
 
 
   const handleAddToCart = () => {
-    // Add the item multiple times based on quantity
     for (let i = 0; i < quantity; i++) {
       addItem(product)
     }
-    // Reset quantity after adding
     setQuantity(1)
   }
 
@@ -52,7 +50,6 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
 
   return (
     <div className="space-y-4">
-      {/* Quantity Selector */}
       <div className="flex items-center gap-4">
         <span className="text-sm font-semibold">Cantidad:</span>
         <div className="w-32">
@@ -66,7 +63,6 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-col gap-2">
         <Button
           size="lg"
@@ -80,7 +76,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
         <Button
           size="lg"
           variant="default"
-          className="w-full"
+          className="w-full bg-accent text-primary"
           disabled={!inStock}
           onClick={handleAddToCart}
         >

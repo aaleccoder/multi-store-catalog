@@ -58,15 +58,16 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
   return (
     <div className="bg-primary/10 md:border md:border-border">
       <div className="container px-6 py-4">
-        <div className="relative flex items-center gap-2">
+        <div className="relative flex items-center">
+          {/* Left Scroll Button */}
           <div
-            className={`transition-all duration-300 ease-in-out ${canScrollLeft ? 'w-8 opacity-100' : 'w-0 opacity-0'
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 transition-all duration-300 ease-in-out ${canScrollLeft ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
               }`}
           >
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md z-10"
+              className="h-8 w-8 shrink-0 rounded-full shadow-md"
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
@@ -77,7 +78,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
           <div
             ref={scrollContainerRef}
             onScroll={checkScroll}
-            className="flex items-center gap-4 overflow-x-auto scrollbar-hide flex-1 transition-all duration-300 ease-in-out"
+            className="flex items-center gap-4 overflow-x-auto scrollbar-hide w-full transition-all duration-300 ease-in-out px-10"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {/* All Products Button */}
@@ -118,13 +119,13 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
 
           {/* Right Scroll Button */}
           <div
-            className={`transition-all duration-300 ease-in-out ${canScrollRight ? 'w-8 opacity-100' : 'w-0 opacity-0'
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 transition-all duration-300 ease-in-out ${canScrollRight ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
               }`}
           >
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md z-10"
+              className="h-8 w-8 shrink-0 rounded-full shadow-md"
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >
