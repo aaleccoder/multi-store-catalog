@@ -17,7 +17,7 @@ export function generateWhatsAppLink(items: WhatsAppItem[], total: number, curre
         const itemName = item.variantName ? `${item.name} (${item.variantName})` : item.name
         message += `${index + 1}. ${itemName}\n`
         message += `   Cantidad: ${item.quantity}\n`
-        message += `   Precio unitario: ${formatPrice(item.price, item.currency || currency)}\n`
+        message += `   Precio: ${formatPrice(item.price, item.currency || currency)}\n\n`
     })
 
     message += `\n*Total: ${formatPrice(total, currency)}*\n\n`

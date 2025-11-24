@@ -57,7 +57,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
 
   return (
     <div className="bg-primary/10 md:border md:border-border">
-      <div className="container px-6 py-4">
+      <div className="container py-4">
         <div className="relative flex items-center">
           {/* Left Scroll Button */}
           <div
@@ -67,7 +67,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md"
+              className="h-8 w-8 shrink-0 rounded-full shadow-md bg-background/80 backdrop-blur-sm"
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
@@ -78,7 +78,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
           <div
             ref={scrollContainerRef}
             onScroll={checkScroll}
-            className="flex items-center gap-4 overflow-x-auto scrollbar-hide w-full transition-all duration-300 ease-in-out px-10"
+            className="flex items-center gap-4 overflow-x-auto scrollbar-hide w-full transition-all duration-300 ease-in-out px-4 md:px-12"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {/* All Products Button */}
@@ -125,7 +125,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md"
+              className="h-8 w-8 shrink-0 rounded-full shadow-md bg-background/80 backdrop-blur-sm"
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >
