@@ -36,6 +36,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     // Helper to parse prices
     const parseNumeric = (raw: any) => toNumber(raw)
 
+
+
     // Get price for the current selection
     // If variant selected, use its price. If not, use product default price.
     const getPriceData = () => {
@@ -143,7 +145,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         </span>
                         {hasDiscount && (
                             <span className="text-xl text-muted-foreground line-through">
-                                {formatCurrencyPrice(regularPrice, currency)}
+                                {formatCurrencyPrice(regularPrice!, currency)}
                             </span>
                         )}
                     </div>

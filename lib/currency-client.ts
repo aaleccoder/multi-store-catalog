@@ -17,24 +17,38 @@ export function formatPrice(
     amount: number,
     currency?: Currency | string | null,
 ): string {
+    let formatted = '';
+
     if (!currency) {
-        return `$${amount.toFixed(2)}`
-    }
-
-    // If currency is a string (ID), use default formatting
-    if (typeof currency === 'string') {
-        return `$${amount.toFixed(2)}`
-    }
-
-    const formattedAmount = amount.toFixed(currency.decimalPlaces)
-    const parts = formattedAmount.split('.')
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, currency.thousandsSeparator)
-    const decimalPart = parts[1]
-    const finalAmount = decimalPart ? `${integerPart}${currency.decimalSeparator}${decimalPart}` : integerPart
-
-    if (currency.symbolPosition === 'before') {
-        return `${currency.symbol}${finalAmount}`
+        formatted = `$${amount.toFixed(2)}`
+    } else if (typeof currency === 'string') {
+        // If currency is a string (ID), use default formatting
+        formatted = `$${amount.toFixed(2)}`
     } else {
-        return `${finalAmount}${currency.symbol}`
+        const formattedAmount = amount.toFixed(currency.decimalPlaces)
+        const parts = formattedAmount.split('.')
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, currency.thousandsSeparator)
+        const decimalPart = parts[1]
+        const finalAmount = decimalPart ? `${integerPart}${currency.decimalSeparator}${decimalPart}` : integerPart
+
+        if (currency.symbolPosition === 'before') {
+            formatted = `${currency.symbol}${finalAmount}`
+        } else {
+            formatted = `${finalAmount}${currency.symbol}`
+        }
     }
+
+    // Strip trailing zeros logic
+    if (typeof currency === 'object' && currency !== null) {
+        if (currency.decimalPlaces > 0) {
+            const { decimalSeparator, decimalPlaces } = currency
+            const zeros = '0'.repeat(decimalPlaces)
+            const target = `${decimalSeparator}${zeros}`
+            formatted = formatted.replace(target, '')
+        }
+    } else {
+        formatted = formatted.replace('.00', '')
+    }
+
+    return formatted
 }

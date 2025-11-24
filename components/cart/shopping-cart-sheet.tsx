@@ -31,9 +31,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
   const [removingItemId, setRemovingItemId] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
 
-  const formatPrice = (amount: number, currency?: Currency | string | null | undefined) => {
-    return formatCurrencyPrice(amount, currency)
-  }
+
 
   const handleWhatsAppOrder = () => {
     openWhatsApp(items, total)
@@ -147,10 +145,10 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                       {/* Total Price Row */}
                       <div className="flex flex-row items-center gap-2 mb-2">
                         <p className="text-sm font-bold text-foreground text-left">
-                          {formatPrice(item.price * item.quantity, item.currency)}
+                          {formatCurrencyPrice(item.price * item.quantity, item.currency)}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-normal whitespace-nowrap text-left">
-                          {formatPrice(item.price, item.currency)} c/u
+                          {formatCurrencyPrice(item.price, item.currency)} c/u
                         </p>
                       </div>
 
@@ -182,7 +180,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
               <div className="flex justify-between items-baseline">
                 <span className="text-base font-bold text-foreground">Total</span>
                 <span className="text-lg font-bold text-accent tabular-nums">
-                  {formatPrice(total)}
+                  {formatCurrencyPrice(total)}
                 </span>
               </div>
             </div>

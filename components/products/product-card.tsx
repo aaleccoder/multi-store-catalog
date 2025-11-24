@@ -87,12 +87,7 @@ export const ProductCard = ({
     ? Math.round(((regularPrice - price) / regularPrice) * 100)
     : 0
 
-  const formatPrice = (amount: number) => {
-    // Accept either a Currency object or a currency code string.
-    // If a number ID sneaks in, it's not expected; convert to string defensively.
-    const currencyArg = typeof currency === 'number' ? String(currency) : currency
-    return formatCurrencyPrice(amount, currencyArg)
-  }
+
 
   const handleAddToCart = () => {
     addItem({
@@ -227,7 +222,7 @@ export const ProductCard = ({
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-primary">
                   {pricePrefix && <span className="text-xs font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
-                  {formatPrice(price)}
+                  {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
                 </span>
                 {(unit || weight || volume) && (
                   <div className="text-xs text-muted-foreground flex items-center gap-1 leading-none">
@@ -386,7 +381,7 @@ export const ProductCard = ({
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-primary">
                   {pricePrefix && <span className="text-xs font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
-                  {formatPrice(price)}
+                  {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
                 </span>
                 {(unit || weight || volume) && (
                   <div className="text-xs text-muted-foreground flex items-center gap-1 leading-none">
