@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/trpc/client'
-import { Icon, IconName } from '@/components/ui/icon-picker'
+import { CategoryIcon } from '@/components/categories/category-icon'
 import { Package, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Category {
@@ -106,11 +106,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
                     : 'hover:bg-primary/5 text-black bg-transparent'
                     }`}
                 >
-                  {category.icon ? (
-                    <Icon name={category.icon as IconName} className="h-4 w-4" />
-                  ) : (
-                    <Package className="h-4 w-4" />
-                  )}
+                  <CategoryIcon icon={category.icon} className="h-4 w-4" />
                   <span>{category.name}</span>
                 </Button>
               )

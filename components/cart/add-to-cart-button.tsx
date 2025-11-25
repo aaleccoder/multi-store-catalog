@@ -71,7 +71,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
           onClick={handleWhatsAppOrder}
         >
           <Send className="h-5 w-5 mr-2" />
-          {inStock ? 'Ordenar' : 'Agotado'}
+          {inStock ? 'Ordenar por Whatsapp' : 'Agotado'}
         </Button>
         <Button
           size="lg"

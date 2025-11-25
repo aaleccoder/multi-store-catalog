@@ -19,6 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface WishlistSheetProps {
   isMobileNav?: boolean
@@ -40,13 +41,16 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
   }
 
   const handleAddToCart = (item: (typeof wishlistItems)[0]) => {
-    addToCart({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      slug: item.slug,
-    })
+    const existingItem = cartItems.find((cartItem) => cartItem.id === item.id)
+    if (!existingItem) {
+      addToCart({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        slug: item.slug,
+      })
+    }
   }
 
   const handleIncrement = (item: (typeof wishlistItems)[0]) => {
@@ -72,7 +76,16 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
   }
 
   const handleAddAllToCart = () => {
-    wishlistItems.forEach((item) => {
+    const itemsNotInCart = wishlistItems.filter(
+      (item) => !cartItems.find((cartItem) => cartItem.id === item.id)
+    )
+
+    if (itemsNotInCart.length === 0) {
+      toast.info('Todos los productos ya están en el carrito')
+      return
+    }
+
+    itemsNotInCart.forEach((item) => {
       addToCart({
         id: item.id,
         name: item.name,
@@ -81,6 +94,19 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
         slug: item.slug,
       })
     })
+  }
+
+  const handleRemoveAllFromCart = () => {
+    wishlistItems.forEach((item) => {
+      updateQuantity(item.id, 0)
+    })
+  }
+
+  const areAllItemsInCart = () => {
+    if (wishlistItems.length === 0) return false
+    return wishlistItems.every((item) =>
+      cartItems.find((cartItem) => cartItem.id === item.id)
+    )
   }
 
   const handleRemoveItem = (id: string | number) => {
@@ -233,13 +259,24 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
           <div className="border-t border-border/60 bg-muted/30 px-6 py-5 space-y-4">
             {/* Action Buttons */}
             <div className="flex flex-col gap-2.5 pt-2">
-              <Button
-                className="w-full h-10 bg-primary hover:bg-primary/90 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
-                onClick={handleAddAllToCart}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Agregar Todo al Carrito
-              </Button>
+              {areAllItemsInCart() ? (
+                <Button
+                  variant="outline"
+                  className="w-full h-10 text-destructive border-destructive/40 hover:bg-destructive/10 hover:border-destructive/60 font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                  onClick={handleRemoveAllFromCart}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Quitar Todo del Carrito
+                </Button>
+              ) : (
+                <Button
+                  className="w-full h-10 bg-primary hover:bg-primary/90 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                  onClick={handleAddAllToCart}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Agregar Todo al Carrito
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 className="w-full h-9 text-destructive border border-destructive/40 hover:bg-destructive/10 hover:border-destructive/60 transition-all duration-200 font-medium text-sm"

@@ -12,7 +12,7 @@ export function Footer() {
                             <Logo className="h-24 w-24" />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            Catálogo de productos de alta calidad.
+                            El placer de probar algo diferente
                         </p>
                     </div>
 
@@ -21,9 +21,8 @@ export function Footer() {
                         <div className="flex items-start gap-2 text-sm text-muted-foreground">
                             <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                             <address className="not-italic">
-                                Calle Principal #123<br />
-                                Santo Domingo, República Dominicana<br />
-                                CP 10000
+                                Calle 94 y 5ta Avenida<br />
+                                Miramar, La Habana<br />
                             </address>
                         </div>
                     </div>

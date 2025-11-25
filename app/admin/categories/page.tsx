@@ -15,9 +15,8 @@ interface CategoryFormProps {
 
 function CategoryForm({ formData, setFormData }: CategoryFormProps) {
     const [manuallyEditedSlug, setManuallyEditedSlug] = useState(false)
+    const [iconMode, setIconMode] = useState<'picker' | 'custom'>('picker')
 
-    // Reset manual edit state when the form is opened for a new/different item
-    // We use the ID to detect if we switched items. If ID is missing, it's a new item.
     useEffect(() => {
         if (formData.slug && formData.name) {
             const generated = generateSlug(formData.name)
@@ -29,17 +28,8 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
         } else {
             setManuallyEditedSlug(false)
         }
-        // We only want to run this when the item *initially* loads, not on every keystroke.
-        // However, formData changes on every keystroke.
-        // Ideally AdminResource would mount a fresh component instance.
-        // If not, we might need a ref to track the "current" ID.
-        // For now, assuming AdminResource unmounts/remounts or we can rely on initial mount if we key it.
     }, [])
 
-    // Actually, if AdminResource reuses the component, the empty dependency array [] won't re-run.
-    // We should probably key the component in the renderForm prop if possible, or watch ID.
-    // But renderForm doesn't accept a key.
-    // Let's watch formData.id.
     useEffect(() => {
         if (formData.id) {
             const generated = generateSlug(formData.name || '')
@@ -49,11 +39,19 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                 setManuallyEditedSlug(false)
             }
         } else {
-            // New item
             setManuallyEditedSlug(false)
         }
-    }, [formData.id]) // Only re-run when ID changes (switching items)
+    }, [formData.id])
 
+    useEffect(() => {
+        if (formData.icon && formData.icon.trim().startsWith('<svg')) {
+            setIconMode('custom')
+        } else {
+            setIconMode('picker')
+        }
+    }, [formData.id])
+
+    const isCustomSvg = formData.icon && formData.icon.trim().startsWith('<svg')
 
     return (
         <>
@@ -101,11 +99,78 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                 />
             </div>
             <div className="space-y-2">
-                <Label>Icono</Label>
-                <IconPicker
-                    value={formData.icon as IconName | undefined}
-                    onValueChange={(icon) => setFormData({ ...formData, icon })}
-                />
+                <div className="flex items-center justify-between">
+                    <Label>Icono</Label>
+                    <div className="flex items-center gap-2 text-sm">
+                        <button
+                            type="button"
+                            onClick={() => setIconMode('picker')}
+                            className={`px-3 py-1 rounded ${iconMode === 'picker'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                }`}
+                        >
+                            Icon Picker
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIconMode('custom')}
+                            className={`px-3 py-1 rounded ${iconMode === 'custom'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                }`}
+                        >
+                            Upload SVG
+                        </button>
+                    </div>
+                </div>
+
+                {iconMode === 'picker' ? (
+                    <IconPicker
+                        value={!isCustomSvg ? (formData.icon as IconName | undefined) : undefined}
+                        onValueChange={(icon) => setFormData({ ...formData, icon })}
+                    />
+                ) : (
+                    <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
+                            <Input
+                                id="customSvg"
+                                type="file"
+                                accept=".svg"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                        if (!file.name.endsWith('.svg')) {
+                                            alert('Please upload an SVG file')
+                                            return
+                                        }
+                                        const text = await file.text()
+                                        setFormData({ ...formData, icon: text })
+                                    }
+                                }}
+                                className="cursor-pointer"
+                            />
+                            {formData.icon && formData.icon.trim().startsWith('<svg') && (
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, icon: '' })}
+                                    className="text-sm text-destructive hover:underline self-start"
+                                >
+                                    Remove SVG
+                                </button>
+                            )}
+                        </div>
+                        {formData.icon && formData.icon.trim().startsWith('<svg') && (
+                            <div className="flex items-center gap-2">
+                                <Label>Preview:</Label>
+                                <div
+                                    className="w-8 h-8 flex items-center justify-center border rounded p-1"
+                                    dangerouslySetInnerHTML={{ __html: formData.icon }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
             <div className="flex items-center space-x-2">
                 <Switch
