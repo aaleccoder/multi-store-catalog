@@ -10,7 +10,7 @@ export interface WhatsAppItem {
 }
 
 export function generateWhatsAppLink(items: WhatsAppItem[], total: number, currency?: Currency | string | null) {
-    const phoneNumber = '+5355145384'
+    const phoneNumber = '+5363404607'
     let message = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n'
 
     items.forEach((item, index) => {

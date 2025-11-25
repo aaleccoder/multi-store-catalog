@@ -30,8 +30,12 @@ export function Footer() {
                     <div>
                         <h3 className="font-semibold mb-4 text-foreground">Contacto</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li>Email: info@wapa.com</li>
-                            <li>Tel: +1 (809) 123-4567</li>
+                            <li className="hover:text-primary transition-colors">
+                                <a href="mailto:info@wapa.com">Email: info@wapa.com</a>
+                            </li>
+                            <li className="hover:text-primary transition-colors">
+                                <a href="tel:+5363404607">Tel: +5363404607</a>
+                            </li>
                         </ul>
                     </div>
 
