@@ -202,9 +202,14 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
+    overscroll-behavior: none;
   }
 
   /* Improved checkbox contrast */
