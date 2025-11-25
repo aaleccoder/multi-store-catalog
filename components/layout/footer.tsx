@@ -1,16 +1,15 @@
 import Link from 'next/link'
 import Logo from './logo'
-import { Facebook, Instagram, Twitter } from 'lucide-react'
+import { Facebook, Instagram, Twitter, MapPin } from 'lucide-react'
 
 export function Footer() {
     return (
-        <footer className="bg-card border-t border-border mt-auto">
+        <footer className="bg-primary/30 border-t border-border mt-auto">
             <div className="container mx-auto px-4 py-8 md:py-12">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <Logo className="h-10 w-10" />
-                            <span className="text-xl font-bold text-primary">Wapa</span>
+                    <div className="">
+                        <div className="flex items-center">
+                            <Logo className="h-24 w-24" />
                         </div>
                         <p className="text-sm text-muted-foreground">
                             Catálogo de productos de alta calidad.
@@ -18,19 +17,22 @@ export function Footer() {
                     </div>
 
                     <div>
-                        <h3 className="font-semibold mb-4 text-foreground">Enlaces</h3>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><Link href="/" className="hover:text-primary transition-colors">Inicio</Link></li>
-                            {/* <li><Link href="/products" className="hover:text-primary transition-colors">Productos</Link></li> */}
-                            {/* <li><Link href="/about" className="hover:text-primary transition-colors">Nosotros</Link></li> */}
-                        </ul>
+                        <h3 className="font-semibold mb-4 text-foreground">Dirección</h3>
+                        <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                            <address className="not-italic">
+                                Calle Principal #123<br />
+                                Santo Domingo, República Dominicana<br />
+                                CP 10000
+                            </address>
+                        </div>
                     </div>
 
                     <div>
                         <h3 className="font-semibold mb-4 text-foreground">Contacto</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>Email: info@wapa.com</li>
-                            {/* <li>Tel: +123 456 7890</li> */}
+                            <li>Tel: +1 (809) 123-4567</li>
                         </ul>
                     </div>
 

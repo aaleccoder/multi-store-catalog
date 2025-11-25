@@ -192,7 +192,7 @@ export const ProductCard = ({
           </div>
 
           {/* Content */}
-          <CardContent className="p-1.5 flex flex-col">
+          <CardContent className="p-2 flex flex-col max-h-38 h-full min-h-38 justify-between">
             <div className="space-y-1">
               {/* Badges */}
               <div className="h-5">
@@ -225,9 +225,9 @@ export const ProductCard = ({
                   {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
                 </span>
                 {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground flex items-center gap-1 leading-none">
-                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')}U</span>}
-                    {unit && (weight || volume) && <span>•</span>}
+                  <div className="text-xs text-muted-foreground flex flex-col gap-0.5 leading-none items-start">
+                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')} unidades</span>}
+                    {unit && (weight || volume) && <span></span>}
                     {(weight || volume) && (
                       <span>
                         {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}
@@ -238,7 +238,7 @@ export const ProductCard = ({
               </div>
             </div>
 
-            <div className="mt-1.5">
+            <div className="mt-1.5 justify-end">
               {quantityInCart > 0 && inStock ? (
                 <div className="">
                   <QuantityPicker
