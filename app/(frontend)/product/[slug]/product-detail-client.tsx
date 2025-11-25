@@ -150,9 +150,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         )}
                     </div>
                     {(specifications?.unit || specifications?.weight || specifications?.volume) && (
-                        <div className="text-base text-muted-foreground flex items-center gap-1 leading-none">
-                            {specifications?.unit && <span>{specifications.unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
-                            {specifications?.unit && (specifications?.weight || specifications?.volume) && <span>•</span>}
+                        <div className="text-base text-muted-foreground flex flex-col gap-0.5 leading-none">
+                            {specifications?.unit && <span>{specifications.unit.replace(/^(\d+).*$/, '$1')} unidades</span>}
                             {(specifications?.weight || specifications?.volume) && (
                                 <span>
                                     {specifications.weight

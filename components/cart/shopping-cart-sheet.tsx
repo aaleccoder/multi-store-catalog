@@ -35,6 +35,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
 
   const handleWhatsAppOrder = () => {
     openWhatsApp(items, total)
+    clearCart()
   }
 
   const handleRemoveItem = (id: string | number) => {

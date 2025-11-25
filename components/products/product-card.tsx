@@ -155,9 +155,9 @@ export const ProductCard = ({
                 <Image
                   src={currentImage.url}
                   alt={currentImage.alt || name}
-                  fill
+                  height={512}
+                  width={512}
                   className="object-contain"
-                  sizes="10vw"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -240,12 +240,12 @@ export const ProductCard = ({
 
             <div className="mt-1.5">
               {quantityInCart > 0 && inStock ? (
-                <div className="w-full">
+                <div className="">
                   <QuantityPicker
                     value={quantityInCart}
                     onChange={(val) => updateQuantity(id, val)}
                     min={0}
-                    size="sm"
+                    size="default"
                     className="bg-transparent shadow-sm text-black"
                   />
                 </div>
@@ -280,15 +280,15 @@ export const ProductCard = ({
   return (
     <Link href={`/product/${slug}`} className="block">
       <Card className="group overflow-hidden border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 py-0">
-        <div className="relative aspect-4/3">
+        <div className="relative">
           <div className="relative w-full h-full overflow-hidden rounded-lg">
             {currentImage?.url ? (
               <Image
                 src={currentImage.url}
                 alt={currentImage.alt || name}
-                fill
-                className="object-contain transition-opacity duration-300"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain ransition-opacity duration-300"
+                width={512}
+                height={512}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-secondary">
@@ -384,9 +384,9 @@ export const ProductCard = ({
                   {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
                 </span>
                 {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground flex items-center gap-1 leading-none">
-                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')}</span>}
-                    {unit && (weight || volume) && <span>•</span>}
+                  <div className="text-xs text-muted-foreground flex flex-row items-center gap-0.5 leading-none">
+                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')} unidades de</span>}
+                    {unit && (weight || volume) && <span className="text-xs font-normal text-muted-foreground"></span>}
                     {(weight || volume) && (
                       <span>
                         {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}

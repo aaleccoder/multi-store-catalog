@@ -13,15 +13,18 @@ export const metadata = {
   title: 'Wapa Catalog',
 }
 
+import { Footer } from '@/components/layout/footer'
+
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${montserrat.className} ${lobster.variable}`}>
+      <body className={`${montserrat.className} ${lobster.variable} flex flex-col min-h-screen`}>
         <CartProvider>
           <WishlistProvider>
-            <main>{children}</main>
+            <main className="flex-1">{children}</main>
+            <Footer />
             <Toaster />
           </WishlistProvider>
         </CartProvider>

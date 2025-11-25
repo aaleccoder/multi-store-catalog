@@ -21,7 +21,7 @@ export function QuantityPicker({
     value,
     onChange,
     min = 1,
-    max,
+    max = 100,
     step = 1,
     className,
     disabled = false,

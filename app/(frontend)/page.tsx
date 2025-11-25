@@ -25,13 +25,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <LoadingProvider>
-      <div className="h-screen bg-background flex flex-col md:overflow-hidden pb-16 md:pb-0">
+      <div className="min-h-screen bg-background flex flex-col pb-16 md:pb-0">
         <NavigationLoadingBar />
         <Header />
         <CategoryBarWrapper selectedCategorySlug={categorySlug} />
         <PageLayoutWrapper filterContent={filterContent}>
-          <div className="flex flex-1 md:overflow-hidden">
-            <main className="flex-1 md:overflow-hidden bg-white">
+          <div className="flex flex-1">
+            <main className="flex-1 bg-white">
               <ProductGridClient
                 categorySlug={categorySlug}
                 subcategorySlug={subcategorySlug}

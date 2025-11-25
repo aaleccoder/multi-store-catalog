@@ -7,7 +7,6 @@ import { toNumber } from '@/lib/number'
 import { ProductGridSkeleton } from './product-grid-skeleton'
 import Link from 'next/link'
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -107,7 +106,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
 
   if (!products || products.length === 0) {
     return (
-      <ScrollArea className="w-full h-full">
+      <div className="w-full">
         <div className="p-6 md:p-8">
           {/* Breadcrumb */}
           {(selectedCategory || selectedSubcategory) && (
@@ -166,12 +165,12 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
         <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           {filterContent}
         </FilterSheet>
-      </ScrollArea>
+      </div>
     )
   }
 
   return (
-    <ScrollArea id="product-scroll-area" className="w-full h-full">
+    <div className="w-full">
       <div className="p-4 md:p-8 mb-12">
         {/* Breadcrumb */}
         {(selectedCategory || selectedSubcategory) && (
@@ -383,6 +382,6 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         {filterContent}
       </FilterSheet>
-    </ScrollArea>
+    </div>
   )
 }
