@@ -17,7 +17,8 @@ type ContactSettings = {
 }
 
 export default function SettingsPage() {
-    const { data: settingsData, isLoading, refetch } = trpc.admin.settings.list.useQuery()
+    const queryResult = trpc.admin.settings.list.useQuery()
+    const { data: settingsData, isLoading, refetch } = queryResult as any
     const updateSettings = trpc.admin.settings.update.useMutation({
         onSuccess: () => {
             toast.success('Configuración actualizada correctamente')
