@@ -31,7 +31,7 @@ export function Footer() {
                         <h3 className="font-semibold mb-4 text-foreground">Contacto</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li className="hover:text-primary transition-colors">
-                                <a href="mailto:info@wapa.com">Email: info@wapa.com</a>
+                                <a href="mailto:info@Lea.com">Email: info@Lea.com</a>
                             </li>
                             <li className="hover:text-primary transition-colors">
                                 <a href="tel:+5363404607">Tel: +5363404607</a>
@@ -56,7 +56,7 @@ export function Footer() {
                 </div>
 
                 <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-                    <p>&copy; {new Date().getFullYear()} Wapa Catalog. Todos los derechos reservados.</p>
+                    <p>&copy; {new Date().getFullYear()} Lea Catalog. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>

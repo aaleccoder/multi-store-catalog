@@ -5,7 +5,7 @@ interface LogoProps {
 }
 
 const Logo = ({ className }: LogoProps) => (
-  <Image width={100} height={100} src="/android-chrome-512x512.png" alt="Lea Logo" className={className} />
+  <Image width={100} height={100} src="https://placehold.co/100" alt="Lea Logo" className={className} />
 )
 
 export default Logo

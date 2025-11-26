@@ -9,8 +9,8 @@ const montserrat = Montserrat({ subsets: ['latin'] })
 const lobster = Lobster({ subsets: ['latin'], weight: '400', variable: '--font-lobster' })
 
 export const metadata = {
-  description: "Wapa, Catalogo de Productos",
-  title: 'Wapa Catalog',
+  description: "Lea, Catalogo de Productos",
+  title: 'Lea Catalog',
 }
 
 import { Footer } from '@/components/layout/footer'
