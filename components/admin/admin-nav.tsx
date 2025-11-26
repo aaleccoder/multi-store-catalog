@@ -11,6 +11,7 @@ import {
     LogOut,
     ImageIcon,
     Users,
+    Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,6 +40,7 @@ const navigation = [
 
 const adminNavigation = [
     { name: 'Users', href: '/admin/users', icon: Users },
+    { name: 'Configuración', href: '/admin/settings', icon: Settings },
 ]
 
 export function AdminNav() {

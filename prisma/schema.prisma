@@ -13,6 +13,11 @@ enum Role {
   EDITOR
 }
 
+model Settings {
+  id       String @id @default(cuid())
+  settings Json
+}
+
 model Category {
   id            String        @id @default(cuid())
   name          String        @unique
