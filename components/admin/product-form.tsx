@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -96,18 +96,6 @@ export function ProductForm({ productId }: ProductFormProps) {
         hasVariants: false,
     })
 
-    const { data: categoriesData, isLoading: categoriesLoading } = trpc.admin.categories.list.useQuery()
-    const categories: Category[] = categoriesData || []
-
-    const { data: subcategoriesData, isLoading: subcategoriesLoading } = trpc.admin.subcategories.list.useQuery(
-        { categoryId: formData.categoryId },
-        { enabled: !!formData.categoryId }
-    )
-    const subcategories: Subcategory[] = subcategoriesData || []
-
-    const { data: currenciesData, isLoading: currenciesLoading } = trpc.currencies.list.useQuery()
-    const currencies: Currency[] = (currenciesData as Currency[]) || []
-
     const { data: productData, isLoading: loading } = trpc.admin.products.get.useQuery(
         productId || '',
         {
@@ -115,9 +103,29 @@ export function ProductForm({ productId }: ProductFormProps) {
         }
     )
 
+    const categories = useMemo<Category[]>(() => {
+        return (productData?.categories as Category[]) || []
+    }, [productData?.categories])
+
+    const subcategories = useMemo<Subcategory[]>(() => {
+        const allSubs = (productData?.subcategories as Subcategory[]) || []
+        // When editing a product, if we have a categoryId, filter by it
+        // This ensures we show all available subcategories for the selected category
+        if (formData.categoryId) {
+            return allSubs.filter((sub) => sub.categoryId === formData.categoryId)
+        }
+        // If no category is selected yet, return empty array
+        return []
+    }, [productData?.subcategories, formData.categoryId])
+
+    const currencies = useMemo<Currency[]>(() => {
+        return (productData?.currencies as Currency[]) || []
+    }, [productData?.currencies])
+
+
     useEffect(() => {
-        if (productData) {
-            const product = productData as any
+        if (productData?.product) {
+            const product = productData.product as any
             setFormData({
                 name: product.name,
                 slug: product.slug,
@@ -245,7 +253,6 @@ export function ProductForm({ productId }: ProductFormProps) {
                     pendingImages.forEach(img => URL.revokeObjectURL(img.url))
                     toast.success('Imágenes subidas', { id: uploadToastId })
                 } catch (uploadError) {
-                    console.error('Error uploading images:', uploadError)
                     toast.error(getErrorMessage(uploadError), { id: uploadToastId })
                     setSaving(false)
                     return
@@ -259,6 +266,15 @@ export function ProductForm({ productId }: ProductFormProps) {
             const submitData = {
                 ...formData,
                 coverImages: orderedImages.map((img) => ({ url: img.url, alt: img.alt })),
+                specifications: {
+                    ...(formData.specifications || {}),
+                    weightUnit: formData.specifications?.weightUnit || 'g',
+                    volumeUnit: formData.specifications?.volumeUnit || 'ml',
+                    dimensions: {
+                        ...(formData.specifications?.dimensions || {}),
+                        unit: formData.specifications?.dimensions?.unit || 'cm',
+                    }
+                }
             }
             // If prices are provided, attach them to the payload using currency codes (server expects `currency` code)
             if (submitData.prices && submitData.prices.length > 0) {
@@ -346,7 +362,6 @@ export function ProductForm({ productId }: ProductFormProps) {
             router.push('/admin/products')
             router.refresh()
         } catch (error) {
-            console.error('Error saving product:', error)
             toast.error(getErrorMessage(error), { id: savingToastId })
         } finally {
             setSaving(false)
@@ -494,12 +509,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         newPrices[idx] = { ...newPrices[idx], currency: value }
                                                         setFormData({ ...formData, prices: newPrices })
                                                     }}
-                                                    aria-busy={currenciesLoading}>
+                                                    aria-busy={loading}>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Seleccionar moneda" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {currenciesLoading ? (
+                                                        {loading ? (
                                                             <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando monedas...</div>
                                                         ) : currencies.length === 0 ? (
                                                             <div className="px-4 py-2 text-sm text-muted-foreground">No hay monedas disponibles</div>
@@ -610,18 +625,19 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         <Label htmlFor="category">Categoría *</Label>
                                         <p className="text-xs text-muted-foreground">Requerido - esto ayuda a los clientes a encontrar tu producto.</p>
                                         <Select
-                                            value={formData.categoryId}
+                                            key={`category-${formData.categoryId}`}
+                                            value={formData.categoryId || ''}
                                             onValueChange={(value) =>
                                                 setFormData({ ...formData, categoryId: value, subcategoryId: '' })
                                             }
                                             aria-required={true}
-                                            aria-busy={categoriesLoading}
+                                            aria-busy={loading}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Seleccionar categoría" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {categoriesLoading ? (
+                                                {loading ? (
                                                     <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando categorías...</div>
                                                 ) : categories.length === 0 ? (
                                                     <div className="px-4 py-2 text-sm text-muted-foreground">No se encontraron categorías</div>
@@ -640,19 +656,20 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         <Label htmlFor="subcategory">Subcategoría</Label>
                                         <p className="text-xs text-muted-foreground">Opcional - elige una categoría más específica si aplica.</p>
                                         <Select
+                                            key={`subcategory-${formData.categoryId}-${formData.subcategoryId}`}
                                             value={formData.subcategoryId || "none"}
                                             onValueChange={(value) =>
                                                 setFormData({ ...formData, subcategoryId: value === "none" ? "" : value })
                                             }
                                             disabled={!formData.categoryId}
-                                            aria-busy={subcategoriesLoading}
+                                            aria-busy={loading}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Seleccionar subcategoría" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="none">Ninguna</SelectItem>
-                                                {subcategoriesLoading ? (
+                                                {loading ? (
                                                     <div className="px-4 py-2 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" />Cargando subcategorías...</div>
                                                 ) : (
                                                     subcategories.map((sub) => (

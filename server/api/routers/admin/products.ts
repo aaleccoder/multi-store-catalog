@@ -122,16 +122,29 @@ export const adminProductsRouter = router({
 
     get: protectedProcedure.input(z.string()).query(async ({ input }) => {
         const id = input
-        const product = await prisma.product.findUnique({
-            where: { id },
-            include: {
-                coverImages: true,
-                category: true,
-                subcategory: true,
-                prices: { include: { currency: true } },
-                variants: { include: { prices: { include: { currency: true } }, images: true } }
-            }
-        })
+
+        const [product, allCategories, allSubcategories, allCurrencies] = await Promise.all([
+            prisma.product.findUnique({
+                where: { id },
+                include: {
+                    coverImages: true,
+                    category: { include: { subcategories: true } },
+                    subcategory: true,
+                    prices: { include: { currency: true } },
+                    variants: { include: { prices: { include: { currency: true } }, images: true } }
+                }
+            }),
+            prisma.category.findMany({
+                orderBy: { name: 'asc' }
+            }),
+            prisma.subcategory.findMany({
+                orderBy: { name: 'asc' }
+            }),
+            prisma.currency.findMany({
+                orderBy: { code: 'asc' }
+            })
+        ])
+
         if (!product) {
             throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
                 message: 'Product not found',
@@ -140,20 +153,25 @@ export const adminProductsRouter = router({
         }
 
         return {
-            ...product,
-            prices: product.prices?.map((p) => ({
-                ...p,
-                amount: toNumber(p.amount),
-                saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
-            })) || [],
-            variants: product.variants?.map((v) => ({
-                ...v,
-                prices: v.prices?.map((p) => ({
+            product: {
+                ...product,
+                prices: product.prices?.map((p) => ({
                     ...p,
                     amount: toNumber(p.amount),
                     saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                })) || [],
+                variants: product.variants?.map((v) => ({
+                    ...v,
+                    prices: v.prices?.map((p) => ({
+                        ...p,
+                        amount: toNumber(p.amount),
+                        saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                    })) || []
                 })) || []
-            })) || []
+            },
+            categories: allCategories,
+            subcategories: allSubcategories,
+            currencies: allCurrencies
         }
     }),
 

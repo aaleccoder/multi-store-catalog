@@ -3,7 +3,7 @@ import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
@@ -66,17 +66,7 @@ export const ProductCard = ({
 
   const hasMultipleImages = imageList.length > 1
 
-  useEffect(() => {
-    if (!isMobile && hasMultipleImages) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prevIndex) =>
-          prevIndex === imageList.length - 1 ? 0 : prevIndex + 1,
-        )
-      }, 3000)
 
-      return () => clearInterval(interval)
-    }
-  }, [isMobile, hasMultipleImages, imageList.length])
 
   // Obtener la cantidad actual del producto en el carrito
   const cartItem = items.find((item) => item.id === id)
@@ -155,8 +145,8 @@ export const ProductCard = ({
                 <Image
                   src={currentImage.url}
                   alt={currentImage.alt || name}
-                  height={512}
-                  width={512}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-contain"
                 />
               ) : (
@@ -280,15 +270,15 @@ export const ProductCard = ({
   return (
     <Link href={`/product/${slug}`} className="block">
       <Card className="group overflow-hidden border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 py-0">
-        <div className="relative">
+        <div className="relative aspect-square">
           <div className="relative w-full h-full overflow-hidden rounded-lg">
             {currentImage?.url ? (
               <Image
                 src={currentImage.url}
                 alt={currentImage.alt || name}
-                className="object-contain ransition-opacity duration-300"
-                width={512}
-                height={512}
+                className="object-contain transition-opacity duration-300"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-secondary">
