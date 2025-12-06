@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
@@ -55,6 +56,10 @@ function formatBytes(bytes: number, decimals = 2) {
 }
 
 export default function MediaPage() {
+    const params = useParams<{ slug?: string }>()
+    const storeSlug = Array.isArray(params?.slug) ? params?.slug[0] : params?.slug
+    const storeBasePath = storeSlug ? `/admin/stores/${storeSlug}` : '/admin/stores'
+
     const queryClient = useQueryClient()
     const [selectedMedia, setSelectedMedia] = useState<Media | null>(null)
     const [detailsOpen, setDetailsOpen] = useState(false)
@@ -129,7 +134,7 @@ export default function MediaPage() {
                                 <div>
                                     <Label>Producto Relacionado</Label>
                                     <div className="text-sm text-blue-500 hover:underline">
-                                        <Link href={`/admin/products/${mediaDetails.product.id}`}>
+                                        <Link href={`${storeBasePath}/products/${mediaDetails.product.id}`}>
                                             {mediaDetails.product.name}
                                         </Link>
                                     </div>

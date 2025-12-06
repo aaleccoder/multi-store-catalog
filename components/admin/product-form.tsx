@@ -53,6 +53,7 @@ interface PriceInput {
 
 interface ProductFormProps {
     productId?: string
+    storeSlug?: string
 }
 
 const generateSlug = (name: string) => {
@@ -73,7 +74,7 @@ const sanitizeSlugInput = (value: string) => {
         .replace(/-+/g, '-')
 }
 
-export function ProductForm({ productId }: ProductFormProps) {
+export function ProductForm({ productId, storeSlug }: ProductFormProps) {
     const router = useRouter()
     const [saving, setSaving] = useState(false)
     const [manuallyEditedSlug, setManuallyEditedSlug] = useState(false)
@@ -374,7 +375,8 @@ export function ProductForm({ productId }: ProductFormProps) {
             }
 
             toast.success('Producto guardado', { id: savingToastId })
-            router.push('/admin/products')
+            const basePath = storeSlug ? `/admin/stores/${storeSlug}` : '/admin/stores'
+            router.push(`${basePath}/products`)
             router.refresh()
         } catch (error) {
             toast.error(getErrorMessage(error), { id: savingToastId })

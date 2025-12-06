@@ -1,7 +1,12 @@
 'use client'
 
 import React from 'react'
-import { mergeTheme, themeToCssVars, StoreTheme } from '@/lib/theme'
+import { mergeTheme, themeToCssVars, StoreTheme, defaultStoreBranding } from '@/lib/theme'
+import { resolveStoreFontClassName } from '@/lib/store-fonts'
+
+const StoreBrandingContext = React.createContext(defaultStoreBranding)
+
+export const useStoreBranding = () => React.useContext(StoreBrandingContext)
 
 interface StoreThemeProviderProps {
     theme?: StoreTheme
@@ -10,15 +15,19 @@ interface StoreThemeProviderProps {
 
 export function StoreThemeProvider({ theme, children }: StoreThemeProviderProps) {
     const merged = React.useMemo(() => mergeTheme(theme), [theme])
+    const branding = merged.branding ?? defaultStoreBranding
+    const fontClassName = React.useMemo(() => resolveStoreFontClassName(merged.fontId), [merged.fontId])
     const css = React.useMemo(() => themeToCssVars(merged), [merged])
 
     return (
-        <>
-            <style
-                id="store-theme"
-                dangerouslySetInnerHTML={{ __html: css }}
-            />
-            {children}
-        </>
+        <StoreBrandingContext.Provider value={branding}>
+            <div className={fontClassName}>
+                <style
+                    id="store-theme"
+                    dangerouslySetInnerHTML={{ __html: css }}
+                />
+                {children}
+            </div>
+        </StoreBrandingContext.Provider>
     )
 }

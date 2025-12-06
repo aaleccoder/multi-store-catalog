@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { toNumber } from '@/lib/number'
 import { Edit, Eye, Loader2, Trash, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Filter } from 'lucide-react'
@@ -74,6 +75,10 @@ type CategoryList = { id: string; name: string }
 type SubcategoryList = { id: string; name: string }
 
 export default function ProductsPage() {
+    const params = useParams<{ slug?: string }>()
+    const storeSlug = Array.isArray(params?.slug) ? params?.slug[0] : params?.slug
+    const storeBasePath = storeSlug ? `/admin/stores/${storeSlug}` : '/admin/stores'
+
     const [dialogOpen, setDialogOpen] = useState(false)
     const [productToDelete, setProductToDelete] = useState<Product | null>(null)
     const [deleteFn, setDeleteFn] = useState<((id: string | number) => void) | null>(null)
@@ -267,7 +272,7 @@ export default function ProductsPage() {
                     deleteUrl={(id: string) => `/api/admin/products/${id}`}
                     keyField={'id'}
                     newButtonLabel={'Agregar Producto'}
-                    createPageUrl={'/admin/products/new'}
+                    createPageUrl={`${storeBasePath}/products/new`}
                     searchKeys={['name', 'slug']}
                     loadDependencies={loadDependencies}
                     createEnabled={createEnabled}
@@ -616,7 +621,7 @@ export default function ProductsPage() {
                                                                         <Eye className="h-4 w-4" />
                                                                     </Button>
                                                                 </Link>
-                                                                <Link href={`/admin/products/${product.id}`}>
+                                                                <Link href={`${storeBasePath}/products/${product.id}`}>
                                                                     <Button variant="ghost" size="icon">
                                                                         <Edit className="h-4 w-4" />
                                                                     </Button>

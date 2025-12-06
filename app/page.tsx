@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
-export default function RootRedirect() {
-    redirect('/admin')
+export default async function RootRedirect() {
+    redirect('/admin/stores')
 }

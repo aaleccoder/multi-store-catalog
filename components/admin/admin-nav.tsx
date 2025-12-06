@@ -30,30 +30,41 @@ import LogoProps from '../layout/logo'
 import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
 
-const navigation = [
-    { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
-    { name: 'Tiendas', href: '/admin/stores', icon: Store },
-    { name: 'Productos', href: '/admin/products', icon: Package },
-    { name: 'Categorías', href: '/admin/categories', icon: FolderTree },
-    { name: 'Subcategorías', href: '/admin/subcategories', icon: FolderTree },
-    { name: 'Media', href: '/admin/media', icon: ImageIcon },
-    { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
-    { name: 'Tema', href: '/admin/theme', icon: Palette },
-]
-
-const adminNavigation = [
-    { name: 'Users', href: '/admin/users', icon: Users },
-    { name: 'Configuración', href: '/admin/settings', icon: Settings },
-]
-
 export function AdminNav() {
     const pathname = usePathname()
     const { data: session } = authClient.useSession()
     const router = useRouter()
 
+    const segments = pathname.split('/').filter(Boolean)
+    // Expected paths: /admin/stores (segments: [admin, stores]) or /admin/stores/[slug]/...
+    const storeSlug = segments[0] === 'admin' && segments[1] === 'stores' ? segments[2] : null
+    const storeBase = storeSlug ? `/admin/stores/${storeSlug}` : '/admin/stores'
+
+    const navigation = [
+        { name: 'Panel de Control', href: storeSlug ? storeBase : '/admin/stores', icon: LayoutDashboard, exact: true },
+        { name: 'Tiendas', href: '/admin/stores', icon: Store, exact: true },
+        { name: 'Productos', href: storeSlug ? `${storeBase}/products` : '/admin/stores', icon: Package },
+        { name: 'Categorías', href: storeSlug ? `${storeBase}/categories` : '/admin/stores', icon: FolderTree },
+        { name: 'Subcategorías', href: storeSlug ? `${storeBase}/subcategories` : '/admin/stores', icon: FolderTree },
+        { name: 'Media', href: storeSlug ? `${storeBase}/media` : '/admin/stores', icon: ImageIcon },
+        { name: 'Monedas', href: storeSlug ? `${storeBase}/currencies` : '/admin/stores', icon: DollarSign },
+        { name: 'Tema', href: storeSlug ? `${storeBase}/theme` : '/admin/stores', icon: Palette },
+    ]
+
+    const adminNavigation = [
+        { name: 'Users', href: storeSlug ? `${storeBase}/users` : '/admin/stores', icon: Users },
+        { name: 'Configuración', href: storeSlug ? `${storeBase}/settings` : '/admin/stores', icon: Settings },
+    ]
+
     const handleLogout = async () => {
         await authClient.signOut();
         router.push('/login-admin')
+    }
+
+    const isActivePath = (href: string, exact?: boolean) => {
+        const cleanHref = href.split('?')[0]
+        if (exact) return pathname === cleanHref
+        return pathname === cleanHref || pathname.startsWith(`${cleanHref}/`)
     }
 
     return (
@@ -83,7 +94,7 @@ export function AdminNav() {
                 <SidebarContent className='px-4'>
                     <SidebarMenu>
                         {navigation.map((item) => {
-                            const isActive = pathname === item.href
+                            const isActive = isActivePath(item.href, item.exact)
 
                             return (
                                 <SidebarMenuItem key={item.name} className=''>
@@ -97,7 +108,7 @@ export function AdminNav() {
                             )
                         })}
                         {session?.user?.role === Role.ADMIN && adminNavigation.map((item) => {
-                            const isActive = pathname === item.href
+                            const isActive = isActivePath(item.href)
 
                             return (
                                 <SidebarMenuItem key={item.name} className=''>

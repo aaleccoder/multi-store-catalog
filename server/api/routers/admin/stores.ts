@@ -14,6 +14,15 @@ const storeSchema = z.object({
     theme: z.object({
         light: z.record(z.string(), z.string()).optional(),
         dark: z.record(z.string(), z.string()).optional(),
+        branding: z
+            .object({
+                logoUrl: z.string().min(1).optional(),
+                logoAlt: z.string().optional(),
+                logoWidth: z.number().optional(),
+                logoHeight: z.number().optional(),
+            })
+            .optional(),
+        fontId: z.string().optional(),
     }).optional(),
 })
 

@@ -15,7 +15,7 @@ export function StoreSelectionClient({ stores }: StoreSelectionProps) {
     const router = useRouter()
     const [loadingId, setLoadingId] = useState<string | null>(null)
 
-    const handleSelect = async (storeId: string) => {
+    const handleSelect = async (storeId: string, storeSlug: string) => {
         setLoadingId(storeId)
         try {
             const res = await fetch('/api/admin/select-store', {
@@ -28,7 +28,7 @@ export function StoreSelectionClient({ stores }: StoreSelectionProps) {
                 throw new Error(data.error || 'No se pudo seleccionar la tienda')
             }
             toast.success('Tienda seleccionada')
-            router.push('/admin')
+            router.push(`/admin/stores/${storeSlug}`)
             router.refresh()
         } catch (err: any) {
             toast.error(err.message || 'No se pudo seleccionar la tienda')
@@ -57,7 +57,7 @@ export function StoreSelectionClient({ stores }: StoreSelectionProps) {
                         <div className="flex gap-2">
                             <Button
                                 className="flex-1"
-                                onClick={() => handleSelect(store.id)}
+                                onClick={() => handleSelect(store.id, store.slug)}
                                 disabled={loadingId === store.id}
                             >
                                 {loadingId === store.id ? 'Seleccionando...' : 'Usar esta tienda'}

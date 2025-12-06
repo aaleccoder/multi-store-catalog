@@ -118,6 +118,9 @@ export default function StoresPage() {
                                                 {store.description || 'Sin descripción'}
                                             </p>
                                             <div className="flex gap-2">
+                                                <Button className="flex-1" asChild>
+                                                    <Link href={`/admin/stores/${store.slug}`}>Administrar</Link>
+                                                </Button>
                                                 <Button variant="outline" className="flex-1" asChild>
                                                     <Link href={`/store/${store.slug}`}>Ver</Link>
                                                 </Button>

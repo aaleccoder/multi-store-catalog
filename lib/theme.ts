@@ -1,3 +1,5 @@
+import { defaultStoreFontId, resolveStoreFontFamily, StoreFontId } from './store-fonts'
+
 export const defaultLightTheme = {
     background: 'oklch(99% 0.001 0)',
     foreground: 'oklch(20% 0.02 0)',
@@ -113,20 +115,44 @@ export const defaultDarkTheme: typeof defaultLightTheme = {
 export type ThemeKeys = keyof typeof defaultLightTheme
 export type ThemeModeOverrides = Partial<Record<ThemeKeys, string>>
 
+export interface StoreBranding {
+    logoUrl?: string
+    logoAlt?: string
+    logoWidth?: number
+    logoHeight?: number
+}
+
+export const defaultStoreBranding: StoreBranding = {
+    logoUrl: '/android-chrome-192x192.png',
+    logoAlt: 'Lea Logo',
+    logoWidth: 100,
+    logoHeight: 100,
+}
+
 export interface StoreTheme {
     light?: ThemeModeOverrides
     dark?: ThemeModeOverrides
+    branding?: StoreBranding
+    fontId?: StoreFontId
 }
 
 export const defaultStoreTheme: StoreTheme = {
     light: { ...defaultLightTheme },
     dark: { ...defaultDarkTheme },
+    branding: defaultStoreBranding,
+    fontId: defaultStoreFontId,
 }
 
 export function mergeTheme(theme?: StoreTheme) {
+    const branding = { ...defaultStoreBranding, ...(theme?.branding ?? {}) }
+    const fontId = theme?.fontId ?? defaultStoreFontId
+    const resolvedFontFamily = resolveStoreFontFamily(fontId)
+
     return {
-        light: { ...defaultLightTheme, ...(theme?.light ?? {}) },
-        dark: { ...defaultDarkTheme, ...(theme?.dark ?? {}) },
+        light: { ...defaultLightTheme, ...(theme?.light ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
+        dark: { ...defaultDarkTheme, ...(theme?.dark ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
+        branding,
+        fontId,
     }
 }
 
