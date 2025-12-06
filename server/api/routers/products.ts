@@ -19,13 +19,10 @@ export const productsRouter = router({
                 search: z.string().optional(),
                 currency: z.string().optional(),
                 price: z.string().optional().nullable(),
-            }).optional()
+            })
         )
         .query(async ({ input }) => {
             try {
-                if (!input) {
-                    throw new TRPCError({ code: 'BAD_REQUEST', message: 'storeSlug is required' })
-                }
                 const searchParams = input
 
                 const store = await prisma.store.findUnique({ where: { slug: searchParams.storeSlug } })

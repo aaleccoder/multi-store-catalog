@@ -96,36 +96,42 @@ export function ProductForm({ productId }: ProductFormProps) {
         hasVariants: false,
     })
 
-    const { data: productData, isLoading: loading } = trpc.admin.products.get.useQuery(
-        productId || '',
+    const { data: productData, isLoading: productLoading } = trpc.admin.products.get.useQuery(
+        { id: productId || '' },
         {
             enabled: !!productId,
         }
     )
 
+    const { data: categoriesData, isLoading: categoriesLoading } = trpc.admin.categories.list.useQuery(undefined, { enabled: true })
+    const { data: subcategoriesData, isLoading: subcategoriesLoading } = trpc.admin.subcategories.list.useQuery(undefined, { enabled: true })
+    const { data: currenciesData, isLoading: currenciesLoading } = trpc.admin.currencies.list.useQuery(undefined, { enabled: true })
+
+    const loading = productLoading || categoriesLoading || subcategoriesLoading || currenciesLoading
+
     const categories = useMemo<Category[]>(() => {
-        return (productData?.categories as Category[]) || []
-    }, [productData?.categories])
+        if (productData?.categories) return productData.categories as Category[]
+        return (categoriesData as Category[]) || []
+    }, [productData?.categories, categoriesData])
 
     const subcategories = useMemo<Subcategory[]>(() => {
-        const allSubs = (productData?.subcategories as Subcategory[]) || []
+        const allSubs = (productData?.subcategories as Subcategory[]) ?? (subcategoriesData as Subcategory[]) ?? []
         // When editing a product, if we have a categoryId, filter by it
-        // This ensures we show all available subcategories for the selected category
         if (formData.categoryId) {
             return allSubs.filter((sub) => sub.categoryId === formData.categoryId)
         }
-        // If no category is selected yet, return empty array
         return []
-    }, [productData?.subcategories, formData.categoryId])
+    }, [productData?.subcategories, subcategoriesData, formData.categoryId])
 
     const currencies = useMemo<Currency[]>(() => {
-        return (productData?.currencies as Currency[]) || []
-    }, [productData?.currencies])
+        if (productData?.currencies) return productData.currencies as Currency[]
+        return (currenciesData as Currency[]) || []
+    }, [productData?.currencies, currenciesData])
 
 
     useEffect(() => {
         if (productData?.product) {
-            const product = productData.product as any
+            const product = productData.product
             setFormData({
                 name: product.name,
                 slug: product.slug,
@@ -133,36 +139,45 @@ export function ProductForm({ productId }: ProductFormProps) {
                 shortDescription: product.shortDescription || '',
                 categoryId: product.categoryId,
                 subcategoryId: product.subcategoryId || '',
-                coverImages: (product.coverImages || []).map((img: any, index: number) => ({ ...img, isUploaded: true, isPrimary: index === 0 })),
-                prices: (product.prices || []).map((p: any) => ({
-                    price: p.amount ?? p.price ?? 0,
-                    salePrice: p.saleAmount ?? p.salePrice ?? undefined,
-                    currency: p.currency?.code || p.currency || '',
+                coverImages: (product.coverImages || []).map((img, index) => ({ ...img, isUploaded: true, isPrimary: index === 0 })),
+                prices: (product.prices || []).map((p) => ({
+                    price: Number(p.amount ?? 0),
+                    salePrice: p.saleAmount ?? undefined,
+                    currency: p.currency?.code || '',
                     isDefault: (product.prices || []).length === 1 ? true : (p.isDefault ?? false),
                     taxIncluded: p.taxIncluded ?? true,
                 })),
-                specifications: product.specifications || {},
+                specifications: (product as any).specifications || {},
                 isActive: product.isActive,
                 inStock: product.inStock,
                 featured: product.featured,
-                variants: (product.variants || []).map((v: any) => ({
-                    id: v.id,
-                    name: v.name,
-                    sku: v.sku,
-                    stock: v.stock,
-                    isActive: v.isActive,
-                    description: v.description,
-                    shortDescription: v.shortDescription,
-                    specifications: v.specifications || {},
-                    coverImages: (v.images || []).map((img: any, index: number) => ({ ...img, isUploaded: true, isPrimary: index === 0 })),
-                    prices: (v.prices || []).map((p: any) => ({
-                        price: Number(p.amount),
-                        salePrice: p.saleAmount ? Number(p.saleAmount) : undefined,
-                        currency: p.currency?.code || p.currency || '',
-                        isDefault: p.isDefault ?? false,
-                        taxIncluded: p.taxIncluded ?? true,
-                    }))
-                })),
+                variants: (product.variants || []).map<Variant>((v) => {
+                    const specs = (v as { specifications?: unknown }).specifications
+
+                    return {
+                        id: v.id,
+                        name: v.name,
+                        sku: v.sku ?? undefined,
+                        stock: v.stock ?? 0,
+                        isActive: v.isActive ?? true,
+                        description: v.description ?? undefined,
+                        shortDescription: v.shortDescription ?? undefined,
+                        ...(specs ? { specifications: specs as Specifications } : {}),
+                        coverImages: (v.images || []).map((img, index) => ({
+                            url: img.url,
+                            alt: img.alt || '',
+                            isUploaded: true,
+                            isPrimary: index === 0,
+                        })),
+                        prices: (v.prices || []).map((p) => ({
+                            price: Number(p.amount ?? 0),
+                            salePrice: p.saleAmount != null ? Number(p.saleAmount) : undefined,
+                            currency: p.currency?.code || '',
+                            isDefault: p.isDefault ?? false,
+                            taxIncluded: p.taxIncluded ?? true,
+                        })),
+                    }
+                }),
                 hasVariants: (product.variants || []).length > 0,
             })
             setManuallyEditedSlug(product.slug !== generateSlug(product.name))
@@ -587,7 +602,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                                         {p.isDefault ? 'Predeterminado' : 'Establecer'}
                                                     </Button>
                                                     <Button size="sm" variant="destructive" onClick={() => {
-                                                        let newPrices = (formData.prices || []).filter((_, i) => i !== idx)
+                                                        const newPrices = (formData.prices || []).filter((_, i) => i !== idx)
                                                         if (newPrices.length === 1) {
                                                             newPrices[0] = { ...newPrices[0], isDefault: true }
                                                         }

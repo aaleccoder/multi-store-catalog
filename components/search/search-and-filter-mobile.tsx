@@ -15,16 +15,18 @@ import { useState } from 'react'
 import { FilterSheet } from '../filters/filter-sheet'
 
 interface SearchAndFiltersBarProps {
+  storeSlug?: string
   filterContent?: React.ReactNode
 }
 
-export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps) => {
+export const SearchAndFiltersBar = ({ storeSlug, filterContent }: SearchAndFiltersBarProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const currentSort = searchParams.get('sort') || '-createdAt'
+  const basePath = storeSlug ? `/store/${storeSlug}` : '/'
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -35,14 +37,16 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
       params.delete('search')
     }
 
-    router.push(`/?${params.toString()}`)
+    const queryString = params.toString()
+    router.push(queryString ? `${basePath}?${queryString}` : basePath)
   }
 
   const clearSearch = () => {
     setSearchQuery('')
     const params = new URLSearchParams(searchParams.toString())
     params.delete('search')
-    router.push(`/?${params.toString()}`)
+    const queryString = params.toString()
+    router.push(queryString ? `${basePath}?${queryString}` : basePath)
   }
 
   const handleSortChange = (value: string) => {
@@ -52,7 +56,8 @@ export const SearchAndFiltersBar = ({ filterContent }: SearchAndFiltersBarProps)
     } else {
       params.set('sort', value)
     }
-    router.push(`/?${params.toString()}`)
+    const queryString = params.toString()
+    router.push(queryString ? `${basePath}?${queryString}` : basePath)
   }
 
   return (

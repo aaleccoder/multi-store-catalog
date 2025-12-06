@@ -22,7 +22,7 @@ export function SearchDialog({ open, onOpenChange, storeSlug }: SearchDialogProp
     const debouncedQuery = useDebounce(query, 300)
 
     const { data: results, isLoading } = trpc.products.list.useQuery(
-        storeSlug ? { storeSlug, search: debouncedQuery, limit: '5' } : undefined,
+        { storeSlug: storeSlug || '', search: debouncedQuery, limit: '5' },
         { enabled: !!storeSlug && debouncedQuery.length > 0 }
     )
 

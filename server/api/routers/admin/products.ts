@@ -16,6 +16,43 @@ const resolveStoreId = async (storeId: string | undefined, userId: string) => {
 }
 
 export const adminProductsRouter = router({
+    list: protectedProcedure
+        .input(z.object({ storeId: z.string().optional() }).optional())
+        .query(async ({ input, ctx }) => {
+            const storeId = await resolveStoreId(input?.storeId, ctx.session.user.id)
+            const products = await prisma.product.findMany({
+                where: { storeId },
+                include: {
+                    category: true,
+                    prices: { include: { currency: true } },
+                    coverImages: true,
+                    variants: {
+                        include: {
+                            prices: { include: { currency: true } }
+                        }
+                    }
+                },
+                orderBy: { id: 'desc' },
+            })
+
+            return products.map((product) => ({
+                ...product,
+                prices: product.prices.map((p) => ({
+                    ...p,
+                    amount: toNumber(p.amount),
+                    saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                })),
+                variants: product.variants.map((v) => ({
+                    ...v,
+                    prices: v.prices.map((p) => ({
+                        ...p,
+                        amount: toNumber(p.amount),
+                        saleAmount: p.saleAmount == null ? null : toNumber(p.saleAmount),
+                    }))
+                }))
+            }))
+        }),
+
     create: protectedProcedure.input(productSchema).mutation(async ({ input, ctx }) => {
         const payload = input
         const storeId = await resolveStoreId(payload.storeId, ctx.session.user.id)
@@ -220,6 +257,7 @@ export const adminProductsRouter = router({
             })
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { coverImages, prices, variants, storeId: _ignoredStoreId, ...restOfData } = data
 
         const currencies = await prisma.currency.findMany({ where: { storeId } })

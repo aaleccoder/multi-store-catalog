@@ -60,20 +60,22 @@ export const ProductGridClient = ({ storeSlug, categorySlug, subcategorySlug, fi
   )
   const selectedSubcategory = subcategoryQuery.data?.docs?.[0] || null
 
-  const productsQuery = trpc.products.list.useQuery({
-    storeSlug,
-    page: pageFromUrl.toString(),
-    limit: '12',
-    sort: currentSort,
-    category: selectedCategory?.id,
-    subcategory: selectedSubcategory?.id,
-    inStock: searchParams.get('inStock') || undefined,
-    featured: searchParams.get('featured') || undefined,
-    search: searchParams.get('search') || undefined,
-    currency: searchParams.get('currency') || undefined,
-    price: searchParams.get('price') || undefined,
-  })
-
+  const productsQuery = trpc.products.list.useQuery(
+    {
+      storeSlug,
+      page: pageFromUrl.toString(),
+      limit: '12',
+      sort: currentSort,
+      category: selectedCategory?.id,
+      subcategory: selectedSubcategory?.id,
+      inStock: searchParams.get('inStock') || undefined,
+      featured: searchParams.get('featured') || undefined,
+      search: searchParams.get('search') || undefined,
+      currency: searchParams.get('currency') || undefined,
+      price: searchParams.get('price') || undefined,
+    },
+    { enabled: !!storeSlug }
+  )
   const products = productsQuery.data?.docs || []
   const totalPages = productsQuery.data?.totalPages || 1
   const totalDocs = productsQuery.data?.totalDocs || 0
@@ -131,7 +133,7 @@ export const ProductGridClient = ({ storeSlug, categorySlug, subcategorySlug, fi
               <p className="text-sm text-muted-foreground">
                 No se encontraron productos
               </p>
-              <SearchAndFiltersBar filterContent={filterContent} />
+              <SearchAndFiltersBar storeSlug={storeSlug} filterContent={filterContent} />
             </div>
 
             <div className="hidden md:flex items-center gap-2">
@@ -213,7 +215,7 @@ export const ProductGridClient = ({ storeSlug, categorySlug, subcategorySlug, fi
               {Math.min(currentPage * 12, totalDocs)} de {totalDocs}{' '}
               {totalDocs === 1 ? 'producto' : 'productos'}
             </p>
-            <SearchAndFiltersBar filterContent={filterContent} />
+            <SearchAndFiltersBar storeSlug={storeSlug} filterContent={filterContent} />
           </div>
 
           <div className="hidden md:flex items-center gap-2">

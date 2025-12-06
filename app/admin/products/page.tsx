@@ -244,7 +244,12 @@ export default function ProductsPage() {
         }
     }, [catsQuery, subsQuery])
 
-    const listTransform = useCallback((data: unknown) => ((data as { docs?: Product[] } | null)?.docs || (data as Product[] || [])), [])
+    const listTransform = useCallback((data: unknown) => {
+        // Data from tRPC is already an array
+        if (Array.isArray(data)) return data
+        // Fallback for any other format
+        return ((data as { docs?: Product[] } | null)?.docs || (data as Product[] || []))
+    }, [])
 
     return (
         <div className="min-h-screen bg-background">
@@ -252,7 +257,8 @@ export default function ProductsPage() {
             <main className="pt-20 lg:pt-0">
                 <AdminResource<Product>
                     title="Productos"
-                    fetchUrl={'/api/products?limit=100'}
+                    trpcResource="admin.products"
+                    fetchUrl=""
                     listTransform={listTransform}
                     columns={columns}
                     formFields={formFields}
