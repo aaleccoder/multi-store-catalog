@@ -143,14 +143,15 @@ export const defaultStoreTheme: StoreTheme = {
     fontId: defaultStoreFontId,
 }
 
-export function mergeTheme(theme?: StoreTheme) {
-    const branding = { ...defaultStoreBranding, ...(theme?.branding ?? {}) }
-    const fontId = theme?.fontId ?? defaultStoreFontId
+export function mergeTheme(theme?: StoreTheme | null) {
+    const resolved = theme ?? defaultStoreTheme
+    const branding = { ...defaultStoreBranding, ...(resolved.branding ?? {}) }
+    const fontId = resolved.fontId ?? defaultStoreFontId
     const resolvedFontFamily = resolveStoreFontFamily(fontId)
 
     return {
-        light: { ...defaultLightTheme, ...(theme?.light ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
-        dark: { ...defaultDarkTheme, ...(theme?.dark ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
+        light: { ...defaultLightTheme, ...(resolved.light ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
+        dark: { ...defaultDarkTheme, ...(resolved.dark ?? {}), fontSans: resolvedFontFamily, fontSerif: resolvedFontFamily },
         branding,
         fontId,
     }

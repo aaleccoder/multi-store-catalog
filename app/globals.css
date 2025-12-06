@@ -6,43 +6,43 @@
 :root {
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.25rem;
-  --background: oklch(99% 0.001 0);
-  --foreground: oklch(20% 0.02 0);
-  --card: oklch(100% 0 0);
-  --card-foreground: oklch(20% 0.02 0);
+  --background: oklch(98% 0 0);
+  --foreground: oklch(18% 0 0);
+  --card: oklch(99% 0 0);
+  --card-foreground: oklch(18% 0 0);
   --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(20% 0.02 0);
-  --primary: #F4B639;
-  --primary-foreground: #4A3428;
-  --secondary: #924E43;
-  --secondary-foreground: oklch(98% 0.01 0);
-  --muted: oklch(95% 0.015 50);
-  --muted-foreground: oklch(45% 0.04 50);
-  --accent: #4A3428;
-  --accent-foreground: #F4B639;
-  --destructive: #924E43;
-  --destructive-foreground: oklch(100% 0 0);
-  --border: oklch(88% 0.02 50);
-  --input: oklch(98% 0.01 50);
-  --ring: #F4B639;
-  --chart-1: #F4B639;
-  --chart-2: #924E43;
-  --chart-3: #4A3428;
-  --chart-4: #D48A47;
-  --chart-5: #6B4E3D;
-  --sidebar: oklch(97% 0.015 50);
-  --sidebar-foreground: #4A3428;
-  --sidebar-primary: #F4B639;
-  --sidebar-primary-foreground: #4A3428;
-  --sidebar-accent: #FDF5E6;
-  --sidebar-accent-foreground: #4A3428;
-  --sidebar-border: oklch(88% 0.02 50);
-  --sidebar-ring: #F4B639;
+  --popover-foreground: oklch(18% 0 0);
+  --primary: oklch(22% 0.02 0);
+  --primary-foreground: oklch(98% 0 0);
+  --secondary: oklch(92% 0.005 0);
+  --secondary-foreground: oklch(22% 0.01 0);
+  --muted: oklch(94% 0 0);
+  --muted-foreground: oklch(40% 0 0);
+  --accent: oklch(88% 0 0);
+  --accent-foreground: oklch(22% 0.01 0);
+  --destructive: oklch(30% 0.01 0);
+  --destructive-foreground: oklch(96% 0 0);
+  --border: oklch(90% 0 0);
+  --input: oklch(97% 0 0);
+  --ring: oklch(28% 0.01 0);
+  --chart-1: oklch(20% 0 0);
+  --chart-2: oklch(35% 0 0);
+  --chart-3: oklch(50% 0 0);
+  --chart-4: oklch(70% 0 0);
+  --chart-5: oklch(85% 0 0);
+  --sidebar: oklch(96% 0 0);
+  --sidebar-foreground: oklch(20% 0 0);
+  --sidebar-primary: oklch(22% 0.02 0);
+  --sidebar-primary-foreground: oklch(98% 0 0);
+  --sidebar-accent: oklch(92% 0 0);
+  --sidebar-accent-foreground: oklch(20% 0 0);
+  --sidebar-border: oklch(90% 0 0);
+  --sidebar-ring: oklch(28% 0.01 0);
   --font-sans: Montserrat, sans-serif;
   --font-serif: Merriweather, serif;
   --shadow-color: hsl(0 0% 0%);
-  --shadow-opacity: 0.08;
-  --shadow-blur: 12px;
+  --shadow-opacity: 0.06;
+  --shadow-blur: 10px;
   --shadow-spread: 0px;
   --shadow-offset-x: 0px;
   --shadow-offset-y: 2px;
@@ -125,56 +125,38 @@
 }
 
 .dark {
-  --background: oklch(15% 0.01 0);
-  /* Deep dark background */
-  --foreground: oklch(95% 0.01 0);
-  /* Off-white text */
-  --card: oklch(22% 0.01 0);
-  /* Dark card background */
-  --card-foreground: oklch(95% 0.01 0);
-  --popover: oklch(22% 0.01 0);
-  --popover-foreground: oklch(95% 0.01 0);
-  --primary: oklch(52% 0.24 28);
-  /* Brighter red for dark mode */
-  --primary-foreground: oklch(15% 0.01 0);
-  --secondary: oklch(35% 0.04 80);
-  /* Dark warm grey */
-  --secondary-foreground: oklch(90% 0.01 0);
-  --muted: oklch(28% 0.01 0);
-  /* Dark muted background */
-  --muted-foreground: oklch(65% 0.03 0);
-  /* Light muted text */
-  --accent: oklch(60% 0.2 40);
-  /* Bright orange accent */
-  --accent-foreground: oklch(15% 0.01 0);
-  --destructive: oklch(52% 0.24 28);
-  --destructive-foreground: oklch(15% 0.01 0);
-  --border: oklch(32% 0.01 0);
-  /* Dark border */
-  --input: oklch(25% 0.01 0);
-  /* Dark input background */
-  --ring: oklch(52% 0.24 28);
-  /* Red ring */
-  --chart-1: oklch(52% 0.24 28);
-  /* Bold red */
-  --chart-2: oklch(60% 0.2 40);
-  /* Bright orange */
-  --chart-3: oklch(55% 0.18 260);
-  /* Blue */
-  --chart-4: oklch(65% 0.15 190);
-  /* Teal */
-  --chart-5: oklch(80% 0.15 130);
-  /* Lime */
-  --sidebar: oklch(22% 0.01 0);
-  /* Dark sidebar */
-  --sidebar-foreground: oklch(95% 0.01 0);
-  --sidebar-primary: oklch(52% 0.24 28);
-  --sidebar-primary-foreground: oklch(15% 0.01 0);
-  --sidebar-accent: oklch(35% 0.04 80);
-  /* Dark warm grey hover */
-  --sidebar-accent-foreground: oklch(90% 0.01 0);
-  --sidebar-border: oklch(32% 0.01 0);
-  --sidebar-ring: oklch(52% 0.24 28);
+  --background: oklch(12% 0 0);
+  --foreground: oklch(92% 0 0);
+  --card: oklch(16% 0 0);
+  --card-foreground: oklch(92% 0 0);
+  --popover: oklch(16% 0 0);
+  --popover-foreground: oklch(92% 0 0);
+  --primary: oklch(88% 0 0);
+  --primary-foreground: oklch(10% 0 0);
+  --secondary: oklch(24% 0 0);
+  --secondary-foreground: oklch(92% 0 0);
+  --muted: oklch(20% 0 0);
+  --muted-foreground: oklch(70% 0 0);
+  --accent: oklch(26% 0 0);
+  --accent-foreground: oklch(92% 0 0);
+  --destructive: oklch(32% 0 0);
+  --destructive-foreground: oklch(95% 0 0);
+  --border: oklch(26% 0 0);
+  --input: oklch(20% 0 0);
+  --ring: oklch(88% 0 0);
+  --chart-1: oklch(88% 0 0);
+  --chart-2: oklch(70% 0 0);
+  --chart-3: oklch(52% 0 0);
+  --chart-4: oklch(36% 0 0);
+  --chart-5: oklch(24% 0 0);
+  --sidebar: oklch(16% 0 0);
+  --sidebar-foreground: oklch(92% 0 0);
+  --sidebar-primary: oklch(88% 0 0);
+  --sidebar-primary-foreground: oklch(10% 0 0);
+  --sidebar-accent: oklch(24% 0 0);
+  --sidebar-accent-foreground: oklch(92% 0 0);
+  --sidebar-border: oklch(26% 0 0);
+  --sidebar-ring: oklch(88% 0 0);
   --radius: 0.5rem;
   --font-sans: Inter, sans-serif;
   --font-serif: Merriweather, serif;
@@ -214,88 +196,88 @@
 
   /* Improved checkbox contrast */
   button[role='checkbox'] {
-    border: 2px solid #c90606 !important;
+    border: 2px solid #1f1f1f !important;
     background-color: #ffffff !important;
   }
 
   button[role='checkbox'][data-state='checked'] {
-    background-color: #c90606 !important;
-    border-color: #c90606 !important;
+    background-color: #1f1f1f !important;
+    border-color: #1f1f1f !important;
   }
 
   button[role='checkbox']:hover {
-    border-color: #a50505 !important;
+    border-color: #2a2a2a !important;
   }
 
   button[role='checkbox'][data-state='checked']:hover {
-    background-color: #a50505 !important;
+    background-color: #0f0f0f !important;
   }
 
   .dark button[role='checkbox'] {
-    border: 2px solid #e62020 !important;
-    background-color: #1a0e0e !important;
+    border: 2px solid #e6e6e6 !important;
+    background-color: #0f0f0f !important;
   }
 
   .dark button[role='checkbox'][data-state='checked'] {
-    background-color: #e62020 !important;
-    border-color: #e62020 !important;
+    background-color: #e6e6e6 !important;
+    border-color: #e6e6e6 !important;
   }
 
   .dark button[role='checkbox']:hover {
-    border-color: #ff3a3a !important;
+    border-color: #ffffff !important;
   }
 
   .dark button[role='checkbox'][data-state='checked']:hover {
-    background-color: #ff3a3a !important;
+    background-color: #f5f5f5 !important;
   }
 
   /* Improved switch contrast */
   button[role='switch'] {
-    border: 2px solid #c90606 !important;
-    background-color: #ffe5e0 !important;
+    border: 2px solid #1f1f1f !important;
+    background-color: #f5f5f5 !important;
   }
 
   button[role='switch'][data-state='checked'] {
-    background-color: #c90606 !important;
-    border-color: #c90606 !important;
+    background-color: #1f1f1f !important;
+    border-color: #1f1f1f !important;
   }
 
   button[role='switch']:hover {
-    background-color: #ffd4cc !important;
-    border-color: #a50505 !important;
+    background-color: #ebebeb !important;
+    border-color: #2a2a2a !important;
   }
 
   button[role='switch'][data-state='checked']:hover {
-    background-color: #a50505 !important;
+    background-color: #0f0f0f !important;
   }
 
   button[role='switch'] span {
     background-color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(201, 6, 6, 0.2) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18) !important;
   }
 
   .dark button[role='switch'] {
-    border: 2px solid #e62020 !important;
-    background-color: #2a1414 !important;
+    border: 2px solid #dcdcdc !important;
+    background-color: #0f0f0f !important;
   }
 
   .dark button[role='switch'][data-state='checked'] {
-    background-color: #e62020 !important;
-    border-color: #e62020 !important;
+    background-color: #e6e6e6 !important;
+    border-color: #e6e6e6 !important;
   }
 
   .dark button[role='switch']:hover {
-    background-color: #381a1a !important;
-    border-color: #ff3a3a !important;
+    background-color: #151515 !important;
+    border-color: #ffffff !important;
   }
 
   .dark button[role='switch'][data-state='checked']:hover {
-    background-color: #ff3a3a !important;
+    background-color: #f0f0f0 !important;
   }
 
   .dark button[role='switch'] span {
-    background-color: #f5ede3 !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    background-color: #f5f5f5 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.32) !important;
   }
 
   /* Improved input contrast */
@@ -304,7 +286,7 @@
   input[type='email'],
   input[type='password'],
   input[type='search'] {
-    border: 2px solid #f0e0e8 !important;
+    border: 2px solid #dcdcdc !important;
     background-color: #ffffff !important;
   }
 
@@ -313,8 +295,8 @@
   input[type='email']:focus,
   input[type='password']:focus,
   input[type='search']:focus {
-    border-color: #c90606 !important;
-    box-shadow: 0 0 0 3px rgba(201, 6, 6, 0.1) !important;
+    border-color: #1f1f1f !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08) !important;
   }
 
   .dark input[type='text'],
@@ -322,8 +304,8 @@
   .dark input[type='email'],
   .dark input[type='password'],
   .dark input[type='search'] {
-    border: 2px solid #3a2018 !important;
-    background-color: #1a0e0e !important;
+    border: 2px solid #2a2a2a !important;
+    background-color: #0f0f0f !important;
   }
 
   .dark input[type='text']:focus,
@@ -331,8 +313,8 @@
   .dark input[type='email']:focus,
   .dark input[type='password']:focus,
   .dark input[type='search']:focus {
-    border-color: #e62020 !important;
-    box-shadow: 0 0 0 3px rgba(230, 32, 32, 0.15) !important;
+    border-color: #e6e6e6 !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12) !important;
   }
 }
 

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { headers, cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,13 +23,6 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
 
     if (!store) {
         notFound()
-    }
-
-    const cookieStore = await cookies()
-    const currentActiveStoreId = cookieStore.get('activeStoreId')?.value
-
-    if (currentActiveStoreId !== store.id) {
-        cookieStore.set('activeStoreId', store.id, { path: '/', httpOnly: true, sameSite: 'lax' })
     }
 
     const [productCount, categoryCount, subcategoryCount, currencyCount] = await Promise.all([

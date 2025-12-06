@@ -1,76 +1,30 @@
 "use client"
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { authClient } from '@/lib/auth-client'
-import { toast } from 'sonner'
 import { Check, Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
-    const router = useRouter()
-
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [mode, setMode] = useState<'login' | 'register'>('login')
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleGoogleSignIn = async () => {
         setLoading(true)
         setError('')
 
         try {
-            if (mode === 'register') {
-                const res = await authClient.signUp.email({
-                    email,
-                    password,
-                    name: name || email.split('@')[0],
-                }, {
-                    onRequest: () => setLoading(true),
-                    onSuccess: () => {
-                        toast.success('Cuenta creada, iniciando sesión...')
-                        router.push('/admin')
-                        router.refresh()
-                    },
-                    onError: (ctx) => {
-                        setError(ctx.error.message || 'No se pudo crear la cuenta')
-                        setLoading(false)
-                    }
-                })
+            const { error: authError } = await authClient.signIn.social({
+                provider: 'google',
+                callbackURL: '/admin',
+            })
 
-                if (res.error) {
-                    setError(res.error.message || 'No se pudo crear la cuenta')
-                }
-            } else {
-                const { data, error: authError } = await authClient.signIn.email({
-                    email,
-                    password,
-                }, {
-                    onRequest: () => {
-                        setLoading(true)
-                    },
-                    onSuccess: () => {
-                        router.push('/admin')
-                        router.refresh()
-                    },
-                    onError: (ctx) => {
-                        setError(ctx.error.message || 'Credenciales inválidas')
-                        setLoading(false)
-                    }
-                })
-
-                if (authError) {
-                    setError(authError.message || 'Error al iniciar sesión')
-                }
+            if (authError) {
+                setError(authError.message || 'No se pudo iniciar sesión con Google')
             }
         } catch (err: any) {
-            setError(err.message || 'Ocurrió un error')
+            setError(err.message || 'Ocurrió un error al conectar con Google')
         } finally {
             setLoading(false)
         }
@@ -110,90 +64,30 @@ export default function LoginPage() {
                     <Card className="w-full border-border/60 bg-card/90 shadow-xl backdrop-blur">
                         <CardHeader className="space-y-2 text-center">
                             <CardTitle className="text-2xl font-semibold">
-                                {mode === 'register'
-                                    ? 'Crear tu cuenta'
-                                    : 'Iniciar sesión'}
+                                Accede con Google
                             </CardTitle>
                             <CardDescription>
-                                {mode === 'register'
-                                    ? 'Únete para lanzar tu tienda en Lea Catalog'
-                                    : 'Accede con tu correo y continúa donde lo dejaste'}
+                                Usa tu cuenta de Google para entrar y gestionar tus tiendas.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="space-y-4">
                                 {error && (
                                     <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                                         {error}
                                     </div>
                                 )}
 
-                                {mode === 'register' && (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name">Nombre</Label>
-                                        <Input
-                                            id="name"
-                                            type="text"
-                                            placeholder="Tu nombre"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            required
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                )}
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Correo electrónico</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="tu@correo.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        disabled={loading}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Contraseña</Label>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                        disabled={loading}
-                                    />
-                                </div>
-
-                                <div className="space-y-3">
-                                    <Button type="submit" className="w-full" disabled={loading}>
-                                        {loading
-                                            ? (mode === 'register'
-                                                ? 'Creando cuenta...'
-                                                : 'Iniciando sesión...')
-                                            : (mode === 'register'
-                                                ? 'Crear cuenta'
-                                                : 'Iniciar sesión')}
-                                    </Button>
-
-                                    <button
-                                        type="button"
-                                        className="w-full text-sm font-medium text-primary hover:underline"
-                                        onClick={() => {
-                                            setMode(mode === 'login' ? 'register' : 'login')
-                                            setError('')
-                                        }}
-                                    >
-                                        {mode === 'login'
-                                            ? '¿No tienes cuenta? Crea una'
-                                            : '¿Ya tienes cuenta? Inicia sesión'}
-                                    </button>
-                                </div>
-                            </form>
+                                <Button
+                                    type="button"
+                                    className="w-full"
+                                    variant="default"
+                                    disabled={loading}
+                                    onClick={handleGoogleSignIn}
+                                >
+                                    {loading ? 'Redirigiendo...' : 'Continuar con Google'}
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
