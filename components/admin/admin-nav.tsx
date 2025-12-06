@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
     LayoutDashboard,
     Package,
@@ -12,6 +12,7 @@ import {
     ImageIcon,
     Users,
     Settings,
+    Store,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,10 +28,10 @@ import {
 import LogoProps from '../layout/logo'
 import { authClient } from '@/lib/auth-client'
 import { Role } from '@/generated/prisma/enums'
-import router from 'next/router'
 
 const navigation = [
     { name: 'Panel de Control', href: '/admin', icon: LayoutDashboard },
+    { name: 'Tiendas', href: '/admin/stores', icon: Store },
     { name: 'Productos', href: '/admin/products', icon: Package },
     { name: 'Categorías', href: '/admin/categories', icon: FolderTree },
     { name: 'Subcategorías', href: '/admin/subcategories', icon: FolderTree },
@@ -46,14 +47,11 @@ const adminNavigation = [
 export function AdminNav() {
     const pathname = usePathname()
     const { data: session } = authClient.useSession()
-
-
-    console.log('Session in AdminNav:', session);
-
+    const router = useRouter()
 
     const handleLogout = async () => {
         await authClient.signOut();
-        window.location.href = '/admin/login';
+        router.push('/login-admin')
     }
 
     return (
@@ -61,7 +59,7 @@ export function AdminNav() {
             {/* Mobile header: we keep a small top bar with a trigger for mobile */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-border p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Panel de Administración</h1>
+                    <h1 className="text-xl font-bold">Panel de Tiendas</h1>
                     <SidebarTrigger />
                 </div>
             </div>

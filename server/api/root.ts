@@ -10,6 +10,7 @@ import { adminProductsRouter } from './routers/admin/products'
 import { adminMediaRouter } from './routers/admin/media'
 import { adminUsersRouter } from './routers/admin/users'
 import { adminSettingsRouter } from './routers/admin/settings'
+import { adminStoresRouter } from './routers/admin/stores'
 
 export const appRouter = router({
     categories: categoriesRouter,
@@ -24,6 +25,7 @@ export const appRouter = router({
         media: adminMediaRouter,
         users: adminUsersRouter,
         settings: adminSettingsRouter,
+        stores: adminStoresRouter,
     }),
 })
 

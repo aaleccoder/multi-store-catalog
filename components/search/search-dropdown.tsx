@@ -12,17 +12,18 @@ import { useDebounce } from '@/lib/hooks'
 interface SearchDropdownProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    storeSlug?: string
 }
 
-export function SearchDropdown({ open, onOpenChange }: SearchDropdownProps) {
+export function SearchDropdown({ open, onOpenChange, storeSlug }: SearchDropdownProps) {
     const router = useRouter()
     const [query, setQuery] = React.useState('')
     const debouncedQuery = useDebounce(query, 300)
     const containerRef = React.useRef<HTMLDivElement>(null)
 
     const { data: results, isLoading } = trpc.products.list.useQuery(
-        { search: debouncedQuery, limit: '5' },
-        { enabled: debouncedQuery.length > 0 && open }
+        storeSlug ? { storeSlug, search: debouncedQuery, limit: '5' } : undefined,
+        { enabled: !!storeSlug && debouncedQuery.length > 0 && open }
     )
 
     React.useEffect(() => {
@@ -45,7 +46,8 @@ export function SearchDropdown({ open, onOpenChange }: SearchDropdownProps) {
         if (e.key === 'Enter') {
             e.preventDefault()
             onOpenChange(false)
-            router.push(`/?search=${encodeURIComponent(query)}`)
+            const base = storeSlug ? `/store/${storeSlug}` : '/'
+            router.push(`${base}?search=${encodeURIComponent(query)}`)
         } else if (e.key === 'Escape') {
             onOpenChange(false)
         }
@@ -54,7 +56,8 @@ export function SearchDropdown({ open, onOpenChange }: SearchDropdownProps) {
     const handleSelectProduct = (slug: string) => {
         onOpenChange(false)
         setQuery('')
-        router.push(`/product/${slug}`)
+        const base = storeSlug ? `/store/${storeSlug}` : '/'
+        router.push(`${base}/product/${slug}`)
     }
 
     if (!open) return null

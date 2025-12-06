@@ -1,7 +1,7 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { Montserrat } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
@@ -30,11 +30,17 @@ export default async function AdminLayout({
         redirect('/login-admin')
     }
 
+    const cookieStore = await cookies()
+    const activeStoreId = cookieStore.get?.('activeStoreId')?.value
+
+    // Only show sidebar when a store is selected
+    const showSidebar = Boolean(activeStoreId)
+
     return (
         <html lang="es" suppressHydrationWarning>
             <body className={montserrat.className}>
                 <SidebarProvider>
-                    <AdminNav />
+                    {showSidebar && <AdminNav />}
                     <SidebarInset>
                         {children}
                     </SidebarInset>

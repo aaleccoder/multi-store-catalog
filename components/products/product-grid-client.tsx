@@ -30,12 +30,13 @@ import { SearchAndFiltersBar } from '../search/search-and-filter-mobile'
 import { FilterSheet } from '@/components/filters/filter-sheet'
 
 interface ProductGridClientProps {
+  storeSlug: string
   categorySlug?: string
   subcategorySlug?: string
   filterContent?: React.ReactNode
 }
 
-export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent }: ProductGridClientProps) => {
+export const ProductGridClient = ({ storeSlug, categorySlug, subcategorySlug, filterContent }: ProductGridClientProps) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { setIsLoading: setGlobalLoading } = useLoading()
@@ -46,18 +47,21 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
 
   // tRPC queries
   const categoryQuery = trpc.categories.list.useQuery(
-    categorySlug ? { slug: categorySlug } : {},
-    { enabled: !!categorySlug }
+    categorySlug ? { storeSlug, slug: categorySlug } : { storeSlug },
+    { enabled: !!storeSlug }
   )
   const selectedCategory = categoryQuery.data?.docs?.[0] || null
 
   const subcategoryQuery = trpc.subcategories.list.useQuery(
-    subcategorySlug && selectedCategory ? { slug: subcategorySlug, categoryId: selectedCategory.id } : {},
-    { enabled: !!subcategorySlug && !!selectedCategory }
+    subcategorySlug && selectedCategory
+      ? { storeSlug, slug: subcategorySlug, categoryId: selectedCategory.id }
+      : { storeSlug, categoryId: selectedCategory?.id },
+    { enabled: !!storeSlug }
   )
   const selectedSubcategory = subcategoryQuery.data?.docs?.[0] || null
 
   const productsQuery = trpc.products.list.useQuery({
+    storeSlug,
     page: pageFromUrl.toString(),
     limit: '12',
     sort: currentSort,
@@ -85,7 +89,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
       params.set('sort', value)
     }
     params.delete('page') // Reset to page 1 when sorting changes
-    router.push(`/?${params.toString()}`)
+    router.push(`/store/${storeSlug}?${params.toString()}`)
   }
 
   const handlePageChange = (page: number) => {
@@ -95,7 +99,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
     } else {
       params.set('page', page.toString())
     }
-    router.push(`/?${params.toString()}`)
+    router.push(`/store/${storeSlug}?${params.toString()}`)
     // Scroll to top of product grid
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -112,7 +116,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
           {(selectedCategory || selectedSubcategory) && (
             <div className="mb-4">
               <Link
-                href="/"
+                href={`/store/${storeSlug}`}
                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -183,7 +187,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
               {selectedCategory && (
                 <>
                   <Link
-                    href={`/?category=${categorySlug}`}
+                    href={`/store/${storeSlug}?category=${categorySlug}`}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     {selectedCategory.name}
@@ -257,6 +261,7 @@ export const ProductGridClient = ({ categorySlug, subcategorySlug, filterContent
                 id={product.id}
                 name={product.name}
                 description={product.shortDescription || ''}
+                storeSlug={storeSlug}
                 price={
                   (() => {
                     // Check for variants first

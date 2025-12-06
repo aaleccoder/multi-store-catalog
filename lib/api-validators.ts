@@ -9,6 +9,7 @@ export const categorySchema = z.object({
     icon: z.string().optional(),
     isActive: z.boolean().optional(),
     filters: z.array(z.any()).optional(),
+    storeId: idString.optional(),
 })
 
 export const subcategorySchema = z.object({
@@ -18,6 +19,7 @@ export const subcategorySchema = z.object({
     categoryId: idString,
     isActive: z.boolean().optional(),
     filters: z.array(z.any()).optional(),
+    storeId: idString.optional(),
 })
 
 export const currencySchema = z.object({
@@ -29,6 +31,7 @@ export const currencySchema = z.object({
     thousandsSeparator: z.string().optional(),
     decimalPlaces: z.number().int().optional(),
     isActive: z.boolean().optional(),
+    storeId: idString.optional(),
 })
 
 export const priceInputSchema = z.object({
@@ -90,6 +93,7 @@ export const productSchema = z.object({
         isActive: z.boolean().optional(),
         prices: z.array(priceInputSchema).optional(),
     })).optional(),
+    storeId: idString.optional(),
 })
 
 export const mediaAltSchema = z.object({ alt: z.string().optional() })

@@ -2,23 +2,22 @@ import { prisma } from './db'
 import type { Currency } from './currency-client'
 export type { Currency } from './currency-client'
 
-let cachedCurrencies: Currency[] | null = null
-let cacheTime: number = 0
 const CACHE_DURATION = 60000 // 1 minute
+const currencyCache = new Map<string, { currencies: Currency[]; cacheTime: number }>()
 
-export async function getCurrencies(): Promise<Currency[]> {
+export async function getCurrencies(storeId: string): Promise<Currency[]> {
     const now = Date.now()
-    if (cachedCurrencies && now - cacheTime < CACHE_DURATION) {
-        return cachedCurrencies
+    const cached = currencyCache.get(storeId)
+    if (cached && now - cached.cacheTime < CACHE_DURATION) {
+        return cached.currencies
     }
 
     const currencies = await prisma.currency.findMany({
-        where: { isActive: true },
+        where: { isActive: true, storeId },
         orderBy: { code: 'asc' },
     })
 
-    cachedCurrencies = currencies
-    cacheTime = now
+    currencyCache.set(storeId, { currencies, cacheTime: now })
     return currencies
 }
 
@@ -28,8 +27,8 @@ export async function getCurrencyById(id: string): Promise<Currency | null> {
     })
 }
 
-export async function getDefaultCurrency(): Promise<Currency | null> {
-    const currencies = await getCurrencies()
+export async function getDefaultCurrency(storeId: string): Promise<Currency | null> {
+    const currencies = await getCurrencies(storeId)
     return currencies[0] || null
 }
 

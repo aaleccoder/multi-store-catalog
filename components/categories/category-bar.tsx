@@ -14,15 +14,16 @@ interface Category {
 }
 
 interface CategoryBarProps {
+  storeSlug: string
   selectedCategorySlug?: string
 }
 
-export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
+export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
-  const { data: categoriesData } = trpc.categories.list.useQuery()
+  const { data: categoriesData } = trpc.categories.list.useQuery({ storeSlug })
 
   const categories = (categoriesData?.docs || []) as Category[]
 
@@ -83,7 +84,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
           >
             {/* All Products Button */}
             <Button
-              onClick={() => (window.location.href = '/')}
+              onClick={() => (window.location.href = `/store/${storeSlug}`)}
               className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategorySlug
                 ? 'bg-primary text-white backdrop-blur-md'
                 : 'hover:bg-primary/5 text-black foreground bg-transparent'
@@ -100,7 +101,7 @@ export const CategoryBar = ({ selectedCategorySlug }: CategoryBarProps) => {
               return (
                 <Button
                   key={category.id}
-                  onClick={() => (window.location.href = `?category=${category.slug}`)}
+                  onClick={() => (window.location.href = `/store/${storeSlug}?category=${category.slug}`)}
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
                     ? 'bg-primary text-white backdrop-blur-md'
                     : 'hover:bg-primary/5 text-black bg-transparent'

@@ -15,37 +15,67 @@ enum Role {
 
 model Settings {
   id       String @id @default(cuid())
+  storeId  String @unique
+  store    Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
   settings Json
+}
+
+model Store {
+  id            String        @id @default(cuid())
+  name          String
+  slug          String        @unique
+  description   String?
+  isActive      Boolean       @default(true)
+  settings      Settings?
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  categories    Category[]
+  subcategories Subcategory[]
+  products      Product[]
+  currencies    Currency[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  prices        Price[]
 }
 
 model Category {
   id            String        @id @default(cuid())
-  name          String        @unique
-  slug          String        @unique
+  name          String
+  slug          String
   description   String?
   icon          String?
   isActive      Boolean       @default(true)
   filters       Json[]
+  storeId       String
+  store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
   subcategories Subcategory[]
   products      Product[]
+
+  @@unique([storeId, slug])
+  @@unique([storeId, name])
 }
 
 model Subcategory {
   id          String    @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String
   description String?
   isActive    Boolean   @default(true)
   filters     Json[]
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId  String
   category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   products    Product[]
+
+  @@unique([storeId, slug])
+  @@unique([storeId, name])
 }
 
 model Product {
   id               String           @id @default(cuid())
   name             String
-  slug             String           @unique
+  slug             String
   description      String
   shortDescription String?
   coverImages      Media[]
@@ -58,10 +88,14 @@ model Product {
   featured         Boolean          @default(false)
   tags             Json[]
   metaData         Json
+  storeId          String
+  store            Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId       String
   category         Category         @relation(fields: [categoryId], references: [id])
   subcategoryId    String?
   subcategory      Subcategory?     @relation(fields: [subcategoryId], references: [id])
+
+  @@unique([storeId, slug])
 }
 
 model ProductVariant {
@@ -86,14 +120,18 @@ model ProductVariant {
 model Currency {
   id                 String  @id @default(cuid())
   name               String
-  code               String  @unique
+  code               String
   symbol             String
   symbolPosition     String  @default("before")
   decimalSeparator   String
   thousandsSeparator String
   decimalPlaces      Int
   isActive           Boolean @default(true)
+  storeId            String
+  store              Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
   prices             Price[]
+
+  @@unique([storeId, code])
 }
 
 model Price {
@@ -102,6 +140,8 @@ model Price {
   saleAmount       Decimal?        @db.Decimal(12, 2)
   currencyId       String
   currency         Currency        @relation(fields: [currencyId], references: [id])
+  storeId          String
+  store            Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
   productId        String?
   product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
   productVariantId String?
@@ -131,6 +171,7 @@ model User {
   role          String?
   sessions      Session[]
   accounts      Account[]
+  stores        Store[]
 
   @@unique([email])
   @@map("user")

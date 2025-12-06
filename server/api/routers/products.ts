@@ -2,11 +2,13 @@ import { router, publicProcedure } from '../trpc'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { toNumber } from '@/lib/number'
+import { TRPCError } from '@trpc/server'
 
 export const productsRouter = router({
     list: publicProcedure
         .input(
             z.object({
+                storeSlug: z.string(),
                 page: z.string().optional(),
                 limit: z.string().optional(),
                 sort: z.string().optional(),
@@ -21,7 +23,15 @@ export const productsRouter = router({
         )
         .query(async ({ input }) => {
             try {
-                const searchParams = input ?? {}
+                if (!input) {
+                    throw new TRPCError({ code: 'BAD_REQUEST', message: 'storeSlug is required' })
+                }
+                const searchParams = input
+
+                const store = await prisma.store.findUnique({ where: { slug: searchParams.storeSlug } })
+                if (!store) {
+                    throw new TRPCError({ code: 'NOT_FOUND', message: 'Store not found' })
+                }
 
                 const page = parseInt(searchParams.page ?? '1')
                 const limit = parseInt(searchParams.limit ?? '12')
@@ -39,7 +49,7 @@ export const productsRouter = router({
                     shouldSortByPrice = true
                 }
 
-                const where: any = { isActive: true }
+                const where: any = { isActive: true, storeId: store.id }
 
                 if (searchParams.category) where.categoryId = searchParams.category
                 if (searchParams.subcategory) where.subcategoryId = searchParams.subcategory
@@ -56,7 +66,7 @@ export const productsRouter = router({
                 }
 
                 const currency = searchParams.currency
-                if (currency) where.prices = { some: { currencyId: currency } }
+                if (currency) where.prices = { some: { currencyId: currency, storeId: store.id } }
 
                 const price = searchParams.price
                 if (price) {

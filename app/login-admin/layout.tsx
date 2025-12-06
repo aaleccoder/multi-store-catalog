@@ -1,8 +1,8 @@
 import React from 'react'
 
 export const metadata = {
-    title: 'Admin Login - Lea Catalog',
-    description: 'Login to the administration panel',
+    title: 'Acceso - Lea Catalog',
+    description: 'Inicia sesión o crea tu cuenta para gestionar tus tiendas',
 }
 
 import '../globals.css'

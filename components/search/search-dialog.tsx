@@ -13,29 +13,32 @@ import { useDebounce } from '@/lib/hooks'
 interface SearchDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    storeSlug?: string
 }
 
-export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
+export function SearchDialog({ open, onOpenChange, storeSlug }: SearchDialogProps) {
     const router = useRouter()
     const [query, setQuery] = React.useState('')
     const debouncedQuery = useDebounce(query, 300)
 
     const { data: results, isLoading } = trpc.products.list.useQuery(
-        { search: debouncedQuery, limit: '5' },
-        { enabled: debouncedQuery.length > 0 }
+        storeSlug ? { storeSlug, search: debouncedQuery, limit: '5' } : undefined,
+        { enabled: !!storeSlug && debouncedQuery.length > 0 }
     )
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault()
             onOpenChange(false)
-            router.push(`/?search=${encodeURIComponent(query)}`)
+            const base = storeSlug ? `/store/${storeSlug}` : '/'
+            router.push(`${base}?search=${encodeURIComponent(query)}`)
         }
     }
 
     const handleSelectProduct = (slug: string) => {
         onOpenChange(false)
-        router.push(`/product/${slug}`)
+        const base = storeSlug ? `/store/${storeSlug}` : '/'
+        router.push(`${base}/product/${slug}`)
     }
 
     return (
@@ -109,7 +112,8 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                             <button
                                 onClick={() => {
                                     onOpenChange(false)
-                                    router.push(`/?search=${encodeURIComponent(query)}`)
+                                    const base = storeSlug ? `/store/${storeSlug}` : ''
+                                    router.push(`${base}?search=${encodeURIComponent(query)}`)
                                 }}
                                 className="mt-2 w-full rounded-md bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"
                             >

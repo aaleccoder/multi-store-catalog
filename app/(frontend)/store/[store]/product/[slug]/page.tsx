@@ -27,18 +27,27 @@ import { formatPrice as formatCurrencyPrice } from '@/lib/currency'
 import { ProductCard } from '@/components/products/product-card'
 interface ProductDetailPageProps {
   params: Promise<{
+    store: string
     slug: string
   }>
 }
 
 
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, store: storeSlug } = await params
+
+  const store = await prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
+  if (!store) {
+    return {
+      title: 'Producto no encontrado',
+    }
+  }
 
   const product = await prisma.product.findFirst({
     where: {
       slug,
       isActive: true,
+      storeId: store.id,
     },
     include: {
       category: true,
@@ -72,17 +81,24 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
 
 interface ProductDetailPageProps {
   params: Promise<{
+    store: string
     slug: string
   }>
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { slug } = await params
+  const { slug, store: storeSlug } = await params
+
+  const store = await prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
+  if (!store) {
+    notFound()
+  }
 
   const product = await prisma.product.findFirst({
     where: {
       slug,
       isActive: true,
+      storeId: store.id,
     },
     include: {
       category: true,
@@ -129,6 +145,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       categoryId: product.categoryId,
       id: { not: product.id },
       isActive: true,
+      storeId: store.id,
     },
     include: {
       category: true,
@@ -166,8 +183,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     <LoadingProvider>
       <div className="min-h-screen bg-background flex flex-col">
         <NavigationLoadingBar />
-        <Header />
-        <CategoryBarWrapper selectedCategorySlug={categorySlug} />
+        <Header storeSlug={storeSlug} />
+        <CategoryBarWrapper storeSlug={storeSlug} selectedCategorySlug={categorySlug} />
 
         <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
           {/* Breadcrumb Navigation */}
@@ -176,7 +193,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link href="/">Inicio</Link>
+                    <Link href={`/store/${storeSlug}`}>Inicio</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
@@ -184,7 +201,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <>
                     <BreadcrumbItem>
                       <BreadcrumbLink asChild>
-                        <Link href={`/?category=${categorySlug}`}>{categoryName}</Link>
+                        <Link href={`/store/${storeSlug}?category=${categorySlug}`}>{categoryName}</Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
@@ -236,6 +253,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                       id={relatedProduct.id}
                       name={relatedProduct.name}
                       description={relatedProduct.shortDescription || ''}
+                      storeSlug={storeSlug}
                       price={relatedPrice}
                       regularPrice={relatedRegularPrice}
                       currency={relatedCurrency}

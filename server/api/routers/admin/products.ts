@@ -6,13 +6,23 @@ import { toNumber } from '@/lib/number'
 import { TRPCError } from '@trpc/server'
 import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
+const resolveStoreId = async (storeId: string | undefined, userId: string) => {
+    if (storeId) return storeId
+    const store = await prisma.store.findFirst({ where: { ownerId: userId }, orderBy: { createdAt: 'asc' } })
+    if (!store) {
+        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
+    }
+    return store.id
+}
+
 export const adminProductsRouter = router({
-    create: protectedProcedure.input(productSchema).mutation(async ({ input }) => {
+    create: protectedProcedure.input(productSchema).mutation(async ({ input, ctx }) => {
         const payload = input
+        const storeId = await resolveStoreId(payload.storeId, ctx.session.user.id)
 
         let resolvedSubcategoryId: string | undefined
         if (typeof payload.subcategoryId === 'string' && payload.subcategoryId.trim() !== '') {
-            const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: payload.subcategoryId }, { slug: payload.subcategoryId }] } })
+            const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: payload.subcategoryId }, { slug: payload.subcategoryId }], storeId } })
             if (!subcategory) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
                     message: 'Subcategory not found',
@@ -22,13 +32,21 @@ export const adminProductsRouter = router({
             resolvedSubcategoryId = subcategory.id
         }
 
+        const category = await prisma.category.findFirst({ where: { id: payload.categoryId, storeId } })
+        if (!category) {
+            throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                message: 'Category not found for this store',
+                details: { resource: 'category', id: payload.categoryId }
+            })
+        }
+
         try {
-            // Pre-fetch currencies for price mapping
-            const currencies = await prisma.currency.findMany()
+            const currencies = await prisma.currency.findMany({ where: { storeId } })
             const currencyMap = new Map(currencies.map(c => [c.code, c.id]))
 
             const product = await prisma.product.create({
                 data: {
+                    storeId,
                     name: payload.name,
                     slug: payload.slug,
                     description: payload.description,
@@ -68,13 +86,14 @@ export const adminProductsRouter = router({
                             prices: {
                                 create: (variant.prices || []).map((p: any) => {
                                     const currencyId = currencyMap.get(p.currency)
-                                    if (!currencyId) return null // Skip if currency not found
+                                    if (!currencyId) return null
                                     return {
                                         amount: p.price || 0,
                                         saleAmount: p.salePrice ?? null,
-                                        currencyId: currencyId,
+                                        currencyId,
                                         isDefault: p.isDefault ?? false,
                                         taxIncluded: p.taxIncluded ?? true,
+                                        storeId,
                                     }
                                 }).filter((p: any) => p !== null)
                             }
@@ -91,10 +110,11 @@ export const adminProductsRouter = router({
                             data: {
                                 amount: p.price || 0,
                                 saleAmount: p.salePrice ?? null,
-                                currencyId: currencyId,
+                                currencyId,
                                 productId: product.id,
                                 isDefault: p.isDefault ?? false,
                                 taxIncluded: p.taxIncluded ?? true,
+                                storeId,
                             }
                         })
                     }
@@ -103,29 +123,27 @@ export const adminProductsRouter = router({
 
             return product
         } catch (error: any) {
-            // Check for Prisma errors and map to standardized codes
             const prismaErrorCode = mapPrismaError(error)
             if (prismaErrorCode) {
                 throw createErrorWithCode(prismaErrorCode)
             }
 
-            // If already a TRPCError (one we created), rethrow
             if (error instanceof TRPCError) {
                 throw error
             }
 
-            // Handle unexpected errors
             console.error('Unexpected error in products.create:', error)
             throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 
-    get: protectedProcedure.input(z.string()).query(async ({ input }) => {
-        const id = input
+    get: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional() })).query(async ({ input, ctx }) => {
+        const { id } = input
+        const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
 
         const [product, allCategories, allSubcategories, allCurrencies] = await Promise.all([
-            prisma.product.findUnique({
-                where: { id },
+            prisma.product.findFirst({
+                where: { id, storeId },
                 include: {
                     coverImages: true,
                     category: { include: { subcategories: true } },
@@ -135,19 +153,22 @@ export const adminProductsRouter = router({
                 }
             }),
             prisma.category.findMany({
+                where: { storeId },
                 orderBy: { name: 'asc' }
             }),
             prisma.subcategory.findMany({
+                where: { storeId },
                 orderBy: { name: 'asc' }
             }),
             prisma.currency.findMany({
+                where: { storeId },
                 orderBy: { code: 'asc' }
             })
         ])
 
         if (!product) {
             throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
-                message: 'Product not found',
+                message: 'Product not found for this store',
                 details: { resource: 'product', id }
             })
         }
@@ -175,12 +196,13 @@ export const adminProductsRouter = router({
         }
     }),
 
-    update: protectedProcedure.input(z.object({ id: z.string(), data: productUpdateSchema })).mutation(async ({ input }) => {
+    update: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), data: productUpdateSchema })).mutation(async ({ input, ctx }) => {
         const { id, data } = input
+        const storeId = await resolveStoreId(input.storeId ?? data.storeId, ctx.session.user.id)
 
         let resolvedSubcategoryId: string | undefined
         if (typeof data.subcategoryId === 'string' && data.subcategoryId.trim() !== '') {
-            const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: data.subcategoryId }, { slug: data.subcategoryId }] } })
+            const subcategory = await prisma.subcategory.findFirst({ where: { OR: [{ id: data.subcategoryId }, { slug: data.subcategoryId }], storeId } })
             if (!subcategory) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
                     message: 'Subcategory not found',
@@ -190,13 +212,28 @@ export const adminProductsRouter = router({
             resolvedSubcategoryId = subcategory.id
         }
 
-        const { coverImages, prices, variants, ...restOfData } = data
+        const category = await prisma.category.findFirst({ where: { id: data.categoryId, storeId } })
+        if (!category) {
+            throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                message: 'Category not found for this store',
+                details: { resource: 'category', id: data.categoryId }
+            })
+        }
 
-        // Pre-fetch currencies
-        const currencies = await prisma.currency.findMany()
+        const { coverImages, prices, variants, storeId: _ignoredStoreId, ...restOfData } = data
+
+        const currencies = await prisma.currency.findMany({ where: { storeId } })
         const currencyMap = new Map(currencies.map(c => [c.code, c.id]))
 
         try {
+            const existingProduct = await prisma.product.findFirst({ where: { id, storeId } })
+            if (!existingProduct) {
+                throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+                    message: 'Product not found for this store',
+                    details: { resource: 'product', id }
+                })
+            }
+
             const product = await prisma.product.update({
                 where: { id },
                 data: {
@@ -218,7 +255,7 @@ export const adminProductsRouter = router({
                 }
             }
 
-            if (Array.isArray(prices)) { // Only update prices if provided
+            if (Array.isArray(prices)) {
                 await prisma.price.deleteMany({ where: { productId: id } })
                 for (const p of prices) {
                     const currencyId = currencyMap.get(p.currency)
@@ -227,10 +264,11 @@ export const adminProductsRouter = router({
                             data: {
                                 amount: p.price || 0,
                                 saleAmount: p.salePrice ?? null,
-                                currencyId: currencyId,
+                                currencyId,
                                 productId: id,
                                 isDefault: p.isDefault ?? false,
                                 taxIncluded: p.taxIncluded ?? true,
+                                storeId,
                             }
                         })
                     }
@@ -238,11 +276,9 @@ export const adminProductsRouter = router({
             }
 
             if (Array.isArray(variants)) {
-                // 1. Get existing variants
                 const existingVariants = await prisma.productVariant.findMany({ where: { productId: id } })
                 const existingVariantIds = new Set(existingVariants.map(v => v.id))
 
-                // 2. Identify variants to delete (in DB but not in input)
                 const inputVariantIds = new Set(variants.map(v => v.id).filter(Boolean))
                 const variantsToDelete = existingVariants.filter(v => !inputVariantIds.has(v.id))
 
@@ -252,12 +288,10 @@ export const adminProductsRouter = router({
                     })
                 }
 
-                // 3. Upsert variants (Create or Update)
                 for (const v of variants) {
                     let variantId = v.id
 
                     if (variantId && existingVariantIds.has(variantId)) {
-                        // Update existing
                         await prisma.productVariant.update({
                             where: { id: variantId },
                             data: {
@@ -273,7 +307,6 @@ export const adminProductsRouter = router({
                             }
                         })
                     } else {
-                        // Create new
                         const newVariant = await prisma.productVariant.create({
                             data: {
                                 productId: id,
@@ -291,7 +324,6 @@ export const adminProductsRouter = router({
                         variantId = newVariant.id
                     }
 
-                    // Update images for this variant
                     if (v.coverImages) {
                         await prisma.media.deleteMany({ where: { productVariantId: variantId } })
                         if (v.coverImages.length > 0) {
@@ -305,7 +337,6 @@ export const adminProductsRouter = router({
                         }
                     }
 
-                    // 4. Update prices for this variant
                     if (v.prices && Array.isArray(v.prices)) {
                         await prisma.price.deleteMany({ where: { productVariantId: variantId } })
                         for (const p of v.prices) {
@@ -315,10 +346,11 @@ export const adminProductsRouter = router({
                                     data: {
                                         amount: p.price || 0,
                                         saleAmount: p.salePrice ?? null,
-                                        currencyId: currencyId,
+                                        currencyId,
                                         productVariantId: variantId,
                                         isDefault: p.isDefault ?? false,
                                         taxIncluded: p.taxIncluded ?? true,
+                                        storeId,
                                     }
                                 })
                             }
@@ -329,25 +361,27 @@ export const adminProductsRouter = router({
 
             return product
         } catch (error: any) {
-            // Check for Prisma errors and map to standardized codes
             const prismaErrorCode = mapPrismaError(error)
             if (prismaErrorCode) {
                 throw createErrorWithCode(prismaErrorCode)
             }
 
-            // If already a TRPCError (one we created), rethrow
             if (error instanceof TRPCError) {
                 throw error
             }
 
-            // Handle unexpected errors
             console.error('Unexpected error in products.update:', error)
             throw createErrorWithCode(ErrorCode.SERVER_ERROR)
         }
     }),
 
-    delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
-        await prisma.product.delete({ where: { id: input } })
+    delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional() })).mutation(async ({ input, ctx }) => {
+        const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+        const existing = await prisma.product.findFirst({ where: { id: input.id, storeId } })
+        if (!existing) {
+            throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Product not found for this store' })
+        }
+        await prisma.product.delete({ where: { id: input.id } })
         return { success: true }
     }),
 })

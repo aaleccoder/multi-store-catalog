@@ -9,7 +9,7 @@ import Logo from '@/components/layout/logo'
 import { SearchDialog } from '@/components/search/search-dialog'
 import { SearchDropdown } from '@/components/search/search-dropdown'
 
-export const Header = () => {
+export const Header = ({ storeSlug }: { storeSlug?: string }) => {
   const router = useRouter()
   const [searchOpen, setSearchOpen] = useState(false)
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false)
@@ -20,7 +20,7 @@ export const Header = () => {
       <div className="relative flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4 bg-primary/30">
         <div className="flex items-center gap-4 flex-1">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(storeSlug ? `/store/${storeSlug}` : '/')}
             className="shrink-0 cursor-pointer"
             aria-label="Ir a inicio"
           >
@@ -54,11 +54,11 @@ export const Header = () => {
                 </span>
               </div>
             ) : (
-              <SearchDropdown open={desktopSearchOpen} onOpenChange={setDesktopSearchOpen} />
+              <SearchDropdown open={desktopSearchOpen} onOpenChange={setDesktopSearchOpen} storeSlug={storeSlug} />
             )}
           </div>
 
-          <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+          <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} storeSlug={storeSlug} />
 
           <div className="flex items-center gap-2">
             <WishlistSheet />

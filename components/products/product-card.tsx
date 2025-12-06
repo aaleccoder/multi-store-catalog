@@ -27,6 +27,7 @@ interface ProductCardProps {
     alt?: string
   }>
   slug: string
+  storeSlug?: string
   featured?: boolean
   inStock?: boolean
   unit?: string
@@ -48,6 +49,7 @@ export const ProductCard = ({
   imageAlt,
   images,
   slug,
+  storeSlug,
   featured = false,
   inStock = true,
   unit,
@@ -136,7 +138,7 @@ export const ProductCard = ({
     const currentImage = imageList[currentImageIndex]
 
     return (
-      <Link href={`/product/${slug}`} className="block">
+      <Link href={storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`} className="block">
         <Card className="group overflow-hidden border-border bg-white shadow-sm hover:shadow-md transition-all duration-200 py-0 flex flex-col gap-0">
           {/* Image Container */}
           <div className="relative aspect-square">
@@ -268,7 +270,7 @@ export const ProductCard = ({
   const currentImage = imageList[currentImageIndex]
 
   return (
-    <Link href={`/product/${slug}`} className="block">
+    <Link href={storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`} className="block">
       <Card className="group overflow-hidden border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 py-0">
         <div className="relative aspect-square">
           <div className="relative w-full h-full overflow-hidden rounded-lg">
