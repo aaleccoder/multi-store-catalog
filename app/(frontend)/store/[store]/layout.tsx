@@ -15,14 +15,15 @@ export const metadata = {
 
 import { Footer } from '@/components/layout/footer'
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
+export default async function RootLayout(props: { children: React.ReactNode; params: { store: string } }) {
+  const { children, params } = props
+  const storeId = params.store
 
   return (
     <html lang="es" suppressHydrationWarning className="h-full">
       <body className={`${montserrat.className} ${lobster.variable} h-full flex flex-col`}>
-        <CartProvider>
-          <WishlistProvider>
+        <CartProvider storeId={storeId}>
+          <WishlistProvider storeId={storeId}>
             <main className="flex-1">{children}</main>
             <Footer />
             <Toaster />

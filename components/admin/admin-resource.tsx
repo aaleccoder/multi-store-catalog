@@ -219,7 +219,8 @@ export function AdminResource<T extends Record<string, unknown> = Record<string,
     const deleteMutation = useTrpc && trpcDelete ? trpcDelete.useMutation({ onSuccess: () => fetchList() }) : null
 
     useEffect(() => {
-        // If the tRPC hook is handling the list, don't trigger a manual fetch
+        // If 
+        //  tRPC hook is handling the list, don't trigger a manual fetch
         if (useTrpc && listQueryHook) return
         fetchList()
     }, [useTrpc, listQueryHook, fetchList])

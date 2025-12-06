@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 
 interface WishlistItem {
   id: number | string
@@ -28,33 +28,35 @@ export const useWishlist = () => {
   return context
 }
 
-export const WishlistProvider = ({ children }: { children: React.ReactNode }) => {
+export const WishlistProvider = ({ children, storeId }: { children: React.ReactNode; storeId?: string }) => {
+  const storageKey = storeId ? `wishlist-${storeId}` : 'wishlist'
   const [items, setItems] = useState<WishlistItem[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
+  const hasHydratedRef = useRef(false)
 
-  // Load wishlist from localStorage on mount
   useEffect(() => {
-    const savedWishlist = localStorage.getItem('wishlist')
+    hasHydratedRef.current = false
+    const savedWishlist = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
     if (savedWishlist) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setItems(JSON.parse(savedWishlist))
       } catch (error) {
         console.error('Error loading wishlist:', error)
+        setItems([])
       }
+    } else {
+      setItems([])
     }
-    setIsLoaded(true)
-  }, [])
+    hasHydratedRef.current = true
+  }, [storageKey])
 
-  // Save wishlist to localStorage whenever it changes
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('wishlist', JSON.stringify(items))
-    }
-  }, [items, isLoaded])
+    if (!hasHydratedRef.current) return
+    localStorage.setItem(storageKey, JSON.stringify(items))
+  }, [items, storageKey])
 
   const addItem = (item: WishlistItem) => {
     setItems((prevItems) => {
-      // Check if item already exists
       if (prevItems.some((i) => i.id === item.id)) {
         return prevItems
       }

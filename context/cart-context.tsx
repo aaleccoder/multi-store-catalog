@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { type Currency } from '@/lib/currency-client'
 
 export interface CartItem {
@@ -26,29 +26,32 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+export const CartProvider = ({ children, storeId }: { children: React.ReactNode; storeId?: string }) => {
+  const storageKey = storeId ? `shopping-cart-${storeId}` : 'shopping-cart'
   const [items, setItems] = useState<CartItem[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
+  const hasHydratedRef = useRef(false)
 
-  // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('shopping-cart')
+    hasHydratedRef.current = false
+    const savedCart = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
     if (savedCart) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setItems(JSON.parse(savedCart))
       } catch (error) {
         console.error('Error loading cart from localStorage:', error)
+        setItems([])
       }
+    } else {
+      setItems([])
     }
-    setIsLoaded(true)
-  }, [])
+    hasHydratedRef.current = true
+  }, [storageKey])
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('shopping-cart', JSON.stringify(items))
-    }
-  }, [items, isLoaded])
+    if (!hasHydratedRef.current) return
+    localStorage.setItem(storageKey, JSON.stringify(items))
+  }, [items, storageKey])
 
   const addItem = (item: Omit<CartItem, 'quantity'>) => {
     setItems((currentItems) => {

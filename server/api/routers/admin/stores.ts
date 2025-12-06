@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { ErrorCode, createErrorWithCode, mapPrismaError } from '@/lib/error-codes'
 import { generateSlug, sanitizeSlugInput } from '@/lib/utils'
+import { defaultStoreTheme } from '@/lib/theme'
 import { Role } from '@/generated/prisma/enums'
 
 const storeSchema = z.object({
@@ -62,6 +63,12 @@ export const adminStoresRouter = router({
     create: protectedProcedure.input(storeSchema).mutation(async ({ input, ctx }) => {
         try {
             const slug = normalizeSlug(input.slug, input.name)
+            const resolvedTheme = input.theme ?? {
+                light: { ...defaultStoreTheme.light },
+                dark: { ...defaultStoreTheme.dark },
+                branding: { ...defaultStoreTheme.branding },
+                fontId: defaultStoreTheme.fontId,
+            }
             const store = await prisma.store.create({
                 data: {
                     name: input.name,
@@ -69,7 +76,7 @@ export const adminStoresRouter = router({
                     description: input.description,
                     isActive: input.isActive ?? true,
                     ownerId: ctx.session.user.id,
-                    theme: input.theme ?? {},
+                    theme: resolvedTheme,
                 },
             })
             return store
