@@ -5,6 +5,9 @@ import { headers, cookies } from 'next/headers'
 import { Montserrat } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { prisma } from '@/lib/db'
+import { StoreThemeProvider } from '@/components/theme/store-theme-provider'
+import type { StoreTheme } from '@/lib/theme'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -32,6 +35,9 @@ export default async function AdminLayout({
 
     const cookieStore = await cookies()
     const activeStoreId = cookieStore.get?.('activeStoreId')?.value
+    const activeStoreTheme = activeStoreId
+        ? ((await prisma.store.findUnique({ where: { id: activeStoreId } }))?.theme as unknown as StoreTheme | null)
+        : null
 
     // Only show sidebar when a store is selected
     const showSidebar = Boolean(activeStoreId)
@@ -39,13 +45,15 @@ export default async function AdminLayout({
     return (
         <html lang="es" suppressHydrationWarning>
             <body className={montserrat.className}>
-                <SidebarProvider>
-                    {showSidebar && <AdminNav />}
-                    <SidebarInset>
-                        {children}
-                    </SidebarInset>
-                </SidebarProvider>
-                <Toaster />
+                <StoreThemeProvider theme={activeStoreTheme ?? undefined}>
+                    <SidebarProvider>
+                        {showSidebar && <AdminNav />}
+                        <SidebarInset>
+                            {children}
+                        </SidebarInset>
+                    </SidebarProvider>
+                    <Toaster />
+                </StoreThemeProvider>
             </body>
         </html>
     )

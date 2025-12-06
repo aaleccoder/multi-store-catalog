@@ -11,6 +11,10 @@ const storeSchema = z.object({
     slug: z.string().min(1).optional(),
     description: z.string().optional(),
     isActive: z.boolean().optional(),
+    theme: z.object({
+        light: z.record(z.string(), z.string()).optional(),
+        dark: z.record(z.string(), z.string()).optional(),
+    }).optional(),
 })
 
 const updateSchema = z.object({
@@ -56,6 +60,7 @@ export const adminStoresRouter = router({
                     description: input.description,
                     isActive: input.isActive ?? true,
                     ownerId: ctx.session.user.id,
+                    theme: input.theme ?? {},
                 },
             })
             return store
@@ -84,6 +89,7 @@ export const adminStoresRouter = router({
                     slug: data.name || data.slug ? normalizeSlug(data.slug, data.name ?? '') : undefined,
                     description: data.description ?? undefined,
                     isActive: data.isActive ?? undefined,
+                    theme: data.theme ?? undefined,
                 },
             })
             return store

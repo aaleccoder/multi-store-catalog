@@ -13,6 +13,7 @@ import {
     Users,
     Settings,
     Store,
+    Palette,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,6 +38,7 @@ const navigation = [
     { name: 'Subcategorías', href: '/admin/subcategories', icon: FolderTree },
     { name: 'Media', href: '/admin/media', icon: ImageIcon },
     { name: 'Monedas', href: '/admin/currencies', icon: DollarSign },
+    { name: 'Tema', href: '/admin/theme', icon: Palette },
 ]
 
 const adminNavigation = [

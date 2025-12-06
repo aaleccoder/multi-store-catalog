@@ -33,6 +33,7 @@ model Store {
   subcategories Subcategory[]
   products      Product[]
   currencies    Currency[]
+  theme         Json          @default("{}")
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   prices        Price[]
