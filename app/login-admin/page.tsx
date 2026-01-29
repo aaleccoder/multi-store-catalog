@@ -82,7 +82,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        setError(err.message || "Datos inválidos");
+        setError(err.issues[0]?.message || "Datos inválidos");
       } else {
         setError(err.message || "Ocurrió un error al iniciar sesión");
       }
@@ -114,7 +114,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        setError(err.message || "Datos inválidos");
+        setError(err.issues[0]?.message || "Datos inválidos");
       } else {
         setError(err.message || "Ocurrió un error al registrarse");
       }
