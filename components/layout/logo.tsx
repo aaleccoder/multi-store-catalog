@@ -14,8 +14,6 @@ const Logo = ({ className, alt, width, height }: LogoProps) => {
   const branding = useStoreBranding();
 
 
-  console.log(branding);
-
   const src = branding.logoUrl ?? defaultStoreBranding.logoUrl;
   const resolvedAlt = alt ?? branding.logoAlt ?? defaultStoreBranding.logoAlt;
 

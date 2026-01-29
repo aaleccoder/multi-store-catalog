@@ -20,12 +20,14 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
         <div className="flex items-center gap-4 flex-1">
           <button
             onClick={() => router.push(storeSlug ? `/store/${storeSlug}` : "/")}
-            className="shrink-0 cursor-pointer"
+            className="cursor-pointer"
             aria-label="Ir a inicio"
           >
             <Logo
-              className="text-[#c90606]"
+              className="h-16 w-16 object-cover p-1"
               aria-label="Una Ganga logo"
+              width={128}
+              height={128}
             />
           </button>
         </div>
