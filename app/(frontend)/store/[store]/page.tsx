@@ -39,6 +39,8 @@ export default async function HomePage({
     notFound();
   }
 
+  console.log(storeSlug);
+
   const filterContent = await getFilterContent(
     storeSlug,
     store.id,
