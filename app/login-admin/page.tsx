@@ -40,7 +40,18 @@ const signUpSchema = z
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loginErrors, setLoginErrors] = useState<
+    Partial<{ email: string; password: string; form: string }>
+  >({});
+  const [signUpErrors, setSignUpErrors] = useState<
+    Partial<{
+      name: string;
+      email: string;
+      password: string;
+      confirmPassword: string;
+      form: string;
+    }>
+  >({});
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({
     name: "",
@@ -63,7 +74,7 @@ export default function LoginPage() {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setLoginErrors({});
 
     try {
       // Validate with Zod
@@ -76,15 +87,23 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        setError(authError.message || "No se pudo iniciar sesión");
+        setLoginErrors({
+          form: authError.message || "No se pudo iniciar sesión",
+        });
       } else {
         router.push("/admin");
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        setError(err.issues[0]?.message || "Datos inválidos");
+        const { fieldErrors } = err.flatten() as { fieldErrors: Record<string, string[]> };
+        setLoginErrors({
+          email: fieldErrors.email?.[0],
+          password: fieldErrors.password?.[0],
+        });
       } else {
-        setError(err.message || "Ocurrió un error al iniciar sesión");
+        setLoginErrors({
+          form: err.message || "Ocurrió un error al iniciar sesión",
+        });
       }
     } finally {
       setLoading(false);
@@ -94,7 +113,7 @@ export default function LoginPage() {
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setSignUpErrors({});
 
     try {
       // Validate with Zod
@@ -108,15 +127,23 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        setError(authError.message || "No se pudo registrar");
+        setSignUpErrors({ form: authError.message || "No se pudo registrar" });
       } else {
         router.push("/admin");
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        setError(err.issues[0]?.message || "Datos inválidos");
+        const { fieldErrors } = err.flatten() as { fieldErrors: Record<string, string[]> };
+        setSignUpErrors({
+          name: fieldErrors.name?.[0],
+          email: fieldErrors.email?.[0],
+          password: fieldErrors.password?.[0],
+          confirmPassword: fieldErrors.confirmPassword?.[0],
+        });
       } else {
-        setError(err.message || "Ocurrió un error al registrarse");
+        setSignUpErrors({
+          form: err.message || "Ocurrió un error al registrarse",
+        });
       }
     } finally {
       setLoading(false);
@@ -124,7 +151,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-background">
+    <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-background via-background to-background">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.12),transparent_25%),radial-gradient(circle_at_50%_100%,rgba(34,197,94,0.12),transparent_30%)]" />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-10 lg:px-10">
@@ -136,7 +163,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-3">
               <h1 className="text-3xl font-bold leading-tight md:text-4xl">
-                Bienvenido a Lea Catalog
+                Bienvenido a Una Ganga
               </h1>
               <p className="text-base text-muted-foreground md:text-lg">
                 Regístrate o inicia sesión para crear tus tiendas, subir
@@ -176,9 +203,9 @@ export default function LoginPage() {
                 </TabsList>
                 <TabsContent value="login">
                   <form onSubmit={handleLoginSubmit} className="space-y-4">
-                    {error && (
+                    {loginErrors.form && (
                       <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                        {error}
+                        {loginErrors.form}
                       </div>
                     )}
 
@@ -192,6 +219,11 @@ export default function LoginPage() {
                         onChange={handleLoginInputChange}
                         required
                       />
+                      {loginErrors.email && (
+                        <p className="text-sm font-medium text-destructive">
+                          {loginErrors.email}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -204,6 +236,11 @@ export default function LoginPage() {
                         onChange={handleLoginInputChange}
                         required
                       />
+                      {loginErrors.password && (
+                        <p className="text-sm font-medium text-destructive">
+                          {loginErrors.password}
+                        </p>
+                      )}
                     </div>
 
                     <Button
@@ -218,9 +255,9 @@ export default function LoginPage() {
                 </TabsContent>
                 <TabsContent value="signup">
                   <form onSubmit={handleSignUpSubmit} className="space-y-4">
-                    {error && (
+                    {signUpErrors.form && (
                       <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                        {error}
+                        {signUpErrors.form}
                       </div>
                     )}
 
@@ -234,6 +271,11 @@ export default function LoginPage() {
                         onChange={handleSignUpInputChange}
                         required
                       />
+                      {signUpErrors.name && (
+                        <p className="text-sm font-medium text-destructive">
+                          {signUpErrors.name}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -246,6 +288,11 @@ export default function LoginPage() {
                         onChange={handleSignUpInputChange}
                         required
                       />
+                      {signUpErrors.email && (
+                        <p className="text-sm font-medium text-destructive">
+                          {signUpErrors.email}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -258,6 +305,11 @@ export default function LoginPage() {
                         onChange={handleSignUpInputChange}
                         required
                       />
+                      {signUpErrors.password && (
+                        <p className="text-sm font-medium text-destructive">
+                          {signUpErrors.password}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -272,6 +324,11 @@ export default function LoginPage() {
                         onChange={handleSignUpInputChange}
                         required
                       />
+                      {signUpErrors.confirmPassword && (
+                        <p className="text-sm font-medium text-destructive">
+                          {signUpErrors.confirmPassword}
+                        </p>
+                      )}
                     </div>
 
                     <Button

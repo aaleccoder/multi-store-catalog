@@ -1,36 +1,33 @@
-'use client'
+"use client";
 
-import { Search } from 'lucide-react'
-import { ShoppingCartSheet } from '@/components/cart/shopping-cart-sheet'
-import { WishlistSheet } from '@/components/wishlist/wishlist-sheet'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import Logo from '@/components/layout/logo'
-import { SearchDialog } from '@/components/search/search-dialog'
-import { SearchDropdown } from '@/components/search/search-dropdown'
+import { Search } from "lucide-react";
+import { ShoppingCartSheet } from "@/components/cart/shopping-cart-sheet";
+import { WishlistSheet } from "@/components/wishlist/wishlist-sheet";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Logo from "@/components/layout/logo";
+import { SearchDialog } from "@/components/search/search-dialog";
+import { SearchDropdown } from "@/components/search/search-dropdown";
 
 export const Header = ({ storeSlug }: { storeSlug?: string }) => {
-  const router = useRouter()
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false)
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
-
       <div className="relative flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4 bg-primary/30">
         <div className="flex items-center gap-4 flex-1">
           <button
-            onClick={() => router.push(storeSlug ? `/store/${storeSlug}` : '/')}
+            onClick={() => router.push(storeSlug ? `/store/${storeSlug}` : "/")}
             className="shrink-0 cursor-pointer"
             aria-label="Ir a inicio"
           >
             <Logo
-              className="h-28 w-28   md:h-32 md:w-32 text-[#c90606]"
-              aria-label="Lea Catalog logo"
+              className="text-[#c90606]"
+              aria-label="Una Ganga logo"
             />
           </button>
-
-
         </div>
 
         <div className="flex items-center gap-2 md:gap-4 md:ml-auto">
@@ -54,11 +51,19 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
                 </span>
               </div>
             ) : (
-              <SearchDropdown open={desktopSearchOpen} onOpenChange={setDesktopSearchOpen} storeSlug={storeSlug} />
+              <SearchDropdown
+                open={desktopSearchOpen}
+                onOpenChange={setDesktopSearchOpen}
+                storeSlug={storeSlug}
+              />
             )}
           </div>
 
-          <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} storeSlug={storeSlug} />
+          <SearchDialog
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            storeSlug={storeSlug}
+          />
 
           <div className="flex items-center gap-2">
             <WishlistSheet />
@@ -67,5 +72,5 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};

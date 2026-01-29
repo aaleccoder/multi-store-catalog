@@ -14,10 +14,13 @@ interface StoreThemeProviderProps {
 }
 
 export function StoreThemeProvider({ theme, children }: StoreThemeProviderProps) {
-    const merged = React.useMemo(() => mergeTheme(theme), [theme])
+    const merged = mergeTheme(theme)
     const branding = merged.branding ?? defaultStoreBranding
-    const fontClassName = React.useMemo(() => resolveStoreFontClassName(merged.fontId), [merged.fontId])
-    const css = React.useMemo(() => themeToCssVars(merged), [merged])
+    const fontClassName = resolveStoreFontClassName(merged.fontId)
+    const css = themeToCssVars(merged)
+
+
+
 
     return (
         <StoreBrandingContext.Provider value={branding}>

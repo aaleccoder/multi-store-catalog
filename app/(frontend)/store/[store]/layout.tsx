@@ -15,7 +15,7 @@ const lobster = Lobster({
 
 export const metadata = {
   description: "Lea, Catalogo de Productos",
-  title: "Lea Catalog",
+  title: "Una Ganga",
 };
 
 export default async function RootLayout({

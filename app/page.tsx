@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { mergeTheme, defaultStoreBranding, type StoreTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/wholepage/Header";
 
 export default async function LandingPage() {
   const stores = await prisma.store.findMany({
@@ -31,6 +32,7 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Header />
       <section className="border-b border-border/70 bg-card/60">
         <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-16 lg:py-20">
           <div className="space-y-4">

@@ -13,9 +13,9 @@ import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import type { StoreTheme } from "@/lib/theme";
 
 interface HomePageProps {
-  params: {
+  params: Promise<{
     store: string;
-  };
+  }>;
   searchParams: {
     category?: string;
     subcategory?: string;
@@ -27,7 +27,7 @@ export default async function HomePage({
   params,
   searchParams,
 }: HomePageProps) {
-  const storeSlug = params.store;
+  const { store: storeSlug } = await params;
   const queryParams = searchParams;
   const categorySlug = queryParams.category;
   const subcategorySlug = queryParams.subcategory;
@@ -39,7 +39,7 @@ export default async function HomePage({
     notFound();
   }
 
-  console.log(storeSlug);
+  console.log(store.theme);
 
   const filterContent = await getFilterContent(
     storeSlug,
