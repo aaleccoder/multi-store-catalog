@@ -32,7 +32,7 @@ export default async function HomePage({
   const categorySlug = queryParams.category;
   const subcategorySlug = queryParams.subcategory;
 
-  const store = await prisma.store.findUnique({
+  const store = await prisma.store.findFirst({
     where: { slug: storeSlug, isActive: true },
   });
   if (!store) {
