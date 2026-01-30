@@ -88,14 +88,16 @@ export default function LoginPage() {
 
       if (authError) {
         let translatedMessage = authError.message;
-        if (translatedMessage.includes("Invalid email or password")) {
-          translatedMessage = "Correo electrónico o contraseña inválidos";
-        } else if (translatedMessage.includes("Account not found")) {
-          translatedMessage = "Cuenta no encontrada";
+        if (translatedMessage) {
+          if (translatedMessage.includes("Invalid email or password")) {
+            translatedMessage = "Correo electrónico o contraseña inválidos";
+          } else if (translatedMessage.includes("Account not found")) {
+            translatedMessage = "Cuenta no encontrada";
+          }
+          setLoginErrors({
+            form: translatedMessage || "No se pudo iniciar sesión",
+          });
         }
-        setLoginErrors({
-          form: translatedMessage || "No se pudo iniciar sesión",
-        });
       } else {
         router.push("/admin");
       }
@@ -135,13 +137,15 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        let translatedMessage = authError.message!;
-        if (translatedMessage.includes("already exists")) {
-          translatedMessage = "El usuario ya existe";
-        } else if (translatedMessage.includes("Invalid email")) {
-          translatedMessage = "Correo electrónico inválido";
-        } else if (translatedMessage.includes("too weak")) {
-          translatedMessage = "La contraseña es demasiado débil";
+        let translatedMessage = authError.message;
+        if (translatedMessage) {
+          if (translatedMessage.includes("already exists")) {
+            translatedMessage = "El usuario ya existe";
+          } else if (translatedMessage.includes("Invalid email")) {
+            translatedMessage = "Correo electrónico inválido";
+          } else if (translatedMessage.includes("too weak")) {
+            translatedMessage = "La contraseña es demasiado débil";
+          }
         }
         setSignUpErrors({ form: translatedMessage || "No se pudo registrar" });
       } else {

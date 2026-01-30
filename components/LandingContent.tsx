@@ -4,15 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { defaultStoreBranding } from "@/lib/theme";
-import Antigravity from "./Antigravity";
 
-const LandingContent = ({ stores }) => {
+const LandingContent = ({ stores }: any) => {
   return (
     <>
       <section className="relative w-full h-full bg-white">
-        <div className="absolute inset-0">
-          <Antigravity />
-        </div>
         <div className="absolute inset-0 bg-linear-to-b from-primary to-white z-5"></div>
         <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 pt-24 pb-16 lg:pt-28 lg:pb-20 relative z-10 pointer-events-none">
           <div className="space-y-4">
@@ -78,7 +74,7 @@ const LandingContent = ({ stores }) => {
             </div>
           )}
 
-          {stores.map((store) => {
+          {stores.map((store: any) => {
             const logoSrc =
               store.branding.logoUrl ??
               defaultStoreBranding.logoUrl ??

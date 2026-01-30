@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Link } from "next/link";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
