@@ -32,19 +32,10 @@ export default async function AdminLayout({
     redirect("/login-admin");
   }
 
-  const cookieStore = await cookies();
-  const activeStoreId = cookieStore.get?.("activeStoreId")?.value;
-  const activeStoreTheme = activeStoreId
-    ? ((await prisma.store.findUnique({ where: { id: activeStoreId } }))
-        ?.theme as StoreTheme | null)
-    : null;
-
   return (
     <div className={`${outfit.className}`}>
-      <StoreThemeProvider theme={activeStoreTheme ?? undefined}>
-        {children}
-        <Toaster />
-      </StoreThemeProvider>
+      {children}
+      <Toaster />
     </div>
   );
 }

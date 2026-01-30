@@ -117,7 +117,7 @@ const LandingContent = ({ stores }) => {
                   {store.description || "Sin descripción por ahora."}
                 </p>
                 <span className="mt-5 inline-flex items-center text-sm font-medium text-foreground">
-                  Ver tienda{" "}
+                  Visitar tienda{" "}
                   <span
                     aria-hidden
                     className="ml-2 transition-transform group-hover:translate-x-1"

@@ -102,6 +102,12 @@ export const adminStoresRouter = router({
     .input(storeSchema)
     .mutation(async ({ input, ctx }) => {
       try {
+        const storeCount = await prisma.store.count({
+          where: { ownerId: ctx.session.user.id },
+        });
+        if (storeCount >= 5) {
+          throw createErrorWithCode(ErrorCode.STORE_LIMIT_EXCEEDED);
+        }
         const slug = normalizeSlug(input.slug, input.name);
         const resolvedTheme = input.theme ?? {
           light: { ...defaultStoreTheme.light },

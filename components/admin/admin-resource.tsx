@@ -98,7 +98,7 @@ interface AdminResourceProps<
   loadDependencies?: () => Promise<Record<string, unknown>>;
   trpcResource?: string;
   renderHeaderExtra?: () => React.ReactNode;
-  createEnabled?: boolean;
+  createEnabled?: boolean | ((items: T[]) => boolean);
   createDisabledMessage?: string;
 }
 
@@ -128,6 +128,14 @@ export function AdminResource<
   } = props;
 
   const [items, setItems] = useState<T[]>([]);
+
+  const isCreateEnabled = React.useMemo(
+    () =>
+      typeof createEnabled === "function"
+        ? createEnabled(items)
+        : createEnabled,
+    [createEnabled, items],
+  );
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -413,9 +421,9 @@ export function AdminResource<
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           {createPageUrl ? (
             <Link
-              href={createEnabled ? createPageUrl : "#"}
+              href={isCreateEnabled ? createPageUrl : "#"}
               onClick={async (e) => {
-                if (!createEnabled) {
+                if (!isCreateEnabled) {
                   e.preventDefault();
                   toast.error(createDisabledMessage);
                   return;
@@ -429,14 +437,14 @@ export function AdminResource<
             >
               <Button
                 className={
-                  !createEnabled ? "opacity-50 cursor-not-allowed" : ""
+                  !isCreateEnabled ? "opacity-50 cursor-not-allowed" : ""
                 }
               >
                 <Plus className="h-4 w-4 mr-2" />
                 {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
               </Button>
             </Link>
-          ) : createEnabled ? (
+          ) : isCreateEnabled ? (
             <DialogTrigger asChild>
               <Button
                 onClick={async () => {

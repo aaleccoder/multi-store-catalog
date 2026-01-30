@@ -13,6 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { Eye } from "lucide-react";
 
 interface StorePageProps {
   params: Promise<{ slug: string }>;
@@ -119,7 +120,8 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Ver tienda
+                  <Eye className="mr-2 h-4 w-4" />
+                  Visitar tienda
                 </Link>
               </Button>
             </div>
