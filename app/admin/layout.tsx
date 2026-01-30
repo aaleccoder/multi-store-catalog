@@ -2,14 +2,14 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers, cookies } from "next/headers";
-import { Montserrat } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { prisma } from "@/lib/db";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import type { StoreTheme } from "@/lib/theme";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Admin - Una Ganga",
@@ -36,19 +36,15 @@ export default async function AdminLayout({
   const activeStoreId = cookieStore.get?.("activeStoreId")?.value;
   const activeStoreTheme = activeStoreId
     ? ((await prisma.store.findUnique({ where: { id: activeStoreId } }))
-      ?.theme as StoreTheme | null)
+        ?.theme as StoreTheme | null)
     : null;
 
-  console.log(activeStoreTheme);
-
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={montserrat.className}>
-        <StoreThemeProvider theme={activeStoreTheme ?? undefined}>
-          <SidebarProvider>{children}</SidebarProvider>
-          <Toaster />
-        </StoreThemeProvider>
-      </body>
-    </html>
+    <div className={`${outfit.className}`}>
+      <StoreThemeProvider theme={activeStoreTheme ?? undefined}>
+        {children}
+        <Toaster />
+      </StoreThemeProvider>
+    </div>
   );
 }

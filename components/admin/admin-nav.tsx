@@ -12,8 +12,9 @@ import {
   ImageIcon,
   Users,
   Settings,
-  Store,
   Palette,
+  ArrowLeft,
+  StoreIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ import {
 import LogoProps from "../layout/logo";
 import { authClient } from "@/lib/auth-client";
 import { Role } from "@/generated/prisma/enums";
+import { trpc } from "@/trpc/client";
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -41,6 +43,13 @@ export function AdminNav() {
     segments[0] === "admin" && segments[1] === "stores" ? segments[2] : null;
   const storeBase = storeSlug ? `/admin/stores/${storeSlug}` : "/admin/stores";
 
+  const { data: store } = trpc.admin.stores.getBySlug.useQuery(
+    storeSlug || "",
+    {
+      enabled: !!storeSlug,
+    },
+  );
+
   const navigation = [
     {
       name: "Panel de Control",
@@ -48,7 +57,6 @@ export function AdminNav() {
       icon: LayoutDashboard,
       exact: true,
     },
-    { name: "Tiendas", href: "/admin/stores", icon: Store, exact: true },
     {
       name: "Productos",
       href: storeSlug ? `${storeBase}/products` : "/admin/stores",
@@ -118,22 +126,30 @@ export function AdminNav() {
       <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
         <SidebarHeader className="">
           <button
-            onClick={() => router.push("/")}
-            className="shrink-0 cursor-pointer"
+            onClick={() => router.push(`/admin/stores/${store?.slug}`)}
+            className="shrink-0 cursor-pointer flex flex-row items-center"
             aria-label="Ir a inicio"
           >
             <LogoProps
-              className="h-16 w-16 md:h-24 md:w-24 text-[#c90606]"
+              className="h-16 w-16 md:h-18 md:w-18 text-[#c90606]"
               aria-label="Logo de Una Ganga"
             />
+            {store && (
+              <div className="flex flex-row text-xl font-bold text-foreground px-4 items-center">
+                <p>{store.name}</p>
+              </div>
+            )}
           </button>
+          <Button className="cursor-pointer justify-start" variant={"ghost"}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            <Link href="/admin/stores">Ir a tiendas</Link>
+          </Button>
         </SidebarHeader>
 
         <SidebarContent className="px-4">
           <SidebarMenu>
             {navigation.map((item) => {
               const isActive = isActivePath(item.href, item.exact);
-
               return (
                 <SidebarMenuItem key={item.name} className="">
                   <SidebarMenuButton

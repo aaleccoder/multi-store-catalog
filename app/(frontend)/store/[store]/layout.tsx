@@ -3,10 +3,10 @@ import "@/app/globals.css";
 import { CartProvider } from "@/context/cart-context";
 import { WishlistProvider } from "@/context/wishlist-context";
 import { Toaster } from "@/components/ui/sonner";
-import { Montserrat, Lobster } from "next/font/google";
+import { Outfit, Lobster } from "next/font/google";
 import { Footer } from "@/components/layout/footer";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const lobster = Lobster({
   subsets: ["latin"],
   weight: "400",
@@ -27,19 +27,18 @@ export default async function RootLayout({
 }) {
   const { store } = await params;
 
+  // Nested layouts must not render <html> / <body>; only the root layout should.
   return (
-    <html lang="es" suppressHydrationWarning className="h-full">
-      <body
-        className={`${montserrat.className} ${lobster.variable} h-full flex flex-col`}
-      >
-        <CartProvider storeId={store}>
-          <WishlistProvider storeId={store}>
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <Toaster />
-          </WishlistProvider>
-        </CartProvider>
-      </body>
-    </html>
+    <div
+      className={`${outfit.variable} ${lobster.variable} h-full flex flex-col w-full`}
+    >
+      <CartProvider storeId={store}>
+        <WishlistProvider storeId={store}>
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <Toaster />
+        </WishlistProvider>
+      </CartProvider>
+    </div>
   );
 }

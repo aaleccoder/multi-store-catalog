@@ -1,21 +1,24 @@
 import React from "react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Acceso - Una Ganga",
   description: "Inicia sesión o crea tu cuenta para gestionar tus tiendas",
 };
 
 import "../globals.css";
 
-export default function LoginLayout({
+export default async function LoginLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // No authentication check for login page
-  return (
-    <html lang="es">
-      <body>{children}</body>
-    </html>
-  );
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user) {
+    redirect("/admin/stores");
+  }
+  return <>{children}</>;
 }

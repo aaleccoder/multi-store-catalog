@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cookies, headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
-import { SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -36,12 +36,14 @@ export default async function StoreLayout({
 
   return (
     <>
+      <SidebarProvider>
+        <AdminNav />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
       <ActiveStoreClient
         storeId={store.id}
         currentActiveStoreId={currentActiveStoreId}
       />
-      <AdminNav />
-      <SidebarInset>{children}</SidebarInset>
     </>
   );
 }

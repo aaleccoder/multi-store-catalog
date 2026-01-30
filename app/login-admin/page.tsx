@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 // Zod schema for login
 const loginSchema = z.object({
   email: z.string().email("Correo electrónico inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z.string(),
 });
 
 // Zod schema for sign-up
@@ -87,15 +87,23 @@ export default function LoginPage() {
       });
 
       if (authError) {
+        let translatedMessage = authError.message;
+        if (translatedMessage.includes("Invalid email or password")) {
+          translatedMessage = "Correo electrónico o contraseña inválidos";
+        } else if (translatedMessage.includes("Account not found")) {
+          translatedMessage = "Cuenta no encontrada";
+        }
         setLoginErrors({
-          form: authError.message || "No se pudo iniciar sesión",
+          form: translatedMessage || "No se pudo iniciar sesión",
         });
       } else {
         router.push("/admin");
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        const { fieldErrors } = err.flatten() as { fieldErrors: Record<string, string[]> };
+        const { fieldErrors } = err.flatten() as {
+          fieldErrors: Record<string, string[]>;
+        };
         setLoginErrors({
           email: fieldErrors.email?.[0],
           password: fieldErrors.password?.[0],
@@ -127,13 +135,23 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        setSignUpErrors({ form: authError.message || "No se pudo registrar" });
+        let translatedMessage = authError.message!;
+        if (translatedMessage.includes("already exists")) {
+          translatedMessage = "El usuario ya existe";
+        } else if (translatedMessage.includes("Invalid email")) {
+          translatedMessage = "Correo electrónico inválido";
+        } else if (translatedMessage.includes("too weak")) {
+          translatedMessage = "La contraseña es demasiado débil";
+        }
+        setSignUpErrors({ form: translatedMessage || "No se pudo registrar" });
       } else {
         router.push("/admin");
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        const { fieldErrors } = err.flatten() as { fieldErrors: Record<string, string[]> };
+        const { fieldErrors } = err.flatten() as {
+          fieldErrors: Record<string, string[]>;
+        };
         setSignUpErrors({
           name: fieldErrors.name?.[0],
           email: fieldErrors.email?.[0],
@@ -202,7 +220,11 @@ export default function LoginPage() {
                   <TabsTrigger value="signup">Registrarse</TabsTrigger>
                 </TabsList>
                 <TabsContent value="login">
-                  <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <form
+                    onSubmit={handleLoginSubmit}
+                    className="space-y-4"
+                    noValidate
+                  >
                     {loginErrors.form && (
                       <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                         {loginErrors.form}
@@ -254,7 +276,11 @@ export default function LoginPage() {
                   </form>
                 </TabsContent>
                 <TabsContent value="signup">
-                  <form onSubmit={handleSignUpSubmit} className="space-y-4">
+                  <form
+                    onSubmit={handleSignUpSubmit}
+                    className="space-y-4"
+                    noValidate
+                  >
                     {signUpErrors.form && (
                       <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                         {signUpErrors.form}

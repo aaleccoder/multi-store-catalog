@@ -1,16 +1,16 @@
-import { Inter, Lora, Merriweather, Montserrat, Playfair_Display } from 'next/font/google'
+import { Inter, Lora, Merriweather, Outfit, Playfair_Display } from 'next/font/google'
 
-const montserrat = Montserrat({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
+const outfit = Outfit({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
 const lora = Lora({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
 const merriweather = Merriweather({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
 const playfair = Playfair_Display({ subsets: ['latin'], display: 'swap', variable: '--store-font-sans' })
 
 export const storeFontRegistry = {
-    montserrat: {
-        label: 'Montserrat',
-        font: montserrat,
-        cssFamily: '"Montserrat", sans-serif',
+    outfit: {
+        label: 'Outfit',
+        font: outfit,
+        cssFamily: '"Outfit", sans-serif',
     },
     inter: {
         label: 'Inter',
@@ -36,7 +36,7 @@ export const storeFontRegistry = {
 
 export type StoreFontId = keyof typeof storeFontRegistry
 
-export const defaultStoreFontId: StoreFontId = 'montserrat'
+export const defaultStoreFontId: StoreFontId = 'outfit'
 
 export const storeFontOptions = Object.entries(storeFontRegistry).map(([id, value]) => ({
     id: id as StoreFontId,
