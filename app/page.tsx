@@ -4,6 +4,9 @@ import Header from "@/components/wholepage/Header";
 import LandingContent from "@/components/LandingContent";
 import Image from "next/image";
 
+// Enable ISR with 1 minute revalidation
+export const revalidate = 60;
+
 export default async function LandingPage() {
   const stores = await prisma.store.findMany({
     where: { isActive: true },

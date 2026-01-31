@@ -11,6 +11,10 @@ import type { StoreTheme } from "@/lib/theme";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
+// Disable caching for all admin routes
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Admin - Una Ganga",
   description: "Catálogo para Lea",

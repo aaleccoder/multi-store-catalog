@@ -14,6 +14,9 @@ import type { StoreTheme } from "@/lib/theme";
 import { Metadata } from "next";
 import { storeSchema } from "@/server/api/routers/admin/stores";
 
+// Enable ISR with 1 minute revalidation
+export const revalidate = 60;
+
 interface HomePageProps {
   params: Promise<{
     store: string;
@@ -44,14 +47,65 @@ export async function generateMetadata({
   const cacheBuster = rawStore.updatedAt.getTime();
   const faviconPath = `/store/${storeSlug}/favicon.png?v=${cacheBuster}`;
 
+  // Get logo from theme for OpenGraph image
+  const storeTheme = (rawStore.theme as any) ?? {};
+  const logoUrl = storeTheme?.branding?.logoUrl;
+  const ogImage = logoUrl || faviconPath;
+
+  const title = store.name;
+  const description = store.description || `Welcome to ${store.name} - Shop our collection of quality products.`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000"}/store/${storeSlug}`;
+
   return {
-    title: store.name,
-    description: store.description || `Welcome to ${store.name} store!`,
+    title: {
+      default: title,
+      template: `%s | ${title}`,
+    },
+    description,
+    keywords: [store.name, "online store", "shopping", "e-commerce"],
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000"),
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: title,
+      type: "website",
+      locale: "en_US",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${store.name} Logo`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     icons: {
       icon: faviconPath,
       shortcut: faviconPath,
       apple: faviconPath,
     },
+    manifest: `/store/${storeSlug}/manifest.json`,
   };
 }
 

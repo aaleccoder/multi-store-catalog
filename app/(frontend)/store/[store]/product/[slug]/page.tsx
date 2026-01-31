@@ -21,12 +21,122 @@ import {
 } from "@/components/ui/breadcrumb";
 import { RichTextRenderer } from "@/components/utils/rich-text-editor";
 import { ProductDetailClient } from "./product-detail-client";
+import { Metadata } from "next";
+import Script from "next/script";
 
 interface ProductDetailPageProps {
   params: Promise<{
     store: string;
     slug: string;
   }>;
+}
+
+export async function generateMetadata({
+  params,
+}: ProductDetailPageProps): Promise<Metadata> {
+  const { slug, store: storeSlug } = await params;
+
+  const store = await prisma.store.findUnique({
+    where: { slug: storeSlug, isActive: true },
+  });
+
+  if (!store) {
+    return {
+      title: "Store Not Found",
+    };
+  }
+
+  const product = await prisma.product.findFirst({
+    where: {
+      slug,
+      isActive: true,
+      storeId: store.id,
+    },
+    include: {
+      coverImages: true,
+      prices: { include: { currency: true } },
+      category: true,
+    },
+  });
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+
+  const coverImages = (product.coverImages as any[]) || [];
+  const imageData = coverImages[0];
+  const ogImage = imageData?.url || `/store/${storeSlug}/favicon.png`;
+
+  const title = `${product.name} | ${store.name}`;
+  const description =
+    product.shortDescription ||
+    `Buy ${product.name} at ${store.name}. High quality product at great prices.`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000"}/store/${storeSlug}/product/${slug}`;
+
+  // Get price for schema markup
+  const defaultPrice =
+    product.prices.find((p) => p.isDefault) || product.prices[0];
+  const price = defaultPrice ? toNumber(defaultPrice.amount) : 0;
+  const currency = defaultPrice?.currency?.code || "USD";
+
+  return {
+    title,
+    description,
+    keywords: [
+      product.name,
+      store.name,
+      product.category?.name || "",
+      "buy",
+      "shop",
+      "product",
+    ].filter(Boolean),
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000",
+    ),
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: product.name,
+      description,
+      url: canonicalUrl,
+      siteName: store.name,
+      type: "website",
+      locale: "en_US",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: imageData?.alt || product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    other: {
+      "og:price:amount": price.toString(),
+      "og:price:currency": currency,
+      "og:availability": product.inStock ? "instock" : "outofstock",
+    },
+  };
 }
 
 export default async function ProductDetailPage({
@@ -124,9 +234,58 @@ export default async function ProductDetailPage({
 
   const parseNumeric = (value: any) => toNumber(value ?? 0);
 
+  // Build JSON-LD structured data for product
+  const defaultPrice =
+    product.prices.find((p) => p.isDefault) || product.prices[0];
+  const price = defaultPrice ? parseNumeric(defaultPrice.amount) : 0;
+  const currency = defaultPrice?.currency?.code || "USD";
+  const salePrice = defaultPrice?.saleAmount
+    ? parseNumeric(defaultPrice.saleAmount)
+    : null;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.shortDescription || product.description,
+    image: coverImages.map((img: any) => img.url),
+    sku: (product.specifications as any)?.sku || undefined,
+    brand: {
+      "@type": "Brand",
+      name: store.name,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000"}/store/${storeSlug}/product/${slug}`,
+      priceCurrency: currency,
+      price: salePrice || price,
+      ...(defaultPrice?.saleAmount && {
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+      }),
+      availability: product.inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: {
+        "@type": "Organization",
+        name: store.name,
+      },
+    },
+    ...(product.category && {
+      category: product.category.name,
+    }),
+  };
+
   return (
     <StoreThemeProvider theme={storeTheme ?? undefined}>
       <LoadingProvider>
+        <Script
+          id="product-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <div className="min-h-screen bg-background flex flex-col">
           <NavigationLoadingBar />
           <Header store={store} />
@@ -171,7 +330,9 @@ export default async function ProductDetailPage({
             {product.description && (
               <Card className="mb-16">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4 text-foreground">Descripción</h2>
+                  <h2 className="text-2xl font-bold mb-4 text-foreground">
+                    Descripción
+                  </h2>
                   <RichTextRenderer content={product.description} />
                 </CardContent>
               </Card>

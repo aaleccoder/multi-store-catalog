@@ -10,7 +10,7 @@ import {
 import { generateSlug, sanitizeSlugInput } from "@/lib/utils";
 import { defaultStoreTheme } from "@/lib/theme";
 import { Role } from "@/generated/prisma/enums";
-import path from "node:path/win32";
+import { revalidatePath } from "next/cache";
 
 export const storeSchema = z.object({
   name: z.string().min(2),
@@ -126,6 +126,7 @@ export const adminStoresRouter = router({
             theme: resolvedTheme,
           },
         });
+        revalidatePath("/");
         return store;
       } catch (error: any) {
         const prismaErrorCode = mapPrismaError(error);
@@ -209,6 +210,8 @@ export const adminStoresRouter = router({
           where: { id },
           data: updateData,
         });
+        revalidatePath("/");
+        revalidatePath(`/store/${store.slug}`);
         return store;
       } catch (error: any) {
         const prismaErrorCode = mapPrismaError(error);
@@ -234,6 +237,8 @@ export const adminStoresRouter = router({
         );
 
         await prisma.store.delete({ where: { id: store.id } });
+        revalidatePath("/");
+        revalidatePath(`/store/${store.slug}`);
         return { success: true };
       } catch (error: any) {
         const prismaErrorCode = mapPrismaError(error);
