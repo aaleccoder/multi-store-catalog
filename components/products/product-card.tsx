@@ -1,41 +1,43 @@
-'use client'
-import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useCart } from '@/context/cart-context'
-import { useWishlist } from '@/context/wishlist-context'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
-import { QuantityPicker } from '@/components/ui/quantity-picker'
-
+"use client";
+import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useCart } from "@/context/cart-context";
+import { useWishlist } from "@/context/wishlist-context";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  formatPrice as formatCurrencyPrice,
+  type Currency,
+} from "@/lib/currency-client";
+import { QuantityPicker } from "@/components/ui/quantity-picker";
 
 interface ProductCardProps {
-  id: number | string
-  name: string
-  description: string
-  price: number
-  regularPrice?: number
-  currency?: Currency | string | null
-  image: string
-  imageAlt?: string
+  id: number | string;
+  name: string;
+  description: string;
+  price: number;
+  regularPrice?: number;
+  currency?: Currency | string | null;
+  image: string;
+  imageAlt?: string;
   images?: Array<{
-    url: string
-    alt?: string
-  }>
-  slug: string
-  storeSlug?: string
-  featured?: boolean
-  inStock?: boolean
-  unit?: string
-  weight?: number
-  weightUnit?: string
-  volume?: number
-  volumeUnit?: string
-  pricePrefix?: string
+    url: string;
+    alt?: string;
+  }>;
+  slug: string;
+  storeSlug?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  unit?: string;
+  weight?: number;
+  weightUnit?: string;
+  volume?: number;
+  volumeUnit?: string;
+  pricePrefix?: string;
 }
 
 export const ProductCard = ({
@@ -59,27 +61,31 @@ export const ProductCard = ({
   volumeUnit,
   pricePrefix,
 }: ProductCardProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const { addItem, updateQuantity, items } = useCart()
-  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist()
-  const isMobile = useIsMobile()
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { addItem, updateQuantity, items } = useCart();
+  const {
+    addItem: addToWishlist,
+    removeItem: removeFromWishlist,
+    isInWishlist,
+  } = useWishlist();
+  const isMobile = useIsMobile();
 
-  const imageList = images && images.length > 0 ? images : [{ url: image, alt: imageAlt || name }]
+  const imageList =
+    images && images.length > 0
+      ? images
+      : [{ url: image, alt: imageAlt || name }];
 
-  const hasMultipleImages = imageList.length > 1
-
-
+  const hasMultipleImages = imageList.length > 1;
 
   // Obtener la cantidad actual del producto en el carrito
-  const cartItem = items.find((item) => item.id === id)
-  const quantityInCart = cartItem?.quantity || 0
+  const cartItem = items.find((item) => item.id === id);
+  const quantityInCart = cartItem?.quantity || 0;
 
-  const hasDiscount = regularPrice && regularPrice > price
+  const hasDiscount = regularPrice && regularPrice > price;
   const discountPercentage = hasDiscount
     ? Math.round(((regularPrice - price) / regularPrice) * 100)
-    : 0
-
-
+    : 0;
+  const displayDiscount = discountPercentage >= 1;
 
   const handleAddToCart = () => {
     addItem({
@@ -88,40 +94,42 @@ export const ProductCard = ({
       price,
       image,
       slug,
-    })
-  }
+    });
+  };
 
   const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    handleAddToCart()
-  }
-
-
+    e.preventDefault();
+    e.stopPropagation();
+    handleAddToCart();
+  };
 
   const handlePrevImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? imageList.length - 1 : prevIndex - 1))
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? imageList.length - 1 : prevIndex - 1,
+    );
+  };
 
   const handleNextImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImageIndex((prevIndex) => (prevIndex === imageList.length - 1 ? 0 : prevIndex + 1))
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === imageList.length - 1 ? 0 : prevIndex + 1,
+    );
+  };
 
   const handleDotClick = (index: number) => (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImageIndex(index)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (isInWishlist(id)) {
-      removeFromWishlist(id)
+      removeFromWishlist(id);
     } else {
       addToWishlist({
         id,
@@ -129,16 +137,21 @@ export const ProductCard = ({
         price,
         image,
         slug,
-      })
+      });
     }
-  }
+  };
 
   // Mobile Card View (2-column grid optimized)
   if (isMobile) {
-    const currentImage = imageList[currentImageIndex]
+    const currentImage = imageList[currentImageIndex];
 
     return (
-      <Link href={storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`} className="block">
+      <Link
+        href={
+          storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`
+        }
+        className="block"
+      >
         <Card className="group overflow-hidden border-border bg-white shadow-sm hover:shadow-md transition-all duration-200 py-0 flex flex-col gap-0">
           {/* Image Container */}
           <div className="relative aspect-square">
@@ -153,7 +166,9 @@ export const ProductCard = ({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-muted-foreground text-xs">Sin imagen</span>
+                  <span className="text-muted-foreground text-xs">
+                    Sin imagen
+                  </span>
                 </div>
               )}
             </div>
@@ -164,8 +179,11 @@ export const ProductCard = ({
                 {imageList.map((_, index) => (
                   <div
                     key={index}
-                    className={`rounded-full transition-all ${index === currentImageIndex ? 'bg-white w-3 h-1.5' : 'bg-white/50 w-1.5 h-1.5'
-                      }`}
+                    className={`rounded-full transition-all ${
+                      index === currentImageIndex
+                        ? "bg-white w-3 h-1.5"
+                        : "bg-white/50 w-1.5 h-1.5"
+                    }`}
                   />
                 ))}
               </div>
@@ -175,11 +193,14 @@ export const ProductCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground'
-                }`}
+              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${
+                isInWishlist(id) ? "text-destructive" : "text-muted-foreground"
+              }`}
               onClick={handleToggleWishlist}
             >
-              <Heart className={`h-4 w-4 ${isInWishlist(id) ? 'fill-current' : ''}`} />
+              <Heart
+                className={`h-4 w-4 ${isInWishlist(id) ? "fill-current" : ""}`}
+              />
             </Button>
           </div>
 
@@ -213,16 +234,29 @@ export const ProductCard = ({
 
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-primary">
-                  {pricePrefix && <span className="text-xs font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
-                  {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
+                  {pricePrefix && (
+                    <span className="text-xs font-normal text-muted-foreground mr-1">
+                      {pricePrefix}
+                    </span>
+                  )}
+                  {formatCurrencyPrice(
+                    price,
+                    typeof currency === "number" ? String(currency) : currency,
+                  )}
                 </span>
                 {(unit || weight || volume) && (
                   <div className="text-xs text-muted-foreground flex flex-col gap-0.5 leading-none items-start">
-                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')} unidades</span>}
+                    {unit && (
+                      <span>
+                        {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades
+                      </span>
+                    )}
                     {unit && (weight || volume) && <span></span>}
                     {(weight || volume) && (
                       <span>
-                        {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}
+                        {weight
+                          ? `${weight} ${weightUnit || "g"}`
+                          : `${volume} ${volumeUnit || "ml"}`}
                       </span>
                     )}
                   </div>
@@ -248,7 +282,7 @@ export const ProductCard = ({
                   onClick={handleAddToCartClick}
                 >
                   <ShoppingCart className="h-3.5 w-3.5" />
-                  <span>Agregar</span>
+                  <span>Agregar al carrito</span>
                 </Button>
               ) : (
                 <Button
@@ -263,14 +297,19 @@ export const ProductCard = ({
           </CardContent>
         </Card>
       </Link>
-    )
+    );
   }
 
   // Desktop Card View
-  const currentImage = imageList[currentImageIndex]
+  const currentImage = imageList[currentImageIndex];
 
   return (
-    <Link href={storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`} className="block">
+    <Link
+      href={
+        storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`
+      }
+      className="block"
+    >
       <Card className="group overflow-hidden border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 py-0">
         <div className="relative aspect-square">
           <div className="relative w-full h-full overflow-hidden rounded-lg">
@@ -284,7 +323,9 @@ export const ProductCard = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-secondary">
-                <span className="text-muted-foreground text-sm">Sin imagen</span>
+                <span className="text-muted-foreground text-sm">
+                  Sin imagen
+                </span>
               </div>
             )}
           </div>
@@ -318,10 +359,11 @@ export const ProductCard = ({
                 <button
                   key={index}
                   onClick={handleDotClick(index)}
-                  className={`rounded-full transition-all ${index === currentImageIndex
-                    ? 'bg-card w-6 h-2'
-                    : 'bg-card/50 hover:bg-card/75 w-2 h-2'
-                    }`}
+                  className={`rounded-full transition-all ${
+                    index === currentImageIndex
+                      ? "bg-card w-6 h-2"
+                      : "bg-card/50 hover:bg-card/75 w-2 h-2"
+                  }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 />
               ))}
@@ -331,15 +373,20 @@ export const ProductCard = ({
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
             {featured && (
-              <Badge className="bg-accent text-accent-foreground shadow-sm">Destacado</Badge>
+              <Badge className="bg-accent text-accent-foreground shadow-sm">
+                Destacado
+              </Badge>
             )}
-            {hasDiscount && discountPercentage > 0 && (
-              <Badge className="bg-destructive/50 text-destructive-foreground shadow-sm">
+            {displayDiscount && (
+              <Badge className="bg-destructive/70 text-destructive-foreground shadow-sm">
                 -{discountPercentage}%
               </Badge>
             )}
             {!inStock && (
-              <Badge variant="secondary" className="bg-muted text-muted-foreground shadow-sm">
+              <Badge
+                variant="secondary"
+                className="bg-muted text-muted-foreground shadow-sm"
+              >
                 Agotado
               </Badge>
             )}
@@ -348,11 +395,16 @@ export const ProductCard = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${isInWishlist(id) ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-              }`}
+            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${
+              isInWishlist(id)
+                ? "text-destructive"
+                : "text-muted-foreground hover:text-destructive"
+            }`}
             onClick={handleToggleWishlist}
           >
-            <Heart className={`h-5 w-5 ${isInWishlist(id) ? 'fill-current' : ''}`} />
+            <Heart
+              className={`h-5 w-5 ${isInWishlist(id) ? "fill-current" : ""}`}
+            />
           </Button>
         </div>
 
@@ -372,16 +424,31 @@ export const ProductCard = ({
             <div className="flex items-center justify-between mt-auto">
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-primary">
-                  {pricePrefix && <span className="text-xs font-normal text-muted-foreground mr-1">{pricePrefix}</span>}
-                  {formatCurrencyPrice(price, typeof currency === 'number' ? String(currency) : currency)}
+                  {pricePrefix && (
+                    <span className="text-xs font-normal text-muted-foreground mr-1">
+                      {pricePrefix}
+                    </span>
+                  )}
+                  {formatCurrencyPrice(
+                    price,
+                    typeof currency === "number" ? String(currency) : currency,
+                  )}
                 </span>
                 {(unit || weight || volume) && (
                   <div className="text-xs text-muted-foreground flex flex-row items-center gap-0.5 leading-none">
-                    {unit && <span>{unit.replace(/^(\d+)(\w)$/, '$1 $2')} unidades de</span>}
-                    {unit && (weight || volume) && <span className="text-xs font-normal text-muted-foreground"></span>}
+                    {unit && (
+                      <span>
+                        {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades de
+                      </span>
+                    )}
+                    {unit && (weight || volume) && (
+                      <span className="text-xs font-normal text-muted-foreground"></span>
+                    )}
                     {(weight || volume) && (
                       <span>
-                        {weight ? `${weight} ${weightUnit || 'g'}` : `${volume} ${volumeUnit || 'ml'}`}
+                        {weight
+                          ? `${weight} ${weightUnit || "g"}`
+                          : `${volume} ${volumeUnit || "ml"}`}
                       </span>
                     )}
                   </div>
@@ -405,7 +472,8 @@ export const ProductCard = ({
                   disabled={!inStock}
                   onClick={handleAddToCartClick}
                 >
-                  {inStock ? 'Agregar' : 'Agotado'}
+                  <ShoppingCart className="h-4 w-4" />
+                  {inStock ? "Agregar al carrito" : "Agotado"}
                 </Button>
               )}
             </div>
@@ -413,5 +481,5 @@ export const ProductCard = ({
         </CardContent>
       </Card>
     </Link>
-  )
-}
+  );
+};

@@ -419,4 +419,58 @@
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
+
+    @keyframes border-rotate {
+        to {
+            --border-angle: 360deg;
+        }
+    }
+
+    @property --border-angle {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+    }
+
+    .border-trace {
+        background: conic-gradient(
+            from var(--border-angle, 0deg) at 50% 50%,
+            transparent 0deg,
+            var(--primary) 20deg,
+            var(--accent) 60deg,
+            var(--secondary) 100deg,
+            var(--primary) 140deg,
+            transparent 180deg,
+            var(--primary) 200deg,
+            var(--accent) 240deg,
+            var(--secondary) 280deg,
+            var(--primary) 320deg,
+            transparent 360deg
+        );
+        animation: border-rotate 4s linear infinite;
+    }
+
+    .border-trace::before {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        border-radius: inherit;
+        background: conic-gradient(
+            from var(--border-angle, 0deg) at 50% 50%,
+            transparent 0deg,
+            var(--primary) 20deg,
+            var(--accent) 60deg,
+            var(--secondary) 100deg,
+            var(--primary) 140deg,
+            transparent 180deg,
+            var(--primary) 200deg,
+            var(--accent) 240deg,
+            var(--secondary) 280deg,
+            var(--primary) 320deg,
+            transparent 360deg
+        );
+        animation: border-rotate 4s linear infinite reverse;
+        filter: blur(8px);
+        opacity: 0.7;
+    }
 }

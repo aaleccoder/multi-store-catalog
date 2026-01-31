@@ -164,7 +164,8 @@ export default function ThemePage() {
             return
         }
         try {
-            await updateStore.mutateAsync({ id: activeStoreId, data: { theme } })
+            const currentTheme = themeDrafts[activeStoreId] ?? baseTheme
+            await updateStore.mutateAsync({ id: activeStoreId, data: { theme: currentTheme } })
             router.refresh()
             toast.success('Tema actualizado')
         } catch {
@@ -461,17 +462,17 @@ export default function ThemePage() {
                                                 </div>
                                                 {shadowPresetKeys.has(key) ? (
                                                     <ShadowField
-                                                        value={mergedTheme[mode][key]}
+                                                        value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
                                                         onChange={(val) => handleChange(mode, key, val)}
                                                     />
                                                 ) : colorKeySet.has(key) ? (
                                                     <ColorField
-                                                        value={mergedTheme[mode][key]}
+                                                        value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
                                                         onChange={(val) => handleChange(mode, key, val)}
                                                     />
                                                 ) : (
                                                     <Input
-                                                        value={mergedTheme[mode][key]}
+                                                        value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
                                                         onChange={(e) => handleChange(mode, key, e.target.value)}
                                                         spellCheck={false}
                                                     />
@@ -540,8 +541,10 @@ const parseThemeFromJson = (value: string): StoreTheme => {
         return fontIdSet.has(fontId as StoreFontId) ? (fontId as StoreFontId) : undefined
     }
 
+    const hasLightOrDark = 'light' in (parsed as object) || 'dark' in (parsed as object)
+
     return {
-        light: normalizeMode((parsed as { light?: unknown }).light),
+        light: hasLightOrDark ? normalizeMode((parsed as { light?: unknown }).light) : normalizeMode(parsed),
         dark: normalizeMode((parsed as { dark?: unknown }).dark),
         branding: normalizeBranding((parsed as { branding?: unknown }).branding),
         fontId: normalizeFontId((parsed as { fontId?: unknown }).fontId),

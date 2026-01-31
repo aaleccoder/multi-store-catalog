@@ -1,9 +1,10 @@
 import { ProductForm } from '@/components/admin/product-form'
 
 interface NewProductPageProps {
-    params: { slug: string }
+    params: Promise<{ slug: string }>
 }
 
-export default function NewProductPage({ params }: NewProductPageProps) {
-    return <ProductForm storeSlug={params.slug} />
+export default async function NewProductPage({ params }: NewProductPageProps) {
+    const { slug } = await params
+    return <ProductForm storeSlug={slug} />
 }

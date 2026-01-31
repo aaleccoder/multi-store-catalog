@@ -10,12 +10,13 @@ import {
 import { generateSlug, sanitizeSlugInput } from "@/lib/utils";
 import { defaultStoreTheme } from "@/lib/theme";
 import { Role } from "@/generated/prisma/enums";
+import path from "node:path/win32";
 
-const storeSchema = z.object({
+export const storeSchema = z.object({
   name: z.string().min(2),
-  slug: z.string().min(1).optional(),
-  description: z.string().optional(),
-  isActive: z.boolean().optional(),
+  slug: z.string().min(1),
+  description: z.string().nullable().optional(),
+  isActive: z.boolean(),
   theme: z
     .object({
       light: z.record(z.string(), z.string()).optional(),
@@ -178,6 +179,7 @@ export const adminStoresRouter = router({
 
         if (patch.theme !== undefined) {
           const existingTheme = (existing.theme as any) ?? {};
+          console.log(patch.theme);
           const incomingTheme = patch.theme ?? {};
           updateData.theme = {
             ...existingTheme,

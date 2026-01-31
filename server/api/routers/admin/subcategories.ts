@@ -5,8 +5,17 @@ import { subcategorySchema, subcategoryUpdateSchema } from '@/lib/api-validators
 import { TRPCError } from '@trpc/server'
 import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
-const resolveStoreId = async (storeId: string | undefined, userId: string) => {
+const getStoreIdFromSlug = async (slug: string, userId: string) => {
+    const store = await prisma.store.findFirst({ where: { slug, ownerId: userId } })
+    if (!store) {
+        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
+    }
+    return store.id
+}
+
+const resolveStoreId = async (storeId: string | undefined, storeSlug: string | undefined, userId: string) => {
     if (storeId) return storeId
+    if (storeSlug) return await getStoreIdFromSlug(storeSlug, userId)
     const store = await prisma.store.findFirst({ where: { ownerId: userId }, orderBy: { createdAt: 'asc' } })
     if (!store) {
         throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
@@ -24,9 +33,9 @@ const ensureCategoryInStore = async (categoryId: string, storeId: string) => {
 
 export const adminSubcategoriesRouter = router({
     list: protectedProcedure
-        .input(z.object({ storeId: z.string().optional(), categoryId: z.string().optional() }).optional())
+        .input(z.object({ storeId: z.string().optional(), storeSlug: z.string().optional(), categoryId: z.string().optional() }).optional())
         .query(async ({ input, ctx }) => {
-            const storeId = await resolveStoreId(input?.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id)
             const where: any = { storeId }
             if (input?.categoryId) {
                 where.categoryId = input.categoryId
@@ -41,7 +50,7 @@ export const adminSubcategoriesRouter = router({
 
     create: protectedProcedure.input(subcategorySchema).mutation(async ({ input, ctx }) => {
         try {
-            const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
             await ensureCategoryInStore(input.categoryId, storeId)
             const subcategory = await prisma.subcategory.create({
                 data: {
@@ -74,11 +83,11 @@ export const adminSubcategoriesRouter = router({
     }),
 
     update: protectedProcedure
-        .input(z.object({ id: z.string(), storeId: z.string().optional(), data: subcategoryUpdateSchema }))
+        .input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional(), data: subcategoryUpdateSchema }))
         .mutation(async ({ input, ctx }) => {
             const { id, data } = input
             try {
-                const storeId = await resolveStoreId(input.storeId ?? data.storeId, ctx.session.user.id)
+                const storeId = await resolveStoreId(input.storeId ?? data.storeId, input.storeSlug ?? data.storeSlug, ctx.session.user.id)
                 const existing = await prisma.subcategory.findFirst({ where: { id, storeId } })
                 if (!existing) {
                     throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Subcategory not found for this store' })
@@ -117,9 +126,9 @@ export const adminSubcategoriesRouter = router({
             }
         }),
 
-    delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional() })).mutation(async ({ input, ctx }) => {
+    delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional() })).mutation(async ({ input, ctx }) => {
         try {
-            const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
             const existing = await prisma.subcategory.findFirst({ where: { id: input.id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Subcategory not found for this store' })

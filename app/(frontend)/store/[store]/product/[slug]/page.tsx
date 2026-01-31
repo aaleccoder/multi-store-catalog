@@ -1,36 +1,47 @@
-import '@/app/globals.css'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/db'
-import { toNumber } from '@/lib/number'
-import { Card, CardContent } from '@/components/ui/card'
-import { ProductCard } from '@/components/products/product-card'
-import { CategoryBarWrapper } from '@/components/categories/category-bar-wrapper'
-import { Header } from '@/components/layout/header'
-import { StoreThemeProvider } from '@/components/theme/store-theme-provider'
-import type { StoreTheme } from '@/lib/theme'
-import { LoadingProvider } from '@/components/utils/loading-context'
-import { NavigationLoadingBar } from '@/components/utils/navigation-loading'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { RichTextRenderer } from '@/components/utils/rich-text-editor'
-import { ProductDetailClient } from './product-detail-client'
+import "@/app/globals.css";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { toNumber } from "@/lib/number";
+import { Card, CardContent } from "@/components/ui/card";
+import { ProductCard } from "@/components/products/product-card";
+import { CategoryBarWrapper } from "@/components/categories/category-bar-wrapper";
+import { Header } from "@/components/layout/header";
+import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
+import type { StoreTheme } from "@/lib/theme";
+import { LoadingProvider } from "@/components/utils/loading-context";
+import { NavigationLoadingBar } from "@/components/utils/navigation-loading";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { RichTextRenderer } from "@/components/utils/rich-text-editor";
+import { ProductDetailClient } from "./product-detail-client";
 
 interface ProductDetailPageProps {
   params: Promise<{
-    store: string
-    slug: string
-  }>
+    store: string;
+    slug: string;
+  }>;
 }
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { slug, store: storeSlug } = await params
+export default async function ProductDetailPage({
+  params,
+}: ProductDetailPageProps) {
+  const { slug, store: storeSlug } = await params;
 
-  const store = await prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
+  const store = await prisma.store.findUnique({
+    where: { slug: storeSlug, isActive: true },
+  });
   if (!store) {
-    notFound()
+    notFound();
   }
 
-  const storeTheme = (store.theme ?? null) as unknown as StoreTheme | null
+  const storeTheme = (store.theme ?? null) as unknown as StoreTheme | null;
 
   const product = await prisma.product.findFirst({
     where: {
@@ -51,16 +62,16 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         },
       },
     },
-  })
+  });
 
   if (!product) {
-    notFound()
+    notFound();
   }
 
-  const coverImages = (product.coverImages as any[]) || []
-  const imageData = coverImages[0]
-  const primaryImageUrl = imageData?.url || ''
-  const primaryImageAlt = imageData?.alt || product.name
+  const coverImages = (product.coverImages as any[]) || [];
+  const imageData = coverImages[0];
+  const primaryImageUrl = imageData?.url || "";
+  const primaryImageAlt = imageData?.alt || product.name;
 
   const relatedProducts = await prisma.product.findMany({
     where: {
@@ -75,18 +86,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       coverImages: true,
     },
     take: 4,
-  })
+  });
 
-  const category = product.category
-  const categoryName = category?.name || 'Categoría'
-  const categorySlug = category?.slug || ''
+  const category = product.category;
+  const categoryName = category?.name || "Categoría";
+  const categorySlug = category?.slug || "";
 
-  const specifications = product.specifications as any
-  const tags = product.tags as any
+  const specifications = product.specifications as any;
+  const tags = product.tags as any;
 
   const serializedProduct = {
     ...product,
-    coverImages: coverImages.map((img: any) => ({ ...img, url: img.url, alt: img.alt })),
+    coverImages: coverImages.map((img: any) => ({
+      ...img,
+      url: img.url,
+      alt: img.alt,
+    })),
     prices: product.prices.map((p: any) => ({
       ...p,
       amount: toNumber(p.amount),
@@ -105,17 +120,20 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     primaryImageUrl,
     primaryImageAlt,
     currency: product.prices[0]?.currency || null,
-  }
+  };
 
-  const parseNumeric = (value: any) => toNumber(value ?? 0)
+  const parseNumeric = (value: any) => toNumber(value ?? 0);
 
   return (
     <StoreThemeProvider theme={storeTheme ?? undefined}>
       <LoadingProvider>
         <div className="min-h-screen bg-background flex flex-col">
           <NavigationLoadingBar />
-          <Header storeSlug={storeSlug} />
-          <CategoryBarWrapper storeSlug={storeSlug} selectedCategorySlug={categorySlug} />
+          <Header store={store} />
+          <CategoryBarWrapper
+            storeSlug={storeSlug}
+            selectedCategorySlug={categorySlug}
+          />
 
           <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
             <div className="mb-6">
@@ -131,7 +149,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     <>
                       <BreadcrumbItem>
                         <BreadcrumbLink asChild>
-                          <Link href={`/store/${storeSlug}?category=${categorySlug}`}>{categoryName}</Link>
+                          <Link
+                            href={`/store/${storeSlug}?category=${categorySlug}`}
+                          >
+                            {categoryName}
+                          </Link>
                         </BreadcrumbLink>
                       </BreadcrumbItem>
                       <BreadcrumbSeparator />
@@ -149,7 +171,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             {product.description && (
               <Card className="mb-16">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">Descripción</h2>
+                  <h2 className="text-2xl font-bold mb-4 text-foreground">Descripción</h2>
                   <RichTextRenderer content={product.description} />
                 </CardContent>
               </Card>
@@ -157,30 +179,40 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
             {relatedProducts.length > 0 && (
               <div className="mb-24">
-                <h2 className="text-2xl font-bold mb-6">Productos relacionados</h2>
+                <h2 className="text-2xl font-bold mb-6 text-foreground">
+                  Productos relacionados
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {relatedProducts.map((relatedProduct) => {
-                    const relatedCoverImages = (relatedProduct.coverImages as any[]) || []
-                    const relatedImageData = relatedCoverImages[0]
-                    const relatedImageUrl = relatedImageData?.url || ''
+                    const relatedCoverImages =
+                      (relatedProduct.coverImages as any[]) || [];
+                    const relatedImageData = relatedCoverImages[0];
+                    const relatedImageUrl = relatedImageData?.url || "";
 
-                    const relatedDefaultPriceObj = (relatedProduct as any).prices?.find((p: any) => p.isDefault) || (relatedProduct as any).prices?.[0]
+                    const relatedDefaultPriceObj =
+                      (relatedProduct as any).prices?.find(
+                        (p: any) => p.isDefault,
+                      ) || (relatedProduct as any).prices?.[0];
                     const relatedPrice = relatedDefaultPriceObj
-                      ? parseNumeric(relatedDefaultPriceObj.saleAmount ?? relatedDefaultPriceObj.amount)
-                      : 0
+                      ? parseNumeric(
+                          relatedDefaultPriceObj.saleAmount ??
+                            relatedDefaultPriceObj.amount,
+                        )
+                      : 0;
                     const relatedRegularPrice = relatedDefaultPriceObj
-                      ? (relatedDefaultPriceObj.saleAmount
+                      ? relatedDefaultPriceObj.saleAmount
                         ? parseNumeric(relatedDefaultPriceObj.amount)
-                        : undefined)
-                      : undefined
-                    const relatedCurrency = relatedDefaultPriceObj?.currency ?? null
+                        : undefined
+                      : undefined;
+                    const relatedCurrency =
+                      relatedDefaultPriceObj?.currency ?? null;
 
                     return (
                       <ProductCard
                         key={relatedProduct.id}
                         id={relatedProduct.id}
                         name={relatedProduct.name}
-                        description={relatedProduct.shortDescription || ''}
+                        description={relatedProduct.shortDescription || ""}
                         storeSlug={storeSlug}
                         price={relatedPrice}
                         regularPrice={relatedRegularPrice}
@@ -192,11 +224,15 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                         inStock={relatedProduct.inStock}
                         unit={(relatedProduct.specifications as any)?.unit}
                         weight={(relatedProduct.specifications as any)?.weight}
-                        weightUnit={(relatedProduct.specifications as any)?.weightUnit}
+                        weightUnit={
+                          (relatedProduct.specifications as any)?.weightUnit
+                        }
                         volume={(relatedProduct.specifications as any)?.volume}
-                        volumeUnit={(relatedProduct.specifications as any)?.volumeUnit}
+                        volumeUnit={
+                          (relatedProduct.specifications as any)?.volumeUnit
+                        }
                       />
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -205,5 +241,5 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </div>
       </LoadingProvider>
     </StoreThemeProvider>
-  )
+  );
 }

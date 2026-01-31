@@ -10,6 +10,7 @@ export const categorySchema = z.object({
     isActive: z.boolean().optional(),
     filters: z.array(z.any()).optional(),
     storeId: idString.optional(),
+    storeSlug: z.string().optional(),
 })
 
 export const subcategorySchema = z.object({
@@ -20,6 +21,7 @@ export const subcategorySchema = z.object({
     isActive: z.boolean().optional(),
     filters: z.array(z.any()).optional(),
     storeId: idString.optional(),
+    storeSlug: z.string().optional(),
 })
 
 export const currencySchema = z.object({
@@ -32,6 +34,7 @@ export const currencySchema = z.object({
     decimalPlaces: z.number().int().optional(),
     isActive: z.boolean().optional(),
     storeId: idString.optional(),
+    storeSlug: z.string().optional(),
 })
 
 export const priceInputSchema = z.object({

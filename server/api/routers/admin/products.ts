@@ -15,6 +15,14 @@ const resolveStoreId = async (storeId: string | undefined, userId: string) => {
     return store.id
 }
 
+const getStoreIdFromSlug = async (slug: string, userId: string) => {
+    const store = await prisma.store.findFirst({ where: { slug, ownerId: userId } })
+    if (!store) {
+        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
+    }
+    return store.id
+}
+
 export const adminProductsRouter = router({
     list: protectedProcedure
         .input(z.object({ storeId: z.string().optional() }).optional())
@@ -174,9 +182,9 @@ export const adminProductsRouter = router({
         }
     }),
 
-    get: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional() })).query(async ({ input, ctx }) => {
+    get: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional() })).query(async ({ input, ctx }) => {
         const { id } = input
-        const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+        const storeId = input.storeId || (input.storeSlug ? await getStoreIdFromSlug(input.storeSlug, ctx.session.user.id) : await resolveStoreId(undefined, ctx.session.user.id))
 
         const [product, allCategories, allSubcategories, allCurrencies] = await Promise.all([
             prisma.product.findFirst({

@@ -8,8 +8,9 @@ import { useState } from "react";
 import Logo from "@/components/layout/logo";
 import { SearchDialog } from "@/components/search/search-dialog";
 import { SearchDropdown } from "@/components/search/search-dropdown";
+import { Store } from "@/generated/prisma/browser";
 
-export const Header = ({ storeSlug }: { storeSlug?: string }) => {
+export const Header = ({ store }: { store?: Store }) => {
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
@@ -19,8 +20,8 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
       <div className="relative flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4 bg-primary/30">
         <div className="flex items-center gap-4 flex-1">
           <button
-            onClick={() => router.push(storeSlug ? `/store/${storeSlug}` : "/")}
-            className="cursor-pointer"
+            onClick={() => router.push(store ? `/store/${store.slug}` : "/")}
+            className="cursor-pointer flex flex-row items-center gap-2"
             aria-label="Ir a inicio"
           >
             <Logo
@@ -29,6 +30,7 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
               width={128}
               height={128}
             />
+            <p>{store?.name}</p>
           </button>
         </div>
 
@@ -56,7 +58,7 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
               <SearchDropdown
                 open={desktopSearchOpen}
                 onOpenChange={setDesktopSearchOpen}
-                storeSlug={storeSlug}
+                storeSlug={store?.slug}
               />
             )}
           </div>
@@ -64,7 +66,7 @@ export const Header = ({ storeSlug }: { storeSlug?: string }) => {
           <SearchDialog
             open={searchOpen}
             onOpenChange={setSearchOpen}
-            storeSlug={storeSlug}
+            storeSlug={store?.slug}
           />
 
           <div className="flex items-center gap-2">

@@ -5,8 +5,17 @@ import { currencySchema, currencyUpdateSchema } from '@/lib/api-validators'
 import { TRPCError } from '@trpc/server'
 import { ErrorCode, mapPrismaError, createErrorWithCode } from '@/lib/error-codes'
 
-const resolveStoreId = async (storeId: string | undefined, userId: string) => {
+const getStoreIdFromSlug = async (slug: string, userId: string) => {
+    const store = await prisma.store.findFirst({ where: { slug, ownerId: userId } })
+    if (!store) {
+        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
+    }
+    return store.id
+}
+
+const resolveStoreId = async (storeId: string | undefined, storeSlug: string | undefined, userId: string) => {
     if (storeId) return storeId
+    if (storeSlug) return await getStoreIdFromSlug(storeSlug, userId)
     const store = await prisma.store.findFirst({ where: { ownerId: userId }, orderBy: { createdAt: 'asc' } })
     if (!store) {
         throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
@@ -16,15 +25,15 @@ const resolveStoreId = async (storeId: string | undefined, userId: string) => {
 
 export const adminCurrenciesRouter = router({
     list: protectedProcedure
-        .input(z.object({ storeId: z.string().optional() }).optional())
+        .input(z.object({ storeId: z.string().optional(), storeSlug: z.string().optional() }).optional())
         .query(async ({ input, ctx }) => {
-            const storeId = await resolveStoreId(input?.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id)
             const currencies = await prisma.currency.findMany({ where: { storeId }, orderBy: { code: 'asc' } })
             return currencies
         }),
 
     create: protectedProcedure.input(currencySchema).mutation(async ({ input, ctx }) => {
-        const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+        const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
         const currency = await prisma.currency.create({
             data: {
                 name: input.name,
@@ -43,10 +52,10 @@ export const adminCurrenciesRouter = router({
     }),
 
     update: protectedProcedure
-        .input(z.object({ id: z.string(), storeId: z.string().optional(), data: currencyUpdateSchema }))
+        .input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional(), data: currencyUpdateSchema }))
         .mutation(async ({ input, ctx }) => {
             const { id, data } = input
-            const storeId = await resolveStoreId(input.storeId ?? data.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input.storeId ?? data.storeId, input.storeSlug ?? data.storeSlug, ctx.session.user.id)
             const existing = await prisma.currency.findFirst({ where: { id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })
@@ -66,9 +75,9 @@ export const adminCurrenciesRouter = router({
             return currency
         }),
 
-    delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional() })).mutation(async ({ input, ctx }) => {
+    delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional() })).mutation(async ({ input, ctx }) => {
         try {
-            const storeId = await resolveStoreId(input.storeId, ctx.session.user.id)
+            const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
             const existing = await prisma.currency.findFirst({ where: { id: input.id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })

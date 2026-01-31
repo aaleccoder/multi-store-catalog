@@ -93,8 +93,8 @@ const IconPicker = React.forwardRef<
   onOpenChange,
   children,
   searchable = true,
-  searchPlaceholder = "Search for an icon...",
-  triggerPlaceholder = "Select an icon",
+  searchPlaceholder = "Buscar un icono...",
+  triggerPlaceholder = "Seleccionar un icono",
   iconsList,
   categorized = true,
   modal = false,
@@ -129,7 +129,7 @@ const IconPicker = React.forwardRef<
 
   const categorizedIcons = useMemo(() => {
     if (!categorized || search.trim() !== "") {
-      return [{ name: "All Icons", icons: filteredIcons }];
+      return [{ name: "Todos los iconos", icons: filteredIcons }];
     }
 
     const categories = new Map<string, IconData[]>();
@@ -143,7 +143,7 @@ const IconPicker = React.forwardRef<
           categories.get(category)!.push(icon);
         });
       } else {
-        const category = "Other";
+        const category = "Otros";
         if (!categories.has(category)) {
           categories.set(category, []);
         }
@@ -299,11 +299,11 @@ const IconPicker = React.forwardRef<
 
   const renderVirtualContent = useCallback(() => {
     if (filteredIcons.length === 0) {
-      return (
-        <div className="text-center text-gray-500">
-          No icon found
-        </div>
-      );
+        return (
+          <div className="text-center text-gray-500">
+            No se encontró ningún icono
+          </div>
+        );
     }
 
     return (

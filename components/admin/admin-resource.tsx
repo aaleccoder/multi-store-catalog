@@ -2,7 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { trpc } from "@/trpc/client";
-import { Plus, Search, Loader2, Edit, Trash } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Loader2,
+  Edit,
+  Trash,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -66,6 +75,7 @@ export interface Column<T = Record<string, unknown>> {
   accessor?: keyof T | string;
   render?: (item: T) => React.ReactNode;
   className?: string;
+  sortable?: boolean;
 }
 
 interface AdminResourceProps<
@@ -94,6 +104,7 @@ interface AdminResourceProps<
     setFormData: React.Dispatch<
       React.SetStateAction<Record<string, FormValue>>
     >;
+    dependencies: Record<string, unknown> | null;
   }) => React.ReactNode;
   loadDependencies?: () => Promise<Record<string, unknown>>;
   trpcResource?: string;
@@ -148,6 +159,8 @@ export function AdminResource<
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<T | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const trpcAny = trpc as any;
 
   function mapFetchUrlToTrpcPath(url?: string | null) {
@@ -414,8 +427,49 @@ export function AdminResource<
     });
   });
 
+  const handleSort = React.useCallback(
+    (key: string) => {
+      if (sortKey === key) {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        setSortKey(key);
+        setSortDirection("asc");
+      }
+    },
+    [sortKey, sortDirection],
+  );
+
+  const getSortedItems = React.useCallback(
+    (items: T[]): T[] => {
+      if (!sortKey) return items;
+
+      return [...items].sort((a: T, b: T) => {
+        let aVal: string | number | boolean = "";
+        let bVal: string | number | boolean = "";
+
+        switch (sortKey) {
+          default:
+            aVal = String((a as Record<string, unknown>)[sortKey] || "");
+            bVal = String((b as Record<string, unknown>)[sortKey] || "");
+        }
+
+        if (typeof aVal === "string" && typeof bVal === "string") {
+          const comparison = aVal.localeCompare(bVal);
+          return sortDirection === "asc" ? comparison : -comparison;
+        }
+
+        if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    },
+    [sortKey, sortDirection],
+  );
+
+  const sortedFiltered = getSortedItems(filtered);
+
   return (
-    <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col">
+    <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col mt-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 w-full">
         <h1 className="text-3xl font-bold">{title}</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -480,7 +534,7 @@ export function AdminResource<
             <form onSubmit={handleSubmit}>
               <div className="space-y-4 py-4">
                 {renderForm
-                  ? renderForm({ formData, setFormData })
+                  ? renderForm({ formData, setFormData, dependencies })
                   : formFields.map((f) => {
                       if (f.type === "hidden" || f.hidden) return null;
 
@@ -631,7 +685,26 @@ export function AdminResource<
               <TableRow>
                 {columns.map((c, i) => (
                   <TableHead key={i} className={c.className}>
-                    {c.header}
+                    {c.accessor && c.sortable !== false ? (
+                      <Button
+                        variant="ghost"
+                        className="h-auto p-0 font-semibold hover:bg-transparent hover:text-primary"
+                        onClick={() => handleSort(String(c.accessor))}
+                      >
+                        {c.header}
+                        {sortKey === c.accessor &&
+                          (sortDirection === "asc" ? (
+                            <ArrowUp className="ml-1 h-4 w-4" />
+                          ) : (
+                            <ArrowDown className="ml-1 h-4 w-4" />
+                          ))}
+                        {sortKey !== c.accessor && (
+                          <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />
+                        )}
+                      </Button>
+                    ) : (
+                      c.header
+                    )}
                   </TableHead>
                 ))}
                 <TableHead className="text-right">Acciones</TableHead>
@@ -650,7 +723,7 @@ export function AdminResource<
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : filtered.length === 0 ? (
+              ) : sortedFiltered.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length + 1}
@@ -660,7 +733,7 @@ export function AdminResource<
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((item) => (
+                sortedFiltered.map((item) => (
                   <TableRow key={String(item[keyField as keyof T])}>
                     {columns.map((c, i) => (
                       <TableCell key={i} className={c.className}>
@@ -684,13 +757,14 @@ export function AdminResource<
                         </Button>
                         <Button
                           variant="ghost"
+                          className="hover:bg-destructive hover:text-white text-destructive"
                           size="icon"
                           onClick={() => {
                             setItemToDelete(item);
                             setDeleteDialogOpen(true);
                           }}
                         >
-                          <Trash className="h-4 w-4 hover:text-white" />
+                          <Trash className="h-4 w-4 " />
                         </Button>
                       </div>
                     </TableCell>

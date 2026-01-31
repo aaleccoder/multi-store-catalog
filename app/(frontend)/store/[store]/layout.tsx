@@ -5,6 +5,7 @@ import { WishlistProvider } from "@/context/wishlist-context";
 import { Toaster } from "@/components/ui/sonner";
 import { Outfit, Lobster } from "next/font/google";
 import { Footer } from "@/components/layout/footer";
+import { prisma } from "@/lib/db";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const lobster = Lobster({

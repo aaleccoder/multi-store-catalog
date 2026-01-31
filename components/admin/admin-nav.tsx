@@ -14,7 +14,6 @@ import {
   Settings,
   Palette,
   ArrowLeft,
-  StoreIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,11 +30,13 @@ import LogoProps from "../layout/logo";
 import { authClient } from "@/lib/auth-client";
 import { Role } from "@/generated/prisma/enums";
 import { trpc } from "@/trpc/client";
+import { LogoutDialog } from "@/components/ui/logout-dialog";
 
 export function AdminNav() {
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
   const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const segments = pathname.split("/").filter(Boolean);
   // Expected paths: /admin/stores (segments: [admin, stores]) or /admin/stores/[slug]/...
@@ -104,6 +105,7 @@ export function AdminNav() {
 
   const handleLogout = async () => {
     await authClient.signOut();
+    setIsDialogOpen(false);
     router.push("/login-admin");
   };
 
@@ -197,13 +199,18 @@ export function AdminNav() {
           <Button
             variant="ghost"
             className="w-full justify-start gap-3"
-            onClick={handleLogout}
+            onClick={() => setIsDialogOpen(true)}
           >
             <LogOut className="h-5 w-5" />
             <span>Cerrar Sesión</span>
           </Button>
         </SidebarFooter>
       </Sidebar>
+      <LogoutDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={handleLogout}
+      />
     </>
   );
 }

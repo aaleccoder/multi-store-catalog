@@ -51,13 +51,13 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <span className="text-sm font-semibold">Cantidad:</span>
+        <span className="text-sm font-semibold text-foreground">Cantidad:</span>
         <div className="w-32">
           <QuantityPicker
             value={quantity}
             onChange={setQuantity}
             min={1}
-            className="bg-transparent shadow-sm text-black"
+            className="bg-transparent shadow-sm text-foreground"
             disabled={!inStock}
           />
         </div>
@@ -66,7 +66,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
       <div className="flex flex-col gap-2">
         <Button
           size="lg"
-          className="w-full bg-primary/70 hover:bg-primary/90 text-primary-foreground"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           disabled={!inStock}
           onClick={handleWhatsAppOrder}
         >
@@ -76,7 +76,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
         <Button
           size="lg"
           variant="default"
-          className="w-full bg-accent text-primary"
+          className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
           disabled={!inStock}
           onClick={handleAddToCart}
         >

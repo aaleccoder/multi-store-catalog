@@ -100,7 +100,7 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              Icon Picker
+              Selector de Iconos
             </button>
             <button
               type="button"
@@ -111,7 +111,7 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              Upload SVG
+              Subir SVG
             </button>
           </div>
         </div>
@@ -136,7 +136,7 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                   const file = e.target.files?.[0];
                   if (file) {
                     if (!file.name.endsWith(".svg")) {
-                      alert("Please upload an SVG file");
+                      alert("Por favor sube un archivo SVG");
                       return;
                     }
                     const text = await file.text();
@@ -153,13 +153,13 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
                   }
                   className="text-sm text-destructive hover:underline self-start"
                 >
-                  Remove SVG
+                  Eliminar SVG
                 </button>
               )}
             </div>
             {isCustomSvg && (
               <div className="flex items-center gap-2">
-                <Label>Preview:</Label>
+                <Label>Vista previa:</Label>
                 <div
                   className="w-8 h-8 flex items-center justify-center border rounded p-1"
                   dangerouslySetInnerHTML={{ __html: formData.icon }}
@@ -192,19 +192,22 @@ export default function CategoriesPage() {
             title="Categorías"
             fetchUrl="/api/admin/categories"
             columns={[
-              { header: "Nombre", accessor: "name" },
+              { header: "Nombre", accessor: "name", sortable: true },
               {
                 header: "Slug",
                 accessor: "slug",
                 className: "text-muted-foreground",
+                sortable: true,
               },
               {
                 header: "Productos",
                 render: (x: any) => x._count?.products || 0,
+                sortable: false,
               },
               {
                 header: "Estado",
                 render: (x: any) => (x.isActive ? "Activo" : "Inactivo"),
+                sortable: false,
               },
             ]}
             renderForm={({ formData, setFormData }) => (

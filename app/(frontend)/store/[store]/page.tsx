@@ -11,15 +11,47 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import type { StoreTheme } from "@/lib/theme";
+import { Metadata } from "next";
+import { storeSchema } from "@/server/api/routers/admin/stores";
 
 interface HomePageProps {
   params: Promise<{
     store: string;
   }>;
-  searchParams: {
+  searchParams: Promise<{
     category?: string;
     subcategory?: string;
     [key: string]: string | string[] | undefined;
+  }>;
+}
+
+export async function generateMetadata({
+  params,
+}: HomePageProps): Promise<Metadata> {
+  const { store: storeSlug } = await params;
+
+  const rawStore = await prisma.store.findFirst({
+    where: { slug: storeSlug, isActive: true },
+  });
+  if (!rawStore) {
+    return {
+      title: "Store Not Found",
+    };
+  }
+  const store = storeSchema.parse(rawStore);
+
+  // Add cache-busting timestamp to force browser to refresh favicon
+  const cacheBuster = rawStore.updatedAt.getTime();
+  const faviconPath = `/store/${storeSlug}/favicon.png?v=${cacheBuster}`;
+
+  return {
+    title: store.name,
+    description: store.description || `Welcome to ${store.name} store!`,
+    icons: {
+      icon: faviconPath,
+      shortcut: faviconPath,
+      apple: faviconPath,
+    },
   };
 }
 
@@ -28,7 +60,7 @@ export default async function HomePage({
   searchParams,
 }: HomePageProps) {
   const { store: storeSlug } = await params;
-  const queryParams = searchParams;
+  const queryParams = await searchParams;
   const categorySlug = queryParams.category;
   const subcategorySlug = queryParams.subcategory;
 
@@ -39,7 +71,7 @@ export default async function HomePage({
     notFound();
   }
 
-  console.log(store.theme);
+  console.log(store);
 
   const filterContent = await getFilterContent(
     storeSlug,
@@ -49,19 +81,21 @@ export default async function HomePage({
   );
   const storeTheme = (store.theme ?? null) as unknown as StoreTheme | null;
 
+  console.log("Store Theme:", storeTheme);
+
   return (
     <StoreThemeProvider theme={storeTheme ?? undefined}>
       <LoadingProvider>
         <div className="min-h-screen bg-background flex flex-col pb-16 md:pb-0">
           <NavigationLoadingBar />
-          <Header storeSlug={storeSlug} />
+          <Header store={store} />
           <CategoryBarWrapper
             storeSlug={storeSlug}
             selectedCategorySlug={categorySlug}
           />
           <PageLayoutWrapper filterContent={filterContent}>
             <div className="flex flex-1">
-              <main className="flex-1 bg-white">
+              <main className="flex-1 ">
                 <ProductGridClient
                   storeSlug={storeSlug}
                   categorySlug={categorySlug}
