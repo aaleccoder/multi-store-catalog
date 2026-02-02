@@ -91,6 +91,7 @@ export const contactRouter = router({
         html,
       });
     } catch (error) {
+      console.log(error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "No se pudo enviar el mensaje. Intenta nuevamente.",
