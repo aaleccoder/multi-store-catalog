@@ -38,6 +38,7 @@ import { Separator } from '@/components/ui/separator'
 import { trpc } from '@/trpc/client'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/error-messages'
+import { createNumberInputHandlers } from '@/lib/number-input'
 import {
     Dialog,
     DialogContent,
@@ -258,7 +259,7 @@ export function ProductVariantsForm({ variants, onChange, currencies, storeSlug 
                     {variants.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                                No hay variantes. Haz clic en "Agregar Variante" para crear una.
+                                No hay variantes. Haz clic en &quot;Agregar Variante&quot; para crear una.
                             </TableCell>
                         </TableRow>
                     ) : (
@@ -374,14 +375,11 @@ export function ProductVariantsForm({ variants, onChange, currencies, storeSlug 
                                                 <Input
                                                     type="number"
                                                     value={currentVariant.stock}
-                                                    onChange={(e) => {
-                                                        const rawValue = e.target.value
-                                                        const newStock = rawValue === '' ? 0 : (() => {
-                                                            const val = parseInt(rawValue, 10)
-                                                            return isNaN(val) || val < 0 ? 0 : val
-                                                        })()
-                                                        updateVariant(editingVariantIndex, { stock: newStock })
-                                                    }}
+                                                    {...createNumberInputHandlers({
+                                                        onChange: (value) => updateVariant(editingVariantIndex, { stock: value as any }),
+                                                        defaultValue: 0,
+                                                        parseType: 'int',
+                                                    })}
                                                 />
                                             </div>
                                             <div className="flex items-center space-x-2 pt-8">
@@ -441,14 +439,11 @@ export function ProductVariantsForm({ variants, onChange, currencies, storeSlug 
                                                             <Input
                                                                 type="number"
                                                                 value={price.price}
-                                                                onChange={(e) => {
-                                                                    const rawValue = e.target.value
-                                                                    const newPrice = rawValue === '' ? 0 : (() => {
-                                                                        const val = parseFloat(rawValue)
-                                                                        return isNaN(val) || val < 0 ? 0 : val
-                                                                    })()
-                                                                    updateVariantPrice(editingVariantIndex, pIndex, { price: newPrice })
-                                                                }}
+                                                                {...createNumberInputHandlers({
+                                                                    onChange: (value) => updateVariantPrice(editingVariantIndex, pIndex, { price: value as any }),
+                                                                    defaultValue: 0,
+                                                                    parseType: 'float',
+                                                                })}
                                                                 className="h-8"
                                                             />
                                                         </div>
@@ -456,15 +451,12 @@ export function ProductVariantsForm({ variants, onChange, currencies, storeSlug 
                                                             <Label className="text-xs">Oferta</Label>
                                                             <Input
                                                                 type="number"
-                                                                value={price.salePrice || ''}
-                                                                onChange={(e) => {
-                                                                    const rawValue = e.target.value
-                                                                    const newSalePrice = rawValue === '' ? null : (() => {
-                                                                        const val = parseFloat(rawValue)
-                                                                        return isNaN(val) || val < 0 ? null : val
-                                                                    })()
-                                                                    updateVariantPrice(editingVariantIndex, pIndex, { salePrice: newSalePrice })
-                                                                }}
+                                                                value={price.salePrice ?? ''}
+                                                                {...createNumberInputHandlers({
+                                                                    onChange: (value) => updateVariantPrice(editingVariantIndex, pIndex, { salePrice: value as any }),
+                                                                    defaultValue: null,
+                                                                    parseType: 'float',
+                                                                })}
                                                                 className="h-8"
                                                             />
                                                         </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Search, X, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/trpc/client";
 import { cn } from "@/lib/utils";
@@ -21,9 +21,17 @@ export function SearchDropdown({
   storeSlug,
 }: SearchDropdownProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = React.useState("");
   const debouncedQuery = useDebounce(query, 300);
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const searchQuery = searchParams.get("search");
+    if (searchQuery) {
+      setQuery(searchQuery);
+    }
+  }, [searchParams]);
 
   const { data: results, isLoading } = trpc.products.list.useQuery(
     { storeSlug: storeSlug || "", search: debouncedQuery, limit: "5" },
@@ -134,9 +142,9 @@ export function SearchDropdown({
                         {Number(
                           product.prices?.find((p: any) => p.isDefault)
                             ?.saleAmount ??
-                            product.prices?.find((p: any) => p.isDefault)
-                              ?.amount ??
-                            0,
+                          product.prices?.find((p: any) => p.isDefault)
+                            ?.amount ??
+                          0,
                         ).toFixed(2)}
                       </span>
                     </div>
@@ -154,7 +162,7 @@ export function SearchDropdown({
                 }}
                 className="mt-2 w-full rounded-md bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"
               >
-                Ver todos los resultados para "{query}"
+                Ver todos los resultados para &quot;{query}&quot;
               </button>
             )}
           </div>

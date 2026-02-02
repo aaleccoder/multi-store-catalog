@@ -219,14 +219,14 @@ export default function ProductsPage() {
             const aPrice = toNumber(
               (a.prices?.find((p) => p.isDefault) || a.prices?.[0])
                 ?.saleAmount ??
-                (a.prices?.find((p) => p.isDefault) || a.prices?.[0])?.amount ??
-                0,
+              (a.prices?.find((p) => p.isDefault) || a.prices?.[0])?.amount ??
+              0,
             );
             const bPrice = toNumber(
               (b.prices?.find((p) => p.isDefault) || b.prices?.[0])
                 ?.saleAmount ??
-                (b.prices?.find((p) => p.isDefault) || b.prices?.[0])?.amount ??
-                0,
+              (b.prices?.find((p) => p.isDefault) || b.prices?.[0])?.amount ??
+              0,
             );
             aVal = aPrice;
             bVal = bPrice;
@@ -661,7 +661,7 @@ export default function ProductsPage() {
                           const price = toNumber(
                             defaultPriceObj
                               ? (defaultPriceObj.saleAmount ??
-                                  defaultPriceObj.amount)
+                                defaultPriceObj.amount)
                               : 0,
                           );
                           priceDisplay = formatCurrencyPrice(
@@ -688,8 +688,7 @@ export default function ProductsPage() {
                             </TableCell>
                             <TableCell className="font-medium">
                               <Link
-                                href={`/store/${storeSlug}/product/${product.slug}`}
-                                target="_blank"
+                                href={`${storeBasePath}/products/${product.id}`}
                                 className="text-primary hover:underline"
                               >
                                 {product.name}
@@ -807,49 +806,6 @@ export default function ProductsPage() {
             );
           }}
         />
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmar Eliminación</DialogTitle>
-              <DialogDescription>
-                ¿Estás seguro de que quieres eliminar &quot;
-                {productToDelete?.name}&quot;? Esta acción no se puede deshacer.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={async () => {
-                  if (!productToDelete) return;
-                  const deletingToastId = toast.loading(
-                    "Eliminando producto...",
-                  );
-
-                  try {
-                    // call AdminResource delete handler
-                    if (deleteFn) await deleteFn(productToDelete.id);
-                    toast.success("Producto eliminado", {
-                      id: deletingToastId,
-                    });
-                  } catch (error) {
-                    console.error(error);
-                    toast.error("Error al eliminar producto", {
-                      id: deletingToastId,
-                    });
-                  } finally {
-                    setDialogOpen(false);
-                    setProductToDelete(null);
-                  }
-                }}
-              >
-                Eliminar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </main>
     </div>
   );

@@ -124,6 +124,40 @@ export const adminStoresRouter = router({
             isActive: input.isActive ?? false,
             ownerId: ctx.session.user.id,
             theme: resolvedTheme,
+            currencies: {
+              create: [
+                {
+                  name: "US Dollar",
+                  code: "USD",
+                  symbol: "$",
+                  symbolPosition: "before",
+                  decimalSeparator: ".",
+                  thousandsSeparator: ",",
+                  decimalPlaces: 2,
+                  isActive: true,
+                },
+                {
+                  name: "Cuban Peso",
+                  code: "CUP",
+                  symbol: "$",
+                  symbolPosition: "before",
+                  decimalSeparator: ".",
+                  thousandsSeparator: ",",
+                  decimalPlaces: 2,
+                  isActive: true,
+                },
+                {
+                  name: "Euro",
+                  code: "EUR",
+                  symbol: "€",
+                  symbolPosition: "before",
+                  decimalSeparator: ".",
+                  thousandsSeparator: ",",
+                  decimalPlaces: 2,
+                  isActive: true,
+                },
+              ],
+            },
           },
         });
         revalidatePath("/");

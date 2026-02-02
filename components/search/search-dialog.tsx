@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Search, X, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/trpc/client";
@@ -22,8 +22,16 @@ export function SearchDialog({
   storeSlug,
 }: SearchDialogProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = React.useState("");
   const debouncedQuery = useDebounce(query, 300);
+
+  React.useEffect(() => {
+    const searchQuery = searchParams.get("search");
+    if (searchQuery) {
+      setQuery(searchQuery);
+    }
+  }, [searchParams]);
 
   const { data: results, isLoading } = trpc.products.list.useQuery(
     { storeSlug: storeSlug || "", search: debouncedQuery, limit: "5" },
@@ -112,9 +120,9 @@ export function SearchDialog({
                         {Number(
                           product.prices?.find((p: any) => p.isDefault)
                             ?.saleAmount ??
-                            product.prices?.find((p: any) => p.isDefault)
-                              ?.amount ??
-                            0,
+                          product.prices?.find((p: any) => p.isDefault)
+                            ?.amount ??
+                          0,
                         ).toFixed(2)}
                       </span>
                     </div>
@@ -132,7 +140,7 @@ export function SearchDialog({
                 }}
                 className="mt-2 w-full rounded-md bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"
               >
-                Ver todos los resultados para "{query}"
+                Ver todos los resultados para &quot;{query}&quot;
               </button>
             )}
           </div>

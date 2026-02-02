@@ -32,6 +32,7 @@ import { getErrorMessage } from "@/lib/error-messages";
 import { trpc } from "@/trpc/client";
 import { ProductInput, Specifications } from "@/lib/api-validators";
 import { ProductVariantsForm, Variant } from "./product-variants-form";
+import { createNumberInputHandlers } from "@/lib/number-input";
 
 interface Category {
   id: string;
@@ -751,16 +752,19 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                           type="number"
                           step="0.01"
                           min="0"
-                          value={p.price}
-                          onChange={(e) => {
-                            const value = parseFloat(e.target.value);
-                            const newPrices = [...(formData.prices || [])];
-                            newPrices[idx] = {
-                              ...newPrices[idx],
-                              price: isNaN(value) ? 0 : Math.max(0, value),
-                            };
-                            setFormData({ ...formData, prices: newPrices });
-                          }}
+                          value={p.price || ""}
+                          {...createNumberInputHandlers({
+                            onChange: (value) => {
+                              const newPrices = [...(formData.prices || [])];
+                              newPrices[idx] = {
+                                ...newPrices[idx],
+                                price: value === "" ? 0 : (value as number),
+                              };
+                              setFormData({ ...formData, prices: newPrices });
+                            },
+                            defaultValue: 0,
+                            parseType: 'float',
+                          })}
                         />
                       </div>
 
@@ -771,20 +775,18 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                           step="0.01"
                           min="0"
                           value={p.salePrice ?? ""}
-                          onChange={(e) => {
-                            const value = e.target.value
-                              ? parseFloat(e.target.value)
-                              : undefined;
-                            const newPrices = [...(formData.prices || [])];
-                            newPrices[idx] = {
-                              ...newPrices[idx],
-                              salePrice:
-                                value !== undefined && value < 0
-                                  ? undefined
-                                  : value,
-                            };
-                            setFormData({ ...formData, prices: newPrices });
-                          }}
+                          {...createNumberInputHandlers({
+                            onChange: (value) => {
+                              const newPrices = [...(formData.prices || [])];
+                              newPrices[idx] = {
+                                ...newPrices[idx],
+                                salePrice: value === "" ? undefined : (value as unknown as number),
+                              };
+                              setFormData({ ...formData, prices: newPrices });
+                            },
+                            defaultValue: null,
+                            parseType: 'float',
+                          })}
                         />
                       </div>
 

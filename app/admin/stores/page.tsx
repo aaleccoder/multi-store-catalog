@@ -111,7 +111,7 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
       <div className="flex items-center space-x-2">
         <Switch
           id="isActive"
-          checked={!!formData.isActive}
+          checked={formData.isActive ?? true}
           onCheckedChange={(val) =>
             setFormData((prev: any) => ({ ...prev, isActive: val }))
           }
@@ -134,6 +134,9 @@ export default function StoresPage() {
             title="Mis Tiendas"
             fetchUrl="/api/admin/stores"
             columns={[]}
+            formFields={[
+              { name: "isActive", label: "", type: "hidden", defaultValue: true },
+            ]}
             renderForm={({ formData, setFormData }) => (
               <StoreForm formData={formData} setFormData={setFormData} />
             )}

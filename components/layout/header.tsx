@@ -3,7 +3,7 @@
 import { Search } from "lucide-react";
 import { ShoppingCartSheet } from "@/components/cart/shopping-cart-sheet";
 import { WishlistSheet } from "@/components/wishlist/wishlist-sheet";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Logo from "@/components/layout/logo";
 import { SearchDialog } from "@/components/search/search-dialog";
@@ -12,8 +12,11 @@ import { Store } from "@/generated/prisma/browser";
 
 export const Header = ({ store }: { store?: Store }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
+
+  const searchQuery = searchParams.get("search") || "";
 
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
@@ -50,8 +53,8 @@ export const Header = ({ store }: { store?: Store }) => {
                 className="relative flex items-center w-72 bg-white rounded-md border border-primary/30 cursor-text hover:border-primary/50 transition-colors"
               >
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <span className="pl-9 pr-4 py-2 text-sm text-muted-foreground w-full">
-                  Buscar...
+                <span className="pl-9 pr-4 py-2 text-sm text-muted-foreground w-full truncate">
+                  {searchQuery || "Buscar..."}
                 </span>
               </div>
             ) : (
