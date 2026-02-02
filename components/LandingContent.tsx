@@ -101,9 +101,9 @@ const LandingContent = ({ stores }: any) => {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold leading-tight">
+                    <p className="text-lg font-semibold leading-tight">
                       {store.name}
-                    </h3>
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       /{store.slug}
                     </p>

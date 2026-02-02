@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, JSX } from "react";
 import { useParams } from "next/navigation";
 import { formatPrice as formatCurrencyPrice } from "@/lib/currency-client";
 import { toNumber } from "@/lib/number";
@@ -66,6 +66,8 @@ interface Product {
   slug: string;
   categoryId: string;
   category?: { name: string };
+  subcategoryId?: string | null;
+  subcategory?: { name: string } | null;
   prices?: PriceType[];
   variants?: VariantType[];
   coverImages: Media[];
@@ -107,6 +109,7 @@ export default function ProductsPage() {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>("");
   const [priceMinFilter, setPriceMinFilter] = useState<string>("");
   const [priceMaxFilter, setPriceMaxFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState({
@@ -137,6 +140,7 @@ export default function ProductsPage() {
     },
     { header: "Nombre", accessor: "name" },
     { header: "Categoría", accessor: "category.name" },
+    { header: "Subcategoría", accessor: "subcategory.name" },
     {
       header: "Precio",
       accessor: "prices",
@@ -147,11 +151,16 @@ export default function ProductsPage() {
               (v: VariantType) => v.isActive && v.prices && v.prices.length > 0,
             )
             .flatMap((v: VariantType) => v.prices!)
-            .map((pr: PriceType) => toNumber(pr.saleAmount ?? pr.amount))
-            .filter((price: number) => !isNaN(price));
+            .map((pr: PriceType) => ({
+              regular: toNumber(pr.amount),
+              sale: pr.saleAmount ? toNumber(pr.saleAmount) : null,
+            }))
+            .filter((price) => !isNaN(price.regular));
 
           if (variantPrices.length > 0) {
-            const minPrice = Math.min(...variantPrices);
+            const minPrice = Math.min(
+              ...variantPrices.map((p) => p.sale ?? p.regular)
+            );
             const defaultPriceObj =
               p.prices?.find((pr) => pr.isDefault) || p.prices?.[0];
             return `Desde ${formatCurrencyPrice(minPrice, defaultPriceObj?.currency ?? null)}`;
@@ -159,12 +168,25 @@ export default function ProductsPage() {
         }
         const defaultPriceObj =
           p.prices?.find((pr) => pr.isDefault) || p.prices?.[0];
-        const price = toNumber(
-          defaultPriceObj
-            ? (defaultPriceObj.saleAmount ?? defaultPriceObj.amount)
-            : 0,
-        );
-        return formatCurrencyPrice(price, defaultPriceObj?.currency ?? null);
+        const regularPrice = toNumber(defaultPriceObj?.amount ?? 0);
+        const salePrice = defaultPriceObj?.saleAmount
+          ? toNumber(defaultPriceObj.saleAmount)
+          : null;
+        const currency = defaultPriceObj?.currency ?? null;
+
+        if (salePrice && salePrice < regularPrice) {
+          return (
+            <div className="flex items-center gap-2">
+              <span className="line-through text-muted-foreground text-sm">
+                {formatCurrencyPrice(regularPrice, currency)}
+              </span>
+              <span className="font-semibold text-green-600">
+                {formatCurrencyPrice(salePrice, currency)}
+              </span>
+            </div>
+          );
+        }
+        return formatCurrencyPrice(regularPrice, currency);
       },
     },
     {
@@ -214,6 +236,10 @@ export default function ProductsPage() {
           case "category":
             aVal = a.category?.name?.toLowerCase() || "";
             bVal = b.category?.name?.toLowerCase() || "";
+            break;
+          case "subcategory":
+            aVal = a.subcategory?.name?.toLowerCase() || "";
+            bVal = b.subcategory?.name?.toLowerCase() || "";
             break;
           case "price":
             const aPrice = toNumber(
@@ -320,6 +346,18 @@ export default function ProductsPage() {
                       placeholder="Filtrar por categoría..."
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Subcategory Filter */}
+                  <div className="space-y-2">
+                    <Label htmlFor="subcategory-filter">Subcategoría</Label>
+                    <Input
+                      id="subcategory-filter"
+                      type="text"
+                      placeholder="Filtrar por subcategoría..."
+                      value={subcategoryFilter}
+                      onChange={(e) => setSubcategoryFilter(e.target.value)}
                     />
                   </div>
 
@@ -442,6 +480,7 @@ export default function ProductsPage() {
                       className="w-full"
                       onClick={() => {
                         setCategoryFilter("");
+                        setSubcategoryFilter("");
                         setPriceMinFilter("");
                         setPriceMaxFilter("");
                         setStatusFilter({
@@ -465,8 +504,21 @@ export default function ProductsPage() {
             const filteredItems: Product[] = items.filter(
               (product: Product) => {
                 // Category filter
-                if (categoryFilter && product.categoryId !== categoryFilter) {
-                  return false;
+                if (categoryFilter) {
+                  const categoryName = product.category?.name?.toLowerCase() || "";
+                  const filterLower = categoryFilter.toLowerCase();
+                  if (!categoryName.includes(filterLower)) {
+                    return false;
+                  }
+                }
+
+                // Subcategory filter
+                if (subcategoryFilter) {
+                  const subcategoryName = product.subcategory?.name?.toLowerCase() || "";
+                  const filterLower = subcategoryFilter.toLowerCase();
+                  if (!subcategoryName.includes(filterLower)) {
+                    return false;
+                  }
                 }
 
                 // Price range filter
@@ -546,6 +598,24 @@ export default function ProductsPage() {
                           )}
                         </Button>
                       </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        <Button
+                          variant="ghost"
+                          className="h-auto p-0 font-semibold hover:bg-transparent hover:text-primary"
+                          onClick={() => handleSort("subcategory")}
+                        >
+                          Subcategoría
+                          {sortKey === "subcategory" &&
+                            (sortDirection === "asc" ? (
+                              <ArrowUp className="ml-1 h-4 w-4" />
+                            ) : (
+                              <ArrowDown className="ml-1 h-4 w-4" />
+                            ))}
+                          {sortKey !== "subcategory" && (
+                            <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />
+                          )}
+                        </Button>
+                      </TableHead>
                       <TableHead className="hidden md:table-cell">
                         <Button
                           variant="ghost"
@@ -588,7 +658,7 @@ export default function ProductsPage() {
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           <div className="flex flex-col items-center gap-4">
                             <div className="flex gap-4 w-full justify-center">
                               <Skeleton className="w-12 h-12 rounded" />
@@ -612,7 +682,7 @@ export default function ProductsPage() {
                       </TableRow>
                     ) : sortedProducts.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           <div>
                             <div className="text-lg font-medium">
                               {items.length === 0
@@ -632,7 +702,7 @@ export default function ProductsPage() {
                         const coverImages = product.coverImages || [];
                         const imageUrl = coverImages[0]?.url || "";
 
-                        let priceDisplay = "";
+                        let priceDisplay: string | JSX.Element = "";
                         if (product.variants && product.variants.length > 0) {
                           const variantPrices = product.variants
                             .filter(
@@ -640,13 +710,16 @@ export default function ProductsPage() {
                                 v.isActive && v.prices && v.prices.length > 0,
                             )
                             .flatMap((v: VariantType) => v.prices!)
-                            .map((p: PriceType) =>
-                              toNumber(p.saleAmount ?? p.amount),
-                            )
-                            .filter((price: number) => !isNaN(price));
+                            .map((p: PriceType) => ({
+                              regular: toNumber(p.amount),
+                              sale: p.saleAmount ? toNumber(p.saleAmount) : null,
+                            }))
+                            .filter((price) => !isNaN(price.regular));
 
                           if (variantPrices.length > 0) {
-                            const minPrice = Math.min(...variantPrices);
+                            const minPrice = Math.min(
+                              ...variantPrices.map((p) => p.sale ?? p.regular)
+                            );
                             const defaultPriceObj =
                               product.prices?.find((p) => p.isDefault) ||
                               product.prices?.[0];
@@ -658,16 +731,31 @@ export default function ProductsPage() {
                           const defaultPriceObj =
                             product.prices?.find((p) => p.isDefault) ||
                             product.prices?.[0];
-                          const price = toNumber(
-                            defaultPriceObj
-                              ? (defaultPriceObj.saleAmount ??
-                                defaultPriceObj.amount)
-                              : 0,
+                          const regularPrice = toNumber(
+                            defaultPriceObj?.amount ?? 0
                           );
-                          priceDisplay = formatCurrencyPrice(
-                            price,
-                            defaultPriceObj?.currency ?? null,
-                          );
+                          const salePrice = defaultPriceObj?.saleAmount
+                            ? toNumber(defaultPriceObj.saleAmount)
+                            : null;
+                          const currency = defaultPriceObj?.currency ?? null;
+
+                          if (salePrice && salePrice < regularPrice) {
+                            priceDisplay = (
+                              <div className="flex items-center gap-2">
+                                <span className="line-through text-muted-foreground text-sm">
+                                  {formatCurrencyPrice(regularPrice, currency)}
+                                </span>
+                                <span className="font-semibold text-green-600">
+                                  {formatCurrencyPrice(salePrice, currency)}
+                                </span>
+                              </div>
+                            );
+                          } else {
+                            priceDisplay = formatCurrencyPrice(
+                              regularPrice,
+                              currency
+                            );
+                          }
                         }
 
                         return (
@@ -696,6 +784,9 @@ export default function ProductsPage() {
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               {product.category?.name || "N/A"}
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {product.subcategory?.name || "N/A"}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               {priceDisplay}

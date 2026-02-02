@@ -141,7 +141,7 @@ export const ProductGridClient = ({
           {searchParams.get("search") && (
             <div className="mb-4">
               <h2 className="text-lg font-semibold">
-                Resultados de búsqueda para "{searchParams.get("search")}"
+                Resultados de búsqueda para &quot;{searchParams.get("search")}&quot;
               </h2>
             </div>
           )}
@@ -177,7 +177,7 @@ export const ProductGridClient = ({
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="hidden md:block w-64 flex-shrink-0">
+            <div className="hidden md:block w-64 shrink-0">
               {filterContent}
             </div>
             <div className="flex-1">
@@ -185,9 +185,8 @@ export const ProductGridClient = ({
                 <p className="text-muted-foreground">
                   {searchParams.get("search")
                     ? `No se encontraron productos para "${searchParams.get("search")}"`
-                    : `No hay productos disponibles ${
-                        categorySlug ? "en esta categoría" : "en este momento"
-                      }.`}
+                    : `No hay productos disponibles ${categorySlug ? "en esta categoría" : "en este momento"
+                    }.`}
                 </p>
               </div>
             </div>
@@ -240,7 +239,7 @@ export const ProductGridClient = ({
         {searchParams.get("search") && (
           <div className="mb-4">
             <h2 className="text-lg font-semibold">
-              Resultados de búsqueda para "{searchParams.get("search")}"
+              Resultados de búsqueda para &quot;{searchParams.get("search")}&quot;
             </h2>
           </div>
         )}
@@ -277,11 +276,11 @@ export const ProductGridClient = ({
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 mb-12">
-          <div className="hidden md:block w-64 flex-shrink-0">
+          <div className="hidden md:block w-64 shrink-0">
             {filterContent}
           </div>
           <div className="flex-1">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] auto-rows-fr gap-6">
               {products.map((product: any) => {
                 const imageData = product.coverImages?.[0];
                 const imageUrl = imageData?.url || "";

@@ -141,170 +141,6 @@ export const ProductCard = ({
     }
   };
 
-  // Mobile Card View (2-column grid optimized)
-  if (isMobile) {
-    const currentImage = imageList[currentImageIndex];
-
-    return (
-      <Link
-        href={
-          storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`
-        }
-        className="block"
-      >
-        <Card className="group overflow-hidden border-border bg-white shadow-sm hover:shadow-md transition-all duration-200 py-0 flex flex-col gap-0">
-          {/* Image Container */}
-          <div className="relative aspect-square">
-            <div className="relative w-full h-full overflow-hidden rounded-lg">
-              {currentImage?.url ? (
-                <Image
-                  src={currentImage.url}
-                  alt={currentImage.alt || name}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-contain"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-muted-foreground text-xs">
-                    Sin imagen
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Image indicators */}
-            {hasMultipleImages && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
-                {imageList.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`rounded-full transition-all ${index === currentImageIndex
-                      ? "bg-white w-3 h-1.5"
-                      : "bg-white/50 w-1.5 h-1.5"
-                      }`}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Wishlist button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${isInWishlist(id) ? "text-destructive" : "text-muted-foreground"
-                }`}
-              onClick={handleToggleWishlist}
-            >
-              <Heart
-                className={`h-4 w-4 ${isInWishlist(id) ? "fill-current" : ""}`}
-              />
-            </Button>
-          </div>
-
-          {/* Content */}
-          <CardContent className="p-2 flex flex-col max-h-38 h-full min-h-38 justify-between">
-            <div className="space-y-1">
-              {/* Badges */}
-              <div className="h-5">
-                {(featured || hasDiscount || !inStock) && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {featured && (
-                      <Badge className="bg-accent text-accent-foreground text-[10px] px-2 py-0.5 h-5">
-                        Destacado
-                      </Badge>
-                    )}
-                    {!inStock && (
-                      <Badge
-                        variant="secondary"
-                        className="bg-muted text-muted-foreground text-[10px] px-2 py-0.5 h-5"
-                      >
-                        Agotado
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <h3 className="font-semibold text-sm text-card-foreground line-clamp-1 leading-tight h-[1.25rem]">
-                {name}
-              </h3>
-
-              <div className="flex flex-col">                {hasDiscount && regularPrice && (
-                <span className="text-xs text-muted-foreground line-through">
-                  {formatCurrencyPrice(
-                    regularPrice,
-                    typeof currency === "number" ? String(currency) : currency,
-                  )}
-                </span>
-              )}                <span className="text-sm font-bold text-primary">
-                  {pricePrefix && (
-                    <span className="text-xs font-normal text-muted-foreground mr-1">
-                      {pricePrefix}
-                    </span>
-                  )}
-                  {formatCurrencyPrice(
-                    price,
-                    typeof currency === "number" ? String(currency) : currency,
-                  )}
-                </span>
-                {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground flex flex-col gap-0.5 leading-none items-start">
-                    {unit && (
-                      <span>
-                        {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades
-                      </span>
-                    )}
-                    {unit && (weight || volume) && <span></span>}
-                    {(weight || volume) && (
-                      <span>
-                        {weight
-                          ? `${weight} ${weightUnit || "g"}`
-                          : `${volume} ${volumeUnit || "ml"}`}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-1.5 justify-end">
-              {quantityInCart > 0 && inStock ? (
-                <div className="">
-                  <QuantityPicker
-                    value={quantityInCart}
-                    onChange={(val) => updateQuantity(id, val)}
-                    min={0}
-                    size="default"
-                    className="bg-transparent shadow-sm text-black"
-                  />
-                </div>
-              ) : inStock ? (
-                <Button
-                  size="sm"
-                  className="w-full bg-accent hover:bg-accent/90 text-primary font-medium px-3 py-2 rounded-md text-xs h-8 flex items-center justify-center gap-1.5"
-                  onClick={handleAddToCartClick}
-                >
-                  <ShoppingCart className="h-3.5 w-3.5" />
-                  <span>Agregar al carrito</span>
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  className="w-full bg-muted text-muted-foreground font-medium px-3 py-2 rounded-md text-xs h-8"
-                  disabled
-                >
-                  Agotado
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    );
-  }
-
-  // Desktop Card View
   const currentImage = imageList[currentImageIndex];
 
   return (
@@ -312,30 +148,40 @@ export const ProductCard = ({
       href={
         storeSlug ? `/store/${storeSlug}/product/${slug}` : `/product/${slug}`
       }
-      className="block"
+      className="block h-full"
     >
-      <Card className="group overflow-hidden border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 py-0">
-        <div className="relative aspect-square">
-          <div className="relative w-full h-full overflow-hidden rounded-lg">
+      <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-white shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
+        <div className={isMobile ? "relative" : "relative aspect-square"}>
+          <div className={`relative overflow-hidden rounded-lg ${isMobile ? "h-32 w-32" : "w-full h-full"}`}>
             {currentImage?.url ? (
-              <Image
-                src={currentImage.url}
-                alt={currentImage.alt || name}
-                className="object-contain transition-opacity duration-300"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+              isMobile ? (
+                <Image
+                  width={192}
+                  height={192}
+                  src={currentImage.url}
+                  alt={currentImage.alt || name}
+                  className="object-cover"
+                />
+              ) : (
+                <Image
+                  src={currentImage.url}
+                  alt={currentImage.alt || name}
+                  className="object-contain transition-opacity duration-300"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              )
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-secondary">
-                <span className="text-muted-foreground text-sm">
+              <div className={`w-full h-full flex items-center justify-center ${isMobile ? "" : "bg-secondary"}`}>
+                <span className={`text-muted-foreground ${isMobile ? "text-xs" : "text-sm"}`}>
                   Sin imagen
                 </span>
               </div>
             )}
           </div>
 
-          {/* Navigation Arrows - Only show if multiple images */}
-          {hasMultipleImages && (
+          {/* Navigation Arrows - Only show on desktop if multiple images */}
+          {!isMobile && hasMultipleImages && (
             <>
               <Button
                 variant="ghost"
@@ -358,72 +204,108 @@ export const ProductCard = ({
 
           {/* Image Indicators */}
           {hasMultipleImages && (
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            <div className={`absolute left-1/2 -translate-x-1/2 flex z-10 ${isMobile ? "bottom-4 gap-1" : "bottom-5 gap-1.5"}`}>
               {imageList.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={handleDotClick(index)}
-                  className={`rounded-full transition-all ${index === currentImageIndex
-                    ? "bg-card w-6 h-2"
-                    : "bg-card/50 hover:bg-card/75 w-2 h-2"
-                    }`}
-                  aria-label={`Ver imagen ${index + 1}`}
-                />
+                isMobile ? (
+                  <div
+                    key={index}
+                    className={`rounded-full transition-all ${index === currentImageIndex
+                      ? "bg-white w-3 h-1.5"
+                      : "bg-white/50 w-1.5 h-1.5"
+                      }`}
+                  />
+                ) : (
+                  <button
+                    key={index}
+                    onClick={handleDotClick(index)}
+                    className={`rounded-full transition-all ${index === currentImageIndex
+                      ? "bg-card w-6 h-2"
+                      : "bg-card/50 hover:bg-card/75 w-2 h-2"
+                      }`}
+                    aria-label={`Ver imagen ${index + 1}`}
+                  />
+                )
               ))}
             </div>
           )}
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-            {featured && (
-              <Badge className="bg-accent text-accent-foreground shadow-sm">
-                Destacado
-              </Badge>
-            )}
-            {displayDiscount && (
-              <Badge className="bg-destructive/70 text-destructive-foreground shadow-sm">
-                -{discountPercentage}%
-              </Badge>
-            )}
-            {!inStock && (
-              <Badge
-                variant="secondary"
-                className="bg-muted text-muted-foreground shadow-sm"
-              >
-                Agotado
-              </Badge>
-            )}
-          </div>
+          {/* Badges - Desktop only shows on top-left */}
+          {!isMobile && (
+            <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+              {featured && (
+                <Badge className="bg-accent text-accent-foreground shadow-sm">
+                  Destacado
+                </Badge>
+              )}
+              {displayDiscount && (
+                <Badge className="bg-destructive/70 text-destructive-foreground shadow-sm">
+                  -{discountPercentage}%
+                </Badge>
+              )}
+              {!inStock && (
+                <Badge
+                  variant="secondary"
+                  className="bg-muted text-muted-foreground shadow-sm"
+                >
+                  Agotado
+                </Badge>
+              )}
+            </div>
+          )}
+
           {/* Wishlist Button */}
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${isInWishlist(id)
+            className={`absolute top-3 right-3 rounded-full bg-transparent hover:bg-card/60 transition-all ${isMobile ? "h-7 w-7 transition-colors" : "opacity-0 group-hover:opacity-100 h-8 w-8"} ${isInWishlist(id)
               ? "text-destructive"
               : "text-muted-foreground hover:text-destructive"
               }`}
             onClick={handleToggleWishlist}
           >
             <Heart
-              className={`h-5 w-5 ${isInWishlist(id) ? "fill-current" : ""}`}
+              className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} ${isInWishlist(id) ? "fill-current" : "stroke-2"}`}
             />
           </Button>
         </div>
 
-        <CardContent className="p-0">
-          <div className="px-3 pb-4 flex flex-col h-28 space-y-4">
-            <div className="space-y-1">
-              <h3 className="font-semibold text-base text-card-foreground group-hover:text-primary transition-colors line-clamp-1 leading-tight h-[1.5rem]">
+        <CardContent className={isMobile ? "p-2 flex flex-col max-h-32 h-full min-h-32 justify-between" : "p-0 flex-1 flex flex-col"}>
+          <div className={isMobile ? "space-y-0.5 flex-1" : "px-4 flex flex-col flex-1 space-y-1.5"}>
+            {/* Badges - Mobile only shows in content */}
+            {isMobile && (
+              <div className="h-5">
+                {(featured || hasDiscount || !inStock) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {featured && (
+                      <Badge className="bg-accent text-accent-foreground text-[10px] px-2 py-0.5 h-5">
+                        Destacado
+                      </Badge>
+                    )}
+                    {!inStock && (
+                      <Badge
+                        variant="secondary"
+                        className="bg-muted text-muted-foreground text-[10px] px-2 py-0.5 h-5"
+                      >
+                        Agotado
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className={isMobile ? "" : "space-y-1"}>
+              <h3 className={`font-bold text-card-foreground line-clamp-1 leading-tight ${isMobile ? "text-base" : "text-xl group-hover:text-primary transition-colors"}`}>
                 {name}
               </h3>
-              {description && (
-                <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed h-[1.25rem]">
+              {!isMobile && description && (
+                <p className="text-md text-muted-foreground line-clamp-1 leading-tight">
                   {description}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center justify-between mt-auto">
+            <div className={isMobile ? "flex flex-col" : "flex flex-col gap-1.5 mt-auto"}>
               <div className="flex flex-col">
                 {hasDiscount && regularPrice && (
                   <span className="text-xs text-muted-foreground line-through">
@@ -433,7 +315,7 @@ export const ProductCard = ({
                     )}
                   </span>
                 )}
-                <span className="text-sm font-bold text-primary">
+                <span className={`font-bold text-primary ${isMobile ? "text-lg" : "text-xl"}`}>
                   {pricePrefix && (
                     <span className="text-xs font-normal text-muted-foreground mr-1">
                       {pricePrefix}
@@ -445,14 +327,11 @@ export const ProductCard = ({
                   )}
                 </span>
                 {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground flex flex-row items-center gap-0.5 leading-none">
+                  <div className="text-xs text-muted-foreground leading-none flex flex-row items-center gap-1 line-clamp-1 mb-2">
                     {unit && (
                       <span>
-                        {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades de
+                        {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades{(weight || volume) && " de"}
                       </span>
-                    )}
-                    {unit && (weight || volume) && (
-                      <span className="text-xs font-normal text-muted-foreground"></span>
                     )}
                     {(weight || volume) && (
                       <span>
@@ -464,29 +343,46 @@ export const ProductCard = ({
                   </div>
                 )}
               </div>
+            </div>
+          </div>
 
-              {quantityInCart > 0 ? (
-                <div className="w-auto max-w-28">
+          <div className={isMobile ? "mt-auto pt-2" : "px-4 pb-4"}>
+            {quantityInCart > 0 && inStock ? (
+              isMobile ? (
+                <QuantityPicker
+                  value={quantityInCart}
+                  onChange={(val) => updateQuantity(id, val)}
+                  min={0}
+                  size="default"
+                  className="bg-transparent shadow-sm text-black w-full"
+                />
+              ) : (
+                <div className="w-full">
                   <QuantityPicker
                     value={quantityInCart}
                     onChange={(val) => updateQuantity(id, val)}
                     min={0}
                     size="sm"
-                    className="bg-transparent shadow-sm text-black"
+                    className="bg-transparent shadow-sm text-black w-full"
                   />
                 </div>
-              ) : (
-                <Button
-                  size="sm"
-                  className="bg-accent hover:bg-accent/90 text-primary font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 h-8 text-xs"
-                  disabled={!inStock}
-                  onClick={handleAddToCartClick}
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  {inStock ? "Agregar al carrito" : "Agotado"}
-                </Button>
-              )}
-            </div>
+              )
+            ) : inStock ? (
+              <Button
+                className={`w-full bg-accent hover:bg-accent/80 text-primary font-bold rounded-lg flex items-center justify-center active:bg-accent/70 transition-all duration-200 h-10 ${isMobile ? "px-3 py-3 text-sm" : "px-4 py-3 text-sm hover:shadow-md active:scale-95 shadow-sm"}`}
+                onClick={handleAddToCartClick}
+              >
+                <span className="flex-1">Agregar al carrito</span>
+                <ShoppingCart className="h-4 w-4 ml-auto" />
+              </Button>
+            ) : (
+              <Button
+                className={`w-full bg-muted text-muted-foreground font-medium rounded-lg h-10 ${isMobile ? "px-3 py-3 text-sm" : "px-4 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm disabled:active:scale-100"}`}
+                disabled
+              >
+                Agotado
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

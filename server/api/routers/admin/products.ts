@@ -84,11 +84,11 @@ export const adminProductsRouter = router({
         ctx.session.user.id,
       );
 
-      // Normalize empty strings to null
-      const normalizedCategoryId = payload.categoryId?.trim() || null;
-      const normalizedSubcategoryId = payload.subcategoryId?.trim() || null;
+      // Normalize empty strings to undefined
+      const normalizedCategoryId = payload.categoryId?.trim() || undefined;
+      const normalizedSubcategoryId = payload.subcategoryId?.trim() || undefined;
 
-      let resolvedSubcategoryId: string | null = null;
+      let resolvedSubcategoryId: string | undefined = undefined;
       if (normalizedSubcategoryId) {
         const subcategory = await prisma.subcategory.findFirst({
           where: {
@@ -119,6 +119,10 @@ export const adminProductsRouter = router({
             details: { resource: "category", id: normalizedCategoryId },
           });
         }
+      } else {
+        throw createErrorWithCode(ErrorCode.MISSING_REQUIRED_FIELD, {
+          message: "Category is required",
+        });
       }
 
       try {
@@ -324,11 +328,11 @@ export const adminProductsRouter = router({
         ctx.session.user.id,
       );
 
-      // Normalize empty strings to null
-      const normalizedCategoryId = data.categoryId?.trim() || null;
-      const normalizedSubcategoryId = data.subcategoryId?.trim() || null;
+      // Normalize empty strings to undefined
+      const normalizedCategoryId = data.categoryId?.trim() || undefined;
+      const normalizedSubcategoryId = data.subcategoryId?.trim() || undefined;
 
-      let resolvedSubcategoryId: string | null = null;
+      let resolvedSubcategoryId: string | undefined = undefined;
       if (normalizedSubcategoryId) {
         const subcategory = await prisma.subcategory.findFirst({
           where: {
@@ -358,12 +362,13 @@ export const adminProductsRouter = router({
         }
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {
         coverImages,
         prices,
         variants,
         storeId: _ignoredStoreId,
+        categoryId: _categoryId,
+        subcategoryId: _subcategoryId,
         ...restOfData
       } = data;
 
@@ -385,7 +390,8 @@ export const adminProductsRouter = router({
           where: { id },
           data: {
             ...restOfData,
-            subcategoryId: resolvedSubcategoryId,
+            ...(normalizedCategoryId && { categoryId: normalizedCategoryId }),
+            ...(resolvedSubcategoryId !== undefined && { subcategoryId: resolvedSubcategoryId }),
           },
         });
 

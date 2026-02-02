@@ -51,17 +51,17 @@ export const ThemeModeCard = ({
                             </div>
                             {shadowPresetKeys.has(key) ? (
                                 <ShadowField
-                                    value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
+                                    value={theme[mode]?.[key] ?? mergedTheme[mode]?.[key] ?? ''}
                                     onChange={(val) => onChange(mode, key, val)}
                                 />
                             ) : colorKeySet.has(key) ? (
                                 <ColorField
-                                    value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
+                                    value={theme[mode]?.[key] ?? mergedTheme[mode]?.[key] ?? ''}
                                     onChange={(val) => onChange(mode, key, val)}
                                 />
                             ) : (
                                 <Input
-                                    value={theme[mode]?.[key] ?? mergedTheme[mode][key]}
+                                    value={theme[mode]?.[key] ?? mergedTheme[mode]?.[key] ?? ''}
                                     onChange={(e) => onChange(mode, key, e.target.value)}
                                     spellCheck={false}
                                 />
