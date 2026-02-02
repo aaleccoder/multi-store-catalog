@@ -33,10 +33,10 @@ export default async function LandingPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
       <LandingContent stores={storesWithBranding} />
-      <footer className="bg-muted text-muted-foreground p-4 mt-8">
+      <footer className="bg-muted text-muted-foreground p-4 mt-auto">
         <div className="container mx-auto flex flex-col items-center">
           <Image
             src="/android-chrome-192x192.png"

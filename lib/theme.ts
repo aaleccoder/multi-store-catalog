@@ -135,6 +135,12 @@ export interface StoreBranding {
   logoWidth?: number;
   logoHeight?: number;
   faviconUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  contactAddress?: string;
+  socialFacebook?: string;
+  socialInstagram?: string;
+  socialTwitter?: string;
 }
 
 export const defaultStoreBranding: StoreBranding = {
@@ -142,6 +148,12 @@ export const defaultStoreBranding: StoreBranding = {
   logoAlt: "Lea Logo",
   logoWidth: 100,
   logoHeight: 100,
+  contactEmail: "info@Lea.com",
+  contactPhone: "+5363404607",
+  contactAddress: "Calle 94 y 5ta Avenida, Miramar, La Habana",
+  socialFacebook: "#",
+  socialInstagram: "#",
+  socialTwitter: "#",
 };
 
 export interface StoreTheme {
@@ -160,7 +172,17 @@ export const defaultStoreTheme: StoreTheme = {
 
 export function mergeTheme(theme?: StoreTheme | null) {
   const resolved = theme ?? defaultStoreTheme;
-  const branding = { ...defaultStoreBranding, ...(resolved.branding ?? {}) };
+
+
+  // Filter out undefined and null values from resolved branding so defaults can show through
+  const resolvedBranding = resolved.branding ?? {};
+
+  const filteredBranding = Object.fromEntries(
+    Object.entries(resolvedBranding).filter(([_, value]) => value !== undefined && value !== null && value !== "")
+  );
+
+  const branding = { ...defaultStoreBranding, ...filteredBranding };
+
   const fontId = resolved.fontId ?? defaultStoreFontId;
   const resolvedFontFamily = resolveStoreFontFamily(fontId);
 

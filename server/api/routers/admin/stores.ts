@@ -27,6 +27,12 @@ export const storeSchema = z.object({
           logoAlt: z.string().optional(),
           logoWidth: z.number().optional(),
           logoHeight: z.number().optional(),
+          contactEmail: z.string().optional(),
+          contactPhone: z.string().optional(),
+          contactAddress: z.string().optional(),
+          socialFacebook: z.string().optional(),
+          socialInstagram: z.string().optional(),
+          socialTwitter: z.string().optional(),
         })
         .optional(),
       fontId: z.string().optional(),

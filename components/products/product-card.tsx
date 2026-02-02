@@ -179,11 +179,10 @@ export const ProductCard = ({
                 {imageList.map((_, index) => (
                   <div
                     key={index}
-                    className={`rounded-full transition-all ${
-                      index === currentImageIndex
-                        ? "bg-white w-3 h-1.5"
-                        : "bg-white/50 w-1.5 h-1.5"
-                    }`}
+                    className={`rounded-full transition-all ${index === currentImageIndex
+                      ? "bg-white w-3 h-1.5"
+                      : "bg-white/50 w-1.5 h-1.5"
+                      }`}
                   />
                 ))}
               </div>
@@ -193,9 +192,8 @@ export const ProductCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${
-                isInWishlist(id) ? "text-destructive" : "text-muted-foreground"
-              }`}
+              className={`absolute top-3 right-3 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card transition-colors ${isInWishlist(id) ? "text-destructive" : "text-muted-foreground"
+                }`}
               onClick={handleToggleWishlist}
             >
               <Heart
@@ -232,8 +230,14 @@ export const ProductCard = ({
                 {name}
               </h3>
 
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-primary">
+              <div className="flex flex-col">                {hasDiscount && regularPrice && (
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatCurrencyPrice(
+                    regularPrice,
+                    typeof currency === "number" ? String(currency) : currency,
+                  )}
+                </span>
+              )}                <span className="text-sm font-bold text-primary">
                   {pricePrefix && (
                     <span className="text-xs font-normal text-muted-foreground mr-1">
                       {pricePrefix}
@@ -359,11 +363,10 @@ export const ProductCard = ({
                 <button
                   key={index}
                   onClick={handleDotClick(index)}
-                  className={`rounded-full transition-all ${
-                    index === currentImageIndex
-                      ? "bg-card w-6 h-2"
-                      : "bg-card/50 hover:bg-card/75 w-2 h-2"
-                  }`}
+                  className={`rounded-full transition-all ${index === currentImageIndex
+                    ? "bg-card w-6 h-2"
+                    : "bg-card/50 hover:bg-card/75 w-2 h-2"
+                    }`}
                   aria-label={`Ver imagen ${index + 1}`}
                 />
               ))}
@@ -395,11 +398,10 @@ export const ProductCard = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${
-              isInWishlist(id)
-                ? "text-destructive"
-                : "text-muted-foreground hover:text-destructive"
-            }`}
+            className={`absolute top-3 right-3 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10 ${isInWishlist(id)
+              ? "text-destructive"
+              : "text-muted-foreground hover:text-destructive"
+              }`}
             onClick={handleToggleWishlist}
           >
             <Heart
@@ -423,6 +425,14 @@ export const ProductCard = ({
 
             <div className="flex items-center justify-between mt-auto">
               <div className="flex flex-col">
+                {hasDiscount && regularPrice && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    {formatCurrencyPrice(
+                      regularPrice,
+                      typeof currency === "number" ? String(currency) : currency,
+                    )}
+                  </span>
+                )}
                 <span className="text-sm font-bold text-primary">
                   {pricePrefix && (
                     <span className="text-xs font-normal text-muted-foreground mr-1">

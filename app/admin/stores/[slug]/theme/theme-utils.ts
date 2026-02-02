@@ -3,6 +3,13 @@ import { StoreTheme, ThemeKeys, ThemeModeOverrides } from '@/lib/theme'
 import { StoreFontId } from '@/lib/store-fonts'
 import { fontIdSet, themeKeySet } from './theme-constants'
 
+export interface ThemePalette {
+    background: string
+    primary: string
+    secondary: string
+    accent: string
+}
+
 export const parseThemeFromJson = (value: string): StoreTheme => {
     const trimmed = value.trim()
     if (!trimmed) {
@@ -224,5 +231,106 @@ export const normalizeColor = (value: string) => {
         return { hex: color.hex(), alpha: color.alpha() }
     } catch {
         return { hex: '#000000', alpha: 1 }
+    }
+}
+
+const safeColor = (value: string, fallback: string) => {
+    try {
+        return Color(value).hex()
+    } catch {
+        return Color(fallback).hex()
+    }
+}
+
+const readableText = (background: string) => (Color(background).isLight() ? '#111111' : '#f8f8f8')
+
+const mix = (base: string, other: string, amount: number) => Color(base).mix(Color(other), amount).hex()
+
+const ensureDark = (value: string) => {
+    const color = Color(safeColor(value, '#111111'))
+    if (!color.isLight()) return color.hex()
+    return color.darken(0.6).hex()
+}
+
+const ensureReadableOnDark = (value: string) => {
+    const color = Color(safeColor(value, '#f8f8f8'))
+    if (color.isLight()) return color.hex()
+    return color.lighten(0.4).hex()
+}
+
+const buildModeFromPalette = (palette: ThemePalette, background: string) => {
+    const primary = safeColor(palette.primary, '#111111')
+    const secondary = safeColor(palette.secondary, '#666666')
+    const accent = safeColor(palette.accent, '#888888')
+    const bg = safeColor(background, '#ffffff')
+    const fg = readableText(bg)
+    const card = mix(bg, fg, 0.04)
+    const popover = mix(bg, fg, 0.06)
+    const muted = mix(bg, fg, 0.08)
+    const mutedForeground = mix(fg, bg, 0.35)
+    const border = mix(bg, fg, 0.16)
+    const input = mix(bg, fg, 0.1)
+    const ring = mix(primary, bg, 0.2)
+
+    const primaryForeground = readableText(primary)
+    const secondaryForeground = readableText(secondary)
+    const accentForeground = readableText(accent)
+
+    const destructive = '#ef4444'
+    const destructiveForeground = readableText(destructive)
+
+    const chart4 = mix(primary, accent, 0.5)
+    const chart5 = mix(secondary, accent, 0.5)
+
+    return {
+        background: bg,
+        foreground: fg,
+        card,
+        cardForeground: readableText(card),
+        popover,
+        popoverForeground: readableText(popover),
+        primary,
+        primaryForeground,
+        secondary,
+        secondaryForeground,
+        muted,
+        mutedForeground,
+        accent,
+        accentForeground,
+        destructive,
+        destructiveForeground,
+        border,
+        input,
+        ring,
+        chart1: primary,
+        chart2: secondary,
+        chart3: accent,
+        chart4,
+        chart5,
+        sidebar: mix(bg, fg, 0.06),
+        sidebarForeground: fg,
+        sidebarPrimary: primary,
+        sidebarPrimaryForeground: primaryForeground,
+        sidebarAccent: accent,
+        sidebarAccentForeground: accentForeground,
+        sidebarBorder: border,
+        sidebarRing: ring,
+    } satisfies ThemeModeOverrides
+}
+
+export const buildThemeFromPalette = (palette: ThemePalette) => {
+    const lightBackground = safeColor(palette.background, '#ffffff')
+    const darkBackground = ensureDark(lightBackground)
+
+    const darkPalette: ThemePalette = {
+        background: darkBackground,
+        primary: ensureReadableOnDark(palette.primary),
+        secondary: ensureReadableOnDark(palette.secondary),
+        accent: ensureReadableOnDark(palette.accent),
+    }
+
+    return {
+        light: buildModeFromPalette(palette, lightBackground),
+        dark: buildModeFromPalette(darkPalette, darkBackground),
     }
 }

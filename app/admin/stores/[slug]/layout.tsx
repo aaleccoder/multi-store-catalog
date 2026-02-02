@@ -6,6 +6,8 @@ import { AdminNav } from "@/components/admin/admin-nav";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ActiveStoreClient } from "../active-store-client";
+import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
+import { StoreTheme } from "@/lib/theme";
 
 interface StoreLayoutProps {
   children: ReactNode;
@@ -34,16 +36,21 @@ export default async function StoreLayout({
   const cookieStore = await cookies();
   const currentActiveStoreId = cookieStore.get("activeStoreId")?.value;
 
+
+  console.log(store.theme);
+
   return (
     <>
-      <SidebarProvider>
-        <AdminNav />
-        <SidebarInset>{children}</SidebarInset>
-      </SidebarProvider>
-      <ActiveStoreClient
-        storeId={store.id}
-        currentActiveStoreId={currentActiveStoreId}
-      />
+      <StoreThemeProvider theme={store.theme as StoreTheme}>
+        <SidebarProvider>
+          <AdminNav />
+          <SidebarInset>{children}</SidebarInset>
+        </SidebarProvider>
+        <ActiveStoreClient
+          storeId={store.id}
+          currentActiveStoreId={currentActiveStoreId}
+        />
+      </StoreThemeProvider>
     </>
   );
 }

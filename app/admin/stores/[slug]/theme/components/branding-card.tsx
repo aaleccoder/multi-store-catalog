@@ -97,6 +97,79 @@ export const BrandingCard = ({ branding, onBrandingChange, onLogoFile, uploading
                     )}
                 </div>
             </div>
+
+            <div className="border-t pt-4 space-y-4">
+                <h4 className="font-medium text-sm">Información de contacto</h4>
+
+                <div className="space-y-2">
+                    <Label htmlFor="contact-email">Email</Label>
+                    <Input
+                        id="contact-email"
+                        type="email"
+                        value={branding.contactEmail ?? ''}
+                        onChange={(e) => onBrandingChange('contactEmail', e.target.value)}
+                        placeholder="info@example.com"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="contact-phone">Teléfono</Label>
+                    <Input
+                        id="contact-phone"
+                        type="tel"
+                        value={branding.contactPhone ?? ''}
+                        onChange={(e) => onBrandingChange('contactPhone', e.target.value)}
+                        placeholder="+53 1234 5678"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="contact-address">Dirección</Label>
+                    <Input
+                        id="contact-address"
+                        value={branding.contactAddress ?? ''}
+                        onChange={(e) => onBrandingChange('contactAddress', e.target.value)}
+                        placeholder="Calle, Ciudad, País"
+                    />
+                </div>
+            </div>
+
+            <div className="border-t pt-4 space-y-4">
+                <h4 className="font-medium text-sm">Redes sociales</h4>
+
+                <div className="space-y-2">
+                    <Label htmlFor="social-facebook">Facebook</Label>
+                    <Input
+                        id="social-facebook"
+                        type="url"
+                        value={branding.socialFacebook ?? ''}
+                        onChange={(e) => onBrandingChange('socialFacebook', e.target.value)}
+                        placeholder="https://facebook.com/..."
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="social-instagram">Instagram</Label>
+                    <Input
+                        id="social-instagram"
+                        type="url"
+                        value={branding.socialInstagram ?? ''}
+                        onChange={(e) => onBrandingChange('socialInstagram', e.target.value)}
+                        placeholder="https://instagram.com/..."
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="social-twitter">Twitter / X</Label>
+                    <Input
+                        id="social-twitter"
+                        type="url"
+                        value={branding.socialTwitter ?? ''}
+                        onChange={(e) => onBrandingChange('socialTwitter', e.target.value)}
+                        placeholder="https://twitter.com/..."
+                    />
+                </div>
+            </div>
         </CardContent>
     </Card>
 )

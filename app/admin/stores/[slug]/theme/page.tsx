@@ -1,10 +1,11 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { defaultStoreBranding, defaultStoreTheme, mergeTheme, StoreTheme, ThemeKeys } from '@/lib/theme'
 import { defaultStoreFontId, StoreFontId } from '@/lib/store-fonts'
@@ -14,30 +15,35 @@ import { ShadowHelpCard } from './components/shadow-help-card'
 import { BrandingCard } from './components/branding-card'
 import { FontCard } from './components/font-card'
 import { ThemeModeCard } from './components/theme-mode-card'
-import { fileToBase64, parseThemeFromJson } from './theme-utils'
+import { ShadowField } from './components/shadow-field'
+import { ColorField } from './components/color-field'
+import { buildThemeFromPalette, fileToBase64, parseThemeFromJson, ThemePalette } from './theme-utils'
 import Link from 'next/link'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 export default function ThemePage() {
     const router = useRouter()
-    const { data: stores, isLoading: storesLoading } = trpc.admin.stores.list.useQuery()
+    const params = useParams()
+    const storeSlug = typeof params?.slug === 'string' ? params.slug : ''
+    const { data: store, isLoading: storesLoading, refetch: refetchStore } = trpc.admin.stores.getBySlug.useQuery(storeSlug, {
+        enabled: !!storeSlug,
+    })
     const utils = trpc.useUtils()
     const uploadMedia = trpc.admin.media.upload.useMutation()
     const updateStore = trpc.admin.stores.update.useMutation({
         onSuccess: async () => {
-            await utils.admin.stores.list.invalidate()
+            if (storeSlug) {
+                await utils.admin.stores.getBySlug.invalidate(storeSlug)
+            }
         },
     })
 
-    const [selectedStoreId, setSelectedStoreId] = useState<string>('')
     const [importText, setImportText] = useState('')
+    const [showAdvanced, setShowAdvanced] = useState(false)
 
     type StoreWithTheme = { id: string; name: string; theme?: unknown }
-
-    const normalizedStores: StoreWithTheme[] = (stores as StoreWithTheme[] | undefined) ?? []
-
-    const firstStoreId = normalizedStores[0]?.id ?? ''
-    const activeStoreId = selectedStoreId || firstStoreId
-    const activeStore = normalizedStores.find((store) => store.id === activeStoreId) ?? null
+    const activeStore = (store as StoreWithTheme | undefined) ?? null
+    const activeStoreId = activeStore?.id ?? ''
 
     const [themeDrafts, setThemeDrafts] = useState<Record<string, StoreTheme>>({})
 
@@ -61,6 +67,12 @@ export default function ThemePage() {
     const mergedTheme = useMemo(() => mergeTheme(theme), [theme])
     const branding = theme.branding ?? defaultStoreBranding
     const selectedFontId = theme.fontId ?? defaultStoreFontId
+    const palette = useMemo<ThemePalette>(() => ({
+        background: theme.light?.background ?? mergedTheme.light.background,
+        primary: theme.light?.primary ?? mergedTheme.light.primary,
+        secondary: theme.light?.secondary ?? mergedTheme.light.secondary,
+        accent: theme.light?.accent ?? mergedTheme.light.accent,
+    }), [mergedTheme, theme.light?.accent, theme.light?.background, theme.light?.primary, theme.light?.secondary])
 
     const handleLogoFile = async (file: File) => {
         if (!activeStoreId) return
@@ -100,6 +112,74 @@ export default function ThemePage() {
             }
         })
     }
+
+    const handlePaletteChange = (key: keyof ThemePalette, value: string) => {
+        if (!activeStoreId) return
+        const nextPalette = { ...palette, [key]: value }
+        const generated = buildThemeFromPalette(nextPalette)
+
+        setThemeDrafts((prev) => {
+            const current = prev[activeStoreId] ?? baseTheme
+
+            return {
+                ...prev,
+                [activeStoreId]: {
+                    ...current,
+                    light: {
+                        ...(current.light ?? defaultStoreTheme.light),
+                        ...generated.light,
+                    },
+                    dark: {
+                        ...(current.dark ?? defaultStoreTheme.dark),
+                        ...generated.dark,
+                    },
+                },
+            }
+        })
+    }
+
+    const handleGlobalStyleChange = (key: ThemeKeys, value: string) => {
+        if (!activeStoreId) return
+
+        setThemeDrafts((prev) => {
+            const current = prev[activeStoreId] ?? baseTheme
+
+            return {
+                ...prev,
+                [activeStoreId]: {
+                    ...current,
+                    light: {
+                        ...(current.light ?? defaultStoreTheme.light),
+                        [key]: value,
+                    },
+                    dark: {
+                        ...(current.dark ?? defaultStoreTheme.dark),
+                        [key]: value,
+                    },
+                },
+            }
+        })
+    }
+
+    const parseUnit = (value: string, unit: 'rem' | 'em', fallback: number) => {
+        if (!value) return fallback
+        const normalized = value.trim()
+        const numeric = Number.parseFloat(normalized.replace(unit, ''))
+        return Number.isFinite(numeric) ? numeric : fallback
+    }
+
+    const radiusValue = parseUnit(theme.light?.radius ?? mergedTheme.light.radius, 'rem', 0.25)
+    const spacingValue = parseUnit(theme.light?.spacing ?? mergedTheme.light.spacing, 'rem', 0.25)
+    const letterSpacingValue = parseUnit(
+        theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing,
+        'em',
+        0,
+    )
+    const trackingNormalValue = parseUnit(
+        theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal,
+        'em',
+        0,
+    )
 
     const handleBrandingChange = (key: keyof NonNullable<StoreTheme['branding']>, value: string | number | undefined) => {
         if (!activeStoreId) return
@@ -144,6 +224,12 @@ export default function ThemePage() {
         try {
             const currentTheme = themeDrafts[activeStoreId] ?? baseTheme
             await updateStore.mutateAsync({ id: activeStoreId, data: { theme: currentTheme } })
+            await refetchStore()
+            setThemeDrafts((prev) => {
+                const next = { ...prev }
+                delete next[activeStoreId]
+                return next
+            })
             router.refresh()
             toast.success('Tema actualizado')
         } catch {
@@ -191,10 +277,10 @@ export default function ThemePage() {
         )
     }
 
-    if (!stores || stores.length === 0) {
+    if (!store && !storesLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <p className="text-muted-foreground">Crea una tienda para personalizar su tema.</p>
+                <p className="text-muted-foreground">No se encontro la tienda solicitada.</p>
                 <Button asChild>
                     <Link href="/admin/stores">Crear tienda</Link>
                 </Button>
@@ -208,22 +294,11 @@ export default function ThemePage() {
                 <div className="p-4 md:p-8 space-y-6">
                     <div className="flex items-center justify-between gap-4">
                         <ThemeHeader
-                            stores={normalizedStores}
-                            activeStoreId={activeStoreId}
-                            onStoreChange={setSelectedStoreId}
+                            storeName={activeStore?.name}
                             onSave={handleSave}
                             saving={updateStore.isPending}
                         />
                     </div>
-                    <ImportThemeCard
-                        value={importText}
-                        onChange={setImportText}
-                        onImport={handleImport}
-                        disabled={!importText.trim()}
-                    />
-
-                    <ShadowHelpCard />
-
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <BrandingCard
                             branding={branding}
@@ -238,17 +313,212 @@ export default function ThemePage() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {(['light', 'dark'] as const).map((mode) => (
-                            <ThemeModeCard
-                                key={mode}
-                                mode={mode}
-                                theme={theme}
-                                mergedTheme={mergedTheme}
-                                onChange={handleChange}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Paleta principal</CardTitle>
+                            <CardDescription>
+                                Elige cuatro colores y generamos el resto del tema automaticamente.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Fondo</span>
+                                <ColorField
+                                    value={palette.background}
+                                    onChange={(value) => handlePaletteChange('background', value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Primario</span>
+                                <ColorField
+                                    value={palette.primary}
+                                    onChange={(value) => handlePaletteChange('primary', value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Secundario</span>
+                                <ColorField
+                                    value={palette.secondary}
+                                    onChange={(value) => handlePaletteChange('secondary', value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Acento</span>
+                                <ColorField
+                                    value={palette.accent}
+                                    onChange={(value) => handlePaletteChange('accent', value)}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Estilo global</CardTitle>
+                            <CardDescription>
+                                Ajusta detalles visuales que afectan todo el sitio (mismo valor en claro y oscuro).
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Radio de bordes</span>
+                                <p className="text-xs text-muted-foreground">
+                                    Define cuan redondeadas son las esquinas de botones, tarjetas y campos.
+                                </p>
+                                <div className="space-y-2">
+                                    <input
+                                        type="range"
+                                        min={0}
+                                        max={2}
+                                        step={0.05}
+                                        value={radiusValue}
+                                        onChange={(e) => handleGlobalStyleChange('radius', `${e.target.value}rem`)}
+                                    />
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>0rem</span>
+                                        <span>{radiusValue.toFixed(2)}rem</span>
+                                        <span>2rem</span>
+                                    </div>
+                                    <input
+                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                                        value={theme.light?.radius ?? mergedTheme.light.radius}
+                                        onChange={(e) => handleGlobalStyleChange('radius', e.target.value)}
+                                        spellCheck={false}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Sombra principal</span>
+                                <p className="text-xs text-muted-foreground">
+                                    Controla la elevacion base de tarjetas y bloques principales.
+                                </p>
+                                <ShadowField
+                                    value={theme.light?.shadow ?? mergedTheme.light.shadow}
+                                    onChange={(value) => handleGlobalStyleChange('shadow', value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Espaciado base</span>
+                                <p className="text-xs text-muted-foreground">
+                                    Multiplicador de espacios para paddings y margins (ej: 0.25rem).
+                                </p>
+                                <div className="space-y-2">
+                                    <input
+                                        type="range"
+                                        min={0.125}
+                                        max={1}
+                                        step={0.025}
+                                        value={spacingValue}
+                                        onChange={(e) => handleGlobalStyleChange('spacing', `${e.target.value}rem`)}
+                                    />
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>0.125rem</span>
+                                        <span>{spacingValue.toFixed(3)}rem</span>
+                                        <span>1rem</span>
+                                    </div>
+                                    <input
+                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                                        value={theme.light?.spacing ?? mergedTheme.light.spacing}
+                                        onChange={(e) => handleGlobalStyleChange('spacing', e.target.value)}
+                                        spellCheck={false}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Espaciado entre letras</span>
+                                <p className="text-xs text-muted-foreground">
+                                    Ajusta la separacion general de letras (ej: 0em, 0.02em).
+                                </p>
+                                <div className="space-y-2">
+                                    <input
+                                        type="range"
+                                        min={-0.05}
+                                        max={0.2}
+                                        step={0.01}
+                                        value={letterSpacingValue}
+                                        onChange={(e) => handleGlobalStyleChange('letterSpacing', `${e.target.value}em`)}
+                                    />
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>-0.05em</span>
+                                        <span>{letterSpacingValue.toFixed(2)}em</span>
+                                        <span>0.20em</span>
+                                    </div>
+                                    <input
+                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                                        value={theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing}
+                                        onChange={(e) => handleGlobalStyleChange('letterSpacing', e.target.value)}
+                                        spellCheck={false}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Tracking normal</span>
+                                <p className="text-xs text-muted-foreground">
+                                    Ajuste fino del tracking por defecto para textos largos.
+                                </p>
+                                <div className="space-y-2">
+                                    <input
+                                        type="range"
+                                        min={-0.05}
+                                        max={0.2}
+                                        step={0.01}
+                                        value={trackingNormalValue}
+                                        onChange={(e) => handleGlobalStyleChange('trackingNormal', `${e.target.value}em`)}
+                                    />
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>-0.05em</span>
+                                        <span>{trackingNormalValue.toFixed(2)}em</span>
+                                        <span>0.20em</span>
+                                    </div>
+                                    <input
+                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                                        value={theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal}
+                                        onChange={(e) => handleGlobalStyleChange('trackingNormal', e.target.value)}
+                                        spellCheck={false}
+                                    />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-base font-semibold">Opciones avanzadas</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Muestra todas las variables del tema, importacion y presets de sombras.
+                                </p>
+                            </div>
+                            <CollapsibleTrigger asChild>
+                                <Button type="button" variant="outline" className="gap-2">
+                                    {showAdvanced ? 'Ocultar' : 'Mostrar'}
+                                    <ChevronDown className={showAdvanced ? 'h-4 w-4 rotate-180' : 'h-4 w-4'} />
+                                </Button>
+                            </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent className="space-y-6">
+                            <ImportThemeCard
+                                value={importText}
+                                onChange={setImportText}
+                                onImport={handleImport}
+                                disabled={!importText.trim()}
                             />
-                        ))}
-                    </div>
+
+                            <ShadowHelpCard />
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {(['light', 'dark'] as const).map((mode) => (
+                                    <ThemeModeCard
+                                        key={mode}
+                                        mode={mode}
+                                        theme={theme}
+                                        mergedTheme={mergedTheme}
+                                        onChange={handleChange}
+                                    />
+                                ))}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </div>
             </main>
         </div>

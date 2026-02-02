@@ -125,20 +125,15 @@ export default async function HomePage({
     notFound();
   }
 
-  console.log(store);
-
   const filterContent = await getFilterContent(
     storeSlug,
     store.id,
     categorySlug,
     subcategorySlug,
   );
-  const storeTheme = (store.theme ?? null) as unknown as StoreTheme | null;
-
-  console.log("Store Theme:", storeTheme);
 
   return (
-    <StoreThemeProvider theme={storeTheme ?? undefined}>
+    <StoreThemeProvider theme={store.theme as StoreTheme}>
       <LoadingProvider>
         <div className="min-h-screen bg-background flex flex-col pb-16 md:pb-0">
           <NavigationLoadingBar />

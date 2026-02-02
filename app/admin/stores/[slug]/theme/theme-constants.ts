@@ -25,6 +25,17 @@ export const shadowPresetKeys = new Set<ThemeKeys>([
     'shadow2xl',
 ])
 
+export const basicThemeKeys: ThemeKeys[] = [
+    'background',
+    'primary',
+    'secondary',
+    'accent',
+    'border',
+    'shadowSm',
+    'shadow',
+    'shadowLg',
+]
+
 export const shadowPresets = [
     { id: 'light', label: 'Ligera', value: '0px 2px 6px -2px hsl(0 0% 0% / 0.10)' },
     { id: 'medium', label: 'Media', value: '0px 6px 12px -3px hsl(0 0% 0% / 0.14)' },
