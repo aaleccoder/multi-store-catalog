@@ -16,14 +16,14 @@ export function RichTextRenderer({ content }: RichTextRendererProps) {
       // It's HTML from Quill, render it with Tailwind prose classes
       return (
         <div
-          className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-p:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-li:text-foreground"
+          className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-foreground prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-strong:font-semibold prose-em:italic prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-foreground prose-li:my-1"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       )
     }
 
     // Plain text
-    return <p className="text-muted-foreground">{content}</p>
+    return <p className="text-muted-foreground whitespace-pre-wrap">{content}</p>
   }
 
   // Use Payload's serialized format - render as HTML from Lexical nodes

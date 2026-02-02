@@ -31,6 +31,37 @@ interface ProductDetailPageProps {
   }>;
 }
 
+// Helper function to extract plain text from rich text content
+function extractPlainText(content: any): string {
+  if (!content) return '';
+
+  // If it's a string, strip HTML tags
+  if (typeof content === 'string') {
+    return content.replace(/<[^>]*>/g, '').trim();
+  }
+
+  // If it's Lexical format, extract text from nodes
+  if (content?.root?.children) {
+    const extractTextFromNode = (node: any): string => {
+      if (node.type === 'text') {
+        return node.text || '';
+      }
+      if (node.children) {
+        return node.children.map(extractTextFromNode).join(' ');
+      }
+      return '';
+    };
+
+    return content.root.children
+      .map(extractTextFromNode)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  return '';
+}
+
 export async function generateMetadata({
   params,
 }: ProductDetailPageProps): Promise<Metadata> {
@@ -70,8 +101,12 @@ export async function generateMetadata({
   const ogImage = imageData?.url || `/store/${storeSlug}/favicon.png`;
 
   const title = `${product.name} | ${store.name}`;
+
+  // Extract plain text from rich text description for metadata
+  const plainTextDescription = extractPlainText(product.description);
   const description =
     product.shortDescription ||
+    plainTextDescription ||
     `Buy ${product.name} at ${store.name}. High quality product at great prices.`;
   const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000"}/store/${storeSlug}/product/${slug}`;
 
@@ -247,7 +282,7 @@ export default async function ProductDetailPage({
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.shortDescription || product.description,
+    description: product.shortDescription || extractPlainText(product.description),
     image: coverImages.map((img: any) => img.url),
     sku: (product.specifications as any)?.sku || undefined,
     brand: {
@@ -260,6 +295,7 @@ export default async function ProductDetailPage({
       priceCurrency: currency,
       price: salePrice || price,
       ...(defaultPrice?.saleAmount && {
+        // eslint-disable-next-line react-hooks/purity
         priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split("T")[0],
@@ -333,7 +369,7 @@ export default async function ProductDetailPage({
                   <h2 className="text-2xl font-bold mb-4 text-foreground">
                     Descripción
                   </h2>
-                  <RichTextRenderer content={product.description} />
+                  <RichTextRenderer content={String(product.description)} />
                 </CardContent>
               </Card>
             )}
@@ -356,9 +392,9 @@ export default async function ProductDetailPage({
                       ) || (relatedProduct as any).prices?.[0];
                     const relatedPrice = relatedDefaultPriceObj
                       ? parseNumeric(
-                          relatedDefaultPriceObj.saleAmount ??
-                            relatedDefaultPriceObj.amount,
-                        )
+                        relatedDefaultPriceObj.saleAmount ??
+                        relatedDefaultPriceObj.amount,
+                      )
                       : 0;
                     const relatedRegularPrice = relatedDefaultPriceObj
                       ? relatedDefaultPriceObj.saleAmount

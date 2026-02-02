@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { Currency } from '@/lib/currency-client'
 
 export interface Filter {
@@ -43,6 +43,7 @@ export const FilterSidebarClient = ({
 }: FilterSidebarClientProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
 
   // Initialize filter state from URL params
   const [filterState, setFilterState] = useState<Record<string, FilterValue>>(() => {
@@ -179,7 +180,7 @@ export const FilterSidebarClient = ({
       }
     })
 
-    router.push(`/?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const clearFilters = () => {
@@ -199,7 +200,7 @@ export const FilterSidebarClient = ({
     if (subcategorySlug) params.set('subcategory', subcategorySlug)
     const searchQuery = searchParams.get('search')
     if (searchQuery) params.set('search', searchQuery)
-    router.push(`/?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const hasActiveFilters =

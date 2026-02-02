@@ -29,6 +29,18 @@ export function PricingSection({
     loading,
     onCreateCurrency,
 }: PricingSectionProps) {
+    const getCurrencySymbol = (code: string) =>
+        currencies.find((c) => c.code === code)?.symbol ?? "";
+
+    const getDiscountDetails = (price: number, salePrice?: number) => {
+        if (!salePrice || salePrice <= 0 || salePrice >= price) {
+            return null;
+        }
+        const amount = price - salePrice;
+        const percent = Math.round((amount / price) * 100);
+        return { amount, percent };
+    };
+
     const handlePriceChange = (index: number, updates: Partial<PriceInput>) => {
         const newPrices = [...(formData.prices || [])];
         newPrices[index] = { ...newPrices[index], ...updates };
@@ -90,10 +102,10 @@ export function PricingSection({
                 {(formData.prices ?? []).map((p, idx) => (
                     <div
                         key={idx}
-                        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end p-4 rounded-lg border ${p.isDefault ? "border-primary bg-primary/5" : "border-border"}`}
+                        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-start p-4 rounded-lg border ${p.isDefault ? "border-primary bg-primary/5" : "border-border"}`}
                     >
-                        <div className="space-y-2">
-                            <Label>Moneda</Label>
+                        <div className="space-y-2 min-w-0">
+                            <Label className="h-5">Moneda</Label>
                             <Select
                                 value={p.currency || currencies[0]?.code || "USD"}
                                 onValueChange={(value) =>
@@ -101,7 +113,7 @@ export function PricingSection({
                                 }
                                 aria-busy={loading}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Seleccionar moneda" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -117,7 +129,9 @@ export function PricingSection({
                                     ) : (
                                         currencies.map((c) => (
                                             <SelectItem key={c.id} value={c.code}>
-                                                {c.symbol} {c.code} - {c.name}
+                                                <span className="truncate">
+                                                    {c.symbol} {c.code} - {c.name}
+                                                </span>
                                             </SelectItem>
                                         ))
                                     )}
@@ -126,7 +140,7 @@ export function PricingSection({
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Precio</Label>
+                            <Label className="h-5">Precio</Label>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -145,7 +159,7 @@ export function PricingSection({
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Precio de Venta</Label>
+                            <Label className="h-5">Precio de Venta</Label>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -162,6 +176,26 @@ export function PricingSection({
                                     parseType: "float",
                                 })}
                             />
+                            <div className="min-h-[1.25rem]">
+                                {p.price > 0 && p.salePrice ? (
+                                    (() => {
+                                        const discount = getDiscountDetails(p.price, p.salePrice);
+                                        if (!discount) {
+                                            return null;
+                                        }
+                                        const currencySymbol = getCurrencySymbol(
+                                            p.currency || currencies[0]?.code || "USD"
+                                        );
+                                        return (
+                                            <p className="text-xs text-emerald-600">
+                                                Descuento: {discount.percent}% (
+                                                {currencySymbol}
+                                                {discount.amount.toFixed(2)})
+                                            </p>
+                                        );
+                                    })()
+                                ) : null}
+                            </div>
                         </div>
 
                         <div className="space-y-2 hidden">
@@ -169,7 +203,7 @@ export function PricingSection({
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Predeterminado</Label>
+                            <Label className="h-5">Predeterminado</Label>
                             <div className="flex gap-2">
                                 <Button
                                     type="button"

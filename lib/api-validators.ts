@@ -65,7 +65,7 @@ export const productSchema = z.object({
     slug: z.string().min(1),
     description: z.string().min(1),
     shortDescription: z.string().optional(),
-    categoryId: idString,
+    categoryId: z.string().optional().nullable(),
     subcategoryId: z.string().optional().nullable(),
     coverImages: z.array(z.any()).optional(),
     specifications: specificationsSchema,

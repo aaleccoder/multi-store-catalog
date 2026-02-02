@@ -15,6 +15,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Drawer,
   DrawerClose,
@@ -202,10 +203,7 @@ export default function MediaPage() {
           {isLoading && (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square bg-muted rounded-lg animate-pulse"
-                />
+                <Skeleton key={i} className="aspect-square rounded-lg" />
               ))}
             </div>
           )}

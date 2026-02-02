@@ -84,16 +84,17 @@ export const adminProductsRouter = router({
         ctx.session.user.id,
       );
 
-      let resolvedSubcategoryId: string | undefined;
-      if (
-        typeof payload.subcategoryId === "string" &&
-        payload.subcategoryId.trim() !== ""
-      ) {
+      // Normalize empty strings to null
+      const normalizedCategoryId = payload.categoryId?.trim() || null;
+      const normalizedSubcategoryId = payload.subcategoryId?.trim() || null;
+
+      let resolvedSubcategoryId: string | null = null;
+      if (normalizedSubcategoryId) {
         const subcategory = await prisma.subcategory.findFirst({
           where: {
             OR: [
-              { id: payload.subcategoryId },
-              { slug: payload.subcategoryId },
+              { id: normalizedSubcategoryId },
+              { slug: normalizedSubcategoryId },
             ],
             storeId,
           },
@@ -101,20 +102,23 @@ export const adminProductsRouter = router({
         if (!subcategory) {
           throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
             message: "Subcategory not found",
-            details: { resource: "subcategory", id: payload.subcategoryId },
+            details: { resource: "subcategory", id: normalizedSubcategoryId },
           });
         }
         resolvedSubcategoryId = subcategory.id;
       }
 
-      const category = await prisma.category.findFirst({
-        where: { id: payload.categoryId, storeId },
-      });
-      if (!category) {
-        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
-          message: "Category not found for this store",
-          details: { resource: "category", id: payload.categoryId },
+      // Only validate category if categoryId is provided
+      if (normalizedCategoryId) {
+        const category = await prisma.category.findFirst({
+          where: { id: normalizedCategoryId, storeId },
         });
+        if (!category) {
+          throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+            message: "Category not found for this store",
+            details: { resource: "category", id: normalizedCategoryId },
+          });
+        }
       }
 
       try {
@@ -130,7 +134,7 @@ export const adminProductsRouter = router({
             slug: payload.slug,
             description: payload.description,
             shortDescription: payload.shortDescription,
-            categoryId: payload.categoryId,
+            categoryId: normalizedCategoryId,
             subcategoryId: resolvedSubcategoryId,
             coverImages: {
               create: (payload.coverImages || []).map((image: any) => ({
@@ -320,34 +324,38 @@ export const adminProductsRouter = router({
         ctx.session.user.id,
       );
 
-      let resolvedSubcategoryId: string | undefined;
-      if (
-        typeof data.subcategoryId === "string" &&
-        data.subcategoryId.trim() !== ""
-      ) {
+      // Normalize empty strings to null
+      const normalizedCategoryId = data.categoryId?.trim() || null;
+      const normalizedSubcategoryId = data.subcategoryId?.trim() || null;
+
+      let resolvedSubcategoryId: string | null = null;
+      if (normalizedSubcategoryId) {
         const subcategory = await prisma.subcategory.findFirst({
           where: {
-            OR: [{ id: data.subcategoryId }, { slug: data.subcategoryId }],
+            OR: [{ id: normalizedSubcategoryId }, { slug: normalizedSubcategoryId }],
             storeId,
           },
         });
         if (!subcategory) {
           throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
             message: "Subcategory not found",
-            details: { resource: "subcategory", id: data.subcategoryId },
+            details: { resource: "subcategory", id: normalizedSubcategoryId },
           });
         }
         resolvedSubcategoryId = subcategory.id;
       }
 
-      const category = await prisma.category.findFirst({
-        where: { id: data.categoryId, storeId },
-      });
-      if (!category) {
-        throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
-          message: "Category not found for this store",
-          details: { resource: "category", id: data.categoryId },
+      // Only validate category if categoryId is provided
+      if (normalizedCategoryId) {
+        const category = await prisma.category.findFirst({
+          where: { id: normalizedCategoryId, storeId },
         });
+        if (!category) {
+          throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+            message: "Category not found for this store",
+            details: { resource: "category", id: normalizedCategoryId },
+          });
+        }
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

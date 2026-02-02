@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useProductForm } from "./hooks/useProductForm";
@@ -16,6 +17,7 @@ import { CategorySection } from "./sections/CategorySection";
 import { ImagesSection } from "./sections/ImagesSection";
 import { SpecificationsSection } from "./sections/SpecificationsSection";
 import { StatusSection } from "./sections/StatusSection";
+import { ProductVariantEditor } from "../product-variants-form";
 import {
     CreateCategoryDialog,
     CreateSubcategoryDialog,
@@ -25,6 +27,8 @@ import type { ProductFormProps } from "./types";
 
 export function ProductForm({ productId, storeSlug }: ProductFormProps) {
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const {
         formData,
@@ -39,6 +43,14 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
         handleSubmit,
     } = useProductForm(productId, storeSlug);
 
+    const variantParam = searchParams.get("variant");
+    const parsedVariantIndex = variantParam ? Number.parseInt(variantParam, 10) : Number.NaN;
+    const isVariantIndexValid =
+        Number.isInteger(parsedVariantIndex) &&
+        parsedVariantIndex >= 0 &&
+        parsedVariantIndex < formData.variants.length;
+    const editingVariantIndex = isVariantIndexValid ? parsedVariantIndex : null;
+
     const categoryDialog = useCreateCategory(storeSlug);
     const subcategoryDialog = useCreateSubcategory(storeSlug);
     const currencyDialog = useCreateCurrency(storeSlug);
@@ -46,6 +58,19 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
     const updateFormData = (data: Partial<typeof formData>) => {
         setFormData({ ...formData, ...data });
     };
+
+    const clearVariantParam = useCallback(() => {
+        const params = new URLSearchParams(searchParams);
+        params.delete("variant");
+        const query = params.toString();
+        router.push(query ? `${pathname}?${query}` : pathname);
+    }, [pathname, router, searchParams]);
+
+    useEffect(() => {
+        if (!loading && variantParam && !isVariantIndexValid) {
+            clearVariantParam();
+        }
+    }, [loading, variantParam, isVariantIndexValid, clearVariantParam]);
 
     if (loading) {
         return (
@@ -59,57 +84,126 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
         );
     }
 
+    if (editingVariantIndex !== null) {
+        return (
+            <div className="min-h-screen bg-background">
+                <main className="pt-20 lg:pt-0">
+                    <div className="p-2 md:p-8 w-full max-w-none mx-auto">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+                            <div>
+                                <h1 className="text-3xl font-bold">Editar Variante</h1>
+                                <p className="text-sm text-muted-foreground">
+                                    Producto: {formData.name || "Producto sin nombre"}
+                                </p>
+                            </div>
+                            <Button type="button" variant="outline" onClick={clearVariantParam}>
+                                Volver al producto
+                            </Button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <ProductVariantEditor
+                                variants={formData.variants}
+                                variantIndex={editingVariantIndex}
+                                onChange={(variants) => updateFormData({ variants })}
+                                currencies={currencies}
+                                storeSlug={storeSlug}
+                            />
+
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="w-full sm:w-auto"
+                                >
+                                    {saving ? "Guardando..." : "Guardar Producto"}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={clearVariantParam}
+                                    disabled={saving}
+                                    className="w-full sm:w-auto"
+                                >
+                                    Volver
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-background">
             <main className=" pt-20 lg:pt-0">
-                <div className="md:p-8 md:max-w-4xl p-2 mx-auto">
+                <div className="p-2 md:p-8 w-full max-w-none mx-auto">
                     <h1 className="text-3xl font-bold mb-6">
                         {productId ? "Editar Producto" : "Crear Producto"}
                     </h1>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <BasicInfoSection
-                            formData={formData}
-                            onUpdate={updateFormData}
-                            manuallyEditedSlug={manuallyEditedSlug}
-                            onSlugEditChange={setManuallyEditedSlug}
-                        />
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="lg:col-span-2">
+                                <BasicInfoSection
+                                    formData={formData}
+                                    onUpdate={updateFormData}
+                                    manuallyEditedSlug={manuallyEditedSlug}
+                                    onSlugEditChange={setManuallyEditedSlug}
+                                />
+                            </div>
 
-                        <VariantsSection
-                            formData={formData}
-                            onUpdate={updateFormData}
-                            currencies={currencies}
-                            storeSlug={storeSlug}
-                        />
+                            <div className="lg:col-span-2">
+                                <VariantsSection
+                                    formData={formData}
+                                    onUpdate={updateFormData}
+                                    currencies={currencies}
+                                    storeSlug={storeSlug}
+                                />
+                            </div>
 
-                        {!formData.hasVariants && (
-                            <PricingSection
+                            {!formData.hasVariants && (
+                                <PricingSection
+                                    formData={formData}
+                                    onUpdate={updateFormData}
+                                    currencies={currencies}
+                                    loading={loading}
+                                    onCreateCurrency={() => currencyDialog.setIsOpen(true)}
+                                />
+                            )}
+
+                            <CategorySection
                                 formData={formData}
                                 onUpdate={updateFormData}
-                                currencies={currencies}
+                                categories={categories}
+                                subcategories={subcategories}
                                 loading={loading}
-                                onCreateCurrency={() => currencyDialog.setIsOpen(true)}
+                                onCreateCategory={() => categoryDialog.setIsOpen(true)}
+                                onCreateSubcategory={() =>
+                                    subcategoryDialog.setIsOpen(true)
+                                }
                             />
-                        )}
 
-                        <CategorySection
-                            formData={formData}
-                            onUpdate={updateFormData}
-                            categories={categories}
-                            subcategories={subcategories}
-                            loading={loading}
-                            onCreateCategory={() => categoryDialog.setIsOpen(true)}
-                            onCreateSubcategory={() => subcategoryDialog.setIsOpen(true)}
-                        />
+                            <div className="lg:col-span-2">
+                                <ImagesSection
+                                    formData={formData}
+                                    onUpdate={updateFormData}
+                                />
+                            </div>
 
-                        <ImagesSection formData={formData} onUpdate={updateFormData} />
+                            <div className="lg:col-span-2">
+                                <SpecificationsSection
+                                    formData={formData}
+                                    onUpdate={updateFormData}
+                                />
+                            </div>
 
-                        <SpecificationsSection
-                            formData={formData}
-                            onUpdate={updateFormData}
-                        />
-
-                        <StatusSection formData={formData} onUpdate={updateFormData} />
+                            <StatusSection
+                                formData={formData}
+                                onUpdate={updateFormData}
+                            />
+                        </div>
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Button
@@ -144,7 +238,7 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                 onNameChange={categoryDialog.setName}
                 onConfirm={() =>
                     categoryDialog.handleCreate((categoryId) =>
-                        updateFormData({ categoryId, subcategoryId: "" })
+                        updateFormData({ categoryId, subcategoryId: null })
                     )
                 }
                 isLoading={categoryDialog.isLoading}
@@ -157,7 +251,7 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                 onNameChange={subcategoryDialog.setName}
                 onConfirm={() =>
                     subcategoryDialog.handleCreate(
-                        formData.categoryId,
+                        formData.categoryId || "",
                         (subcategoryId) => updateFormData({ subcategoryId })
                     )
                 }

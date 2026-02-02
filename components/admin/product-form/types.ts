@@ -36,8 +36,8 @@ export interface ProductFormData {
     slug: string;
     description: string;
     shortDescription: string;
-    categoryId: string;
-    subcategoryId: string;
+    categoryId: string | null;
+    subcategoryId: string | null;
     coverImages: CoverImage[];
     prices: PriceInput[];
     specifications: Specifications;

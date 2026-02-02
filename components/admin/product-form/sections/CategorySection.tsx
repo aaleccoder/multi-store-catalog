@@ -58,8 +58,8 @@ export function CategorySection({
                             value={formData.categoryId || "none"}
                             onValueChange={(value) =>
                                 onUpdate({
-                                    categoryId: value === "none" ? "" : value,
-                                    subcategoryId: "",
+                                    categoryId: value === "none" ? null : value,
+                                    subcategoryId: null,
                                 })
                             }
                             aria-busy={loading}
@@ -113,7 +113,7 @@ export function CategorySection({
                             value={formData.subcategoryId || "none"}
                             onValueChange={(value) =>
                                 onUpdate({
-                                    subcategoryId: value === "none" ? "" : value,
+                                    subcategoryId: value === "none" ? null : value,
                                 })
                             }
                             disabled={!formData.categoryId}
