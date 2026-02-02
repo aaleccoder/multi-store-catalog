@@ -11,12 +11,14 @@ import { adminMediaRouter } from './routers/admin/media'
 import { adminUsersRouter } from './routers/admin/users'
 import { adminSettingsRouter } from './routers/admin/settings'
 import { adminStoresRouter } from './routers/admin/stores'
+import { contactRouter } from './routers/contact'
 
 export const appRouter = router({
     categories: categoriesRouter,
     subcategories: subcategoriesRouter,
     products: productsRouter,
     currencies: currenciesRouter,
+    contact: contactRouter,
     admin: router({
         categories: adminCategoriesRouter,
         subcategories: adminSubcategoriesRouter,

@@ -1,24 +1,49 @@
 import { prisma } from "@/lib/db";
-import { mergeTheme, defaultStoreBranding, type StoreTheme } from "@/lib/theme";
+import { mergeTheme, type StoreTheme } from "@/lib/theme";
 import Header from "@/components/wholepage/Header";
+import Footer from "@/components/wholepage/Footer";
 import LandingContent from "@/components/LandingContent";
-import Image from "next/image";
 
 // Enable ISR with 1 minute revalidation
 export const revalidate = 60;
 
-export default async function LandingPage() {
-  const stores = await prisma.store.findMany({
-    where: { isActive: true },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      theme: true,
-    },
-    orderBy: { createdAt: "asc" },
-  });
+const STORES_PER_PAGE = 12;
+
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const search = params.search || "";
+
+  const where = {
+    isActive: true,
+    ...(search && {
+      OR: [
+        { name: { contains: search, mode: "insensitive" as const } },
+        { description: { contains: search, mode: "insensitive" as const } },
+      ],
+    }),
+  };
+
+  const [stores, totalCount] = await Promise.all([
+    prisma.store.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        theme: true,
+      },
+      orderBy: { createdAt: "asc" },
+      skip: (page - 1) * STORES_PER_PAGE,
+      take: STORES_PER_PAGE,
+    }),
+    prisma.store.count({ where }),
+  ]);
 
   const storesWithBranding = stores.map((store) => {
     const merged = mergeTheme(
@@ -32,29 +57,19 @@ export default async function LandingPage() {
     };
   });
 
+  const totalPages = Math.ceil(totalCount / STORES_PER_PAGE);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
-      <LandingContent stores={storesWithBranding} />
-      <footer className="bg-muted text-muted-foreground p-4 mt-auto">
-        <div className="container mx-auto flex flex-col items-center">
-          <Image
-            src="/android-chrome-192x192.png"
-            alt="Logo de Catálogo Multi-Tienda"
-            width={48}
-            height={48}
-            className="mb-2"
-          />
-          <p className="text-center mb-2">
-            Catálogo Multi-Tienda - Tu tienda única para listados de múltiples
-            tiendas.
-          </p>
-
-          <p className="text-sm">
-            &copy; 2023 Catálogo Multi-Tienda. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
+      <LandingContent
+        stores={storesWithBranding}
+        currentPage={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        searchQuery={search}
+      />
+      <Footer />
     </div>
   );
 }
