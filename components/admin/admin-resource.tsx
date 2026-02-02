@@ -416,14 +416,21 @@ export function AdminResource<
     }
   }
 
+  const normalizeString = (str: string): string => {
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
   const filtered = items.filter((it) => {
     if (!search) return true;
-    const q = search.toLowerCase();
+    const q = normalizeString(search);
     return searchKeys.some((k) => {
       const val = String(
         (it as Record<string, unknown>)[String(k)] ?? "",
-      ).toLowerCase();
-      return val.includes(q);
+      );
+      return normalizeString(val).includes(q);
     });
   });
 
@@ -536,76 +543,76 @@ export function AdminResource<
                 {renderForm
                   ? renderForm({ formData, setFormData, dependencies })
                   : formFields.map((f) => {
-                      if (f.type === "hidden" || f.hidden) return null;
+                    if (f.type === "hidden" || f.hidden) return null;
 
-                      return (
-                        <div key={f.name} className="space-y-2">
-                          <Label htmlFor={f.name}>{f.label}</Label>
-                          {f.type === "textarea" ? (
-                            <textarea
-                              id={f.name}
-                              value={String(formData[f.name] ?? "")}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  [f.name]: e.target.value,
-                                })
-                              }
-                              className="w-full border rounded p-2"
-                            />
-                          ) : f.type === "switch" ? (
-                            <Switch
-                              id={f.name}
-                              checked={!!formData[f.name]}
-                              onCheckedChange={(val: boolean) =>
-                                setFormData({ ...formData, [f.name]: val })
-                              }
-                            />
-                          ) : f.type === "select" ? (
-                            <Select
-                              value={String(formData[f.name] ?? "")}
-                              onValueChange={(val) =>
-                                setFormData({ ...formData, [f.name]: val })
-                              }
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Seleccionar…" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(() => {
-                                  const opts = (f.options ??
-                                    (dependencies?.[f.name] as OptionType[]) ??
-                                    []) as OptionType[];
-                                  return opts.map((opt, idx) => (
-                                    <SelectItem
-                                      key={String(
-                                        opt.value ?? opt.id ?? opt.name ?? idx,
-                                      )}
-                                      value={String(opt.value ?? opt.id)}
-                                    >
-                                      {opt.label ?? opt.name}
-                                    </SelectItem>
-                                  ));
-                                })()}
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            <Input
-                              id={f.name}
-                              value={String(formData[f.name] ?? "")}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  [f.name]: e.target.value,
-                                })
-                              }
-                              required={f.required}
-                              type={f.type === "number" ? "number" : "text"}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
+                    return (
+                      <div key={f.name} className="space-y-2">
+                        <Label htmlFor={f.name}>{f.label}</Label>
+                        {f.type === "textarea" ? (
+                          <textarea
+                            id={f.name}
+                            value={String(formData[f.name] ?? "")}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                [f.name]: e.target.value,
+                              })
+                            }
+                            className="w-full border rounded p-2"
+                          />
+                        ) : f.type === "switch" ? (
+                          <Switch
+                            id={f.name}
+                            checked={!!formData[f.name]}
+                            onCheckedChange={(val: boolean) =>
+                              setFormData({ ...formData, [f.name]: val })
+                            }
+                          />
+                        ) : f.type === "select" ? (
+                          <Select
+                            value={String(formData[f.name] ?? "")}
+                            onValueChange={(val) =>
+                              setFormData({ ...formData, [f.name]: val })
+                            }
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Seleccionar…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(() => {
+                                const opts = (f.options ??
+                                  (dependencies?.[f.name] as OptionType[]) ??
+                                  []) as OptionType[];
+                                return opts.map((opt, idx) => (
+                                  <SelectItem
+                                    key={String(
+                                      opt.value ?? opt.id ?? opt.name ?? idx,
+                                    )}
+                                    value={String(opt.value ?? opt.id)}
+                                  >
+                                    {opt.label ?? opt.name}
+                                  </SelectItem>
+                                ));
+                              })()}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            id={f.name}
+                            value={String(formData[f.name] ?? "")}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                [f.name]: e.target.value,
+                              })
+                            }
+                            required={f.required}
+                            type={f.type === "number" ? "number" : "text"}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
 
               <DialogFooter>
@@ -740,10 +747,10 @@ export function AdminResource<
                         {c.render
                           ? c.render(item)
                           : String(
-                              (item as Record<string, unknown>)[
-                                String(c.accessor ?? "")
-                              ] ?? "",
-                            )}
+                            (item as Record<string, unknown>)[
+                            String(c.accessor ?? "")
+                            ] ?? "",
+                          )}
                       </TableCell>
                     ))}
                     <TableCell className="text-right">
