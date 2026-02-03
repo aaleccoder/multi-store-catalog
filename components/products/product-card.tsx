@@ -151,28 +151,18 @@ export const ProductCard = ({
       className="block h-full"
     >
       <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-white shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
-        <div className={isMobile ? "relative" : "relative aspect-square"}>
-          <div className={`relative overflow-hidden rounded-lg ${isMobile ? "h-32 w-32" : "w-full h-full"}`}>
+        <div className={isMobile ? "relative w-full aspect-[4/3]" : "relative aspect-square"}>
+          <div className={`relative overflow-hidden bg-secondary ${isMobile ? "w-full h-full" : "w-full h-full rounded-lg"}`}>
             {currentImage?.url ? (
-              isMobile ? (
-                <Image
-                  width={192}
-                  height={192}
-                  src={currentImage.url}
-                  alt={currentImage.alt || name}
-                  className="object-cover"
-                />
-              ) : (
-                <Image
-                  src={currentImage.url}
-                  alt={currentImage.alt || name}
-                  className="object-contain transition-opacity duration-300"
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              )
+              <Image
+                src={currentImage.url}
+                alt={currentImage.alt || name}
+                className={`${isMobile ? "object-cover" : "object-contain transition-opacity duration-300"}`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center ${isMobile ? "" : "bg-secondary"}`}>
+              <div className="w-full h-full flex items-center justify-center bg-secondary">
                 <span className={`text-muted-foreground ${isMobile ? "text-xs" : "text-sm"}`}>
                   Sin imagen
                 </span>
@@ -269,8 +259,8 @@ export const ProductCard = ({
           </Button>
         </div>
 
-        <CardContent className={isMobile ? "p-2 flex flex-col max-h-32 h-full min-h-32 justify-between" : "p-0 flex-1 flex flex-col"}>
-          <div className={isMobile ? "space-y-0.5 flex-1" : "px-4 flex flex-col flex-1 space-y-1.5"}>
+        <CardContent className={isMobile ? "p-3 flex flex-col gap-2" : "p-0 flex-1 flex flex-col"}>
+          <div className={isMobile ? "flex flex-col gap-1.5" : "px-4 flex flex-col flex-1 space-y-1.5"}>
             {/* Badges - Mobile only shows in content */}
             {isMobile && (
               <div className="h-5">
@@ -279,6 +269,11 @@ export const ProductCard = ({
                     {featured && (
                       <Badge className="bg-accent text-accent-foreground text-[10px] px-2 py-0.5 h-5">
                         Destacado
+                      </Badge>
+                    )}
+                    {displayDiscount && (
+                      <Badge className="bg-destructive/70 text-destructive-foreground text-[10px] px-2 py-0.5 h-5">
+                        -{discountPercentage}%
                       </Badge>
                     )}
                     {!inStock && (
@@ -295,7 +290,7 @@ export const ProductCard = ({
             )}
 
             <div className={isMobile ? "" : "space-y-1"}>
-              <h3 className={`font-bold text-card-foreground line-clamp-1 leading-tight ${isMobile ? "text-base" : "text-xl group-hover:text-primary transition-colors"}`}>
+              <h3 className={`font-bold text-card-foreground leading-tight ${isMobile ? "text-base line-clamp-2" : "text-xl line-clamp-1 group-hover:text-primary transition-colors"}`}>
                 {name}
               </h3>
               {!isMobile && description && (
@@ -327,7 +322,7 @@ export const ProductCard = ({
                   )}
                 </span>
                 {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground leading-none flex flex-row items-center gap-1 line-clamp-1 mb-2">
+                  <div className="text-xs text-muted-foreground flex flex-row items-center gap-1 line-clamp-1 md:mb-2 mb-1 leading-relaxed">
                     {unit && (
                       <span>
                         {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades{(weight || volume) && " de"}
@@ -346,7 +341,7 @@ export const ProductCard = ({
             </div>
           </div>
 
-          <div className={isMobile ? "mt-auto pt-2" : "px-4 pb-4"}>
+          <div className={isMobile ? "pt-2" : "px-4 pb-4"}>
             {quantityInCart > 0 && inStock ? (
               isMobile ? (
                 <QuantityPicker
