@@ -12,12 +12,11 @@ import { defaultStoreFontId, StoreFontId } from '@/lib/store-fonts'
 import { ThemeHeader } from './components/theme-header'
 import { ImportThemeCard } from './components/import-theme-card'
 import { ShadowHelpCard } from './components/shadow-help-card'
-import { BrandingCard } from './components/branding-card'
 import { FontCard } from './components/font-card'
 import { ThemeModeCard } from './components/theme-mode-card'
 import { ShadowField } from './components/shadow-field'
 import { ColorField } from './components/color-field'
-import { buildThemeFromPalette, fileToBase64, parseThemeFromJson, ThemePalette } from './theme-utils'
+import { buildThemeFromPalette, parseThemeFromJson, ThemePalette } from './theme-utils'
 import Link from 'next/link'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
@@ -29,7 +28,6 @@ export default function ThemePage() {
         enabled: !!storeSlug,
     })
     const utils = trpc.useUtils()
-    const uploadMedia = trpc.admin.media.upload.useMutation()
     const updateStore = trpc.admin.stores.update.useMutation({
         onSuccess: async () => {
             if (storeSlug) {
@@ -65,7 +63,6 @@ export default function ThemePage() {
     }, [activeStoreId, baseTheme, themeDrafts])
 
     const mergedTheme = useMemo(() => mergeTheme(theme), [theme])
-    const branding = theme.branding ?? defaultStoreBranding
     const selectedFontId = theme.fontId ?? defaultStoreFontId
     const palette = useMemo<ThemePalette>(() => ({
         background: theme.light?.background ?? mergedTheme.light.background,
@@ -73,26 +70,6 @@ export default function ThemePage() {
         secondary: theme.light?.secondary ?? mergedTheme.light.secondary,
         accent: theme.light?.accent ?? mergedTheme.light.accent,
     }), [mergedTheme, theme.light?.accent, theme.light?.background, theme.light?.primary, theme.light?.secondary])
-
-    const handleLogoFile = async (file: File) => {
-        if (!activeStoreId) return
-        try {
-            const base64 = await fileToBase64(file)
-            const uploaded = await uploadMedia.mutateAsync({
-                fileBase64: base64,
-                fileName: file.name,
-                mimeType: file.type,
-                alt: branding.logoAlt || file.name,
-            })
-
-            handleBrandingChange('logoUrl', uploaded.url)
-            handleBrandingChange('logoAlt', uploaded.alt ?? branding.logoAlt)
-            toast.success('Logo subido')
-        } catch (error) {
-            console.error(error)
-            toast.error('No se pudo subir el logo')
-        }
-    }
 
     const handleChange = (mode: 'light' | 'dark', key: ThemeKeys, value: string) => {
         if (!activeStoreId) return
@@ -180,25 +157,6 @@ export default function ThemePage() {
         'em',
         0,
     )
-
-    const handleBrandingChange = (key: keyof NonNullable<StoreTheme['branding']>, value: string | number | undefined) => {
-        if (!activeStoreId) return
-
-        setThemeDrafts((prev) => {
-            const current = prev[activeStoreId] ?? baseTheme
-
-            return {
-                ...prev,
-                [activeStoreId]: {
-                    ...current,
-                    branding: {
-                        ...(current.branding ?? defaultStoreBranding),
-                        [key]: value === '' ? undefined : value,
-                    },
-                },
-            }
-        })
-    }
 
     const handleFontChange = (fontId: StoreFontId) => {
         if (!activeStoreId) return
@@ -300,12 +258,19 @@ export default function ThemePage() {
                         />
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <BrandingCard
-                            branding={branding}
-                            onBrandingChange={handleBrandingChange}
-                            onLogoFile={handleLogoFile}
-                            uploading={uploadMedia.isPending}
-                        />
+                        <Card className="h-full">
+                            <CardHeader>
+                                <CardTitle>Identidad de la tienda</CardTitle>
+                                <CardDescription>
+                                    Logo, datos de contacto y redes sociales.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Button asChild variant="outline">
+                                    <Link href={`/admin/stores/${storeSlug}/branding`}>Abrir identidad</Link>
+                                </Button>
+                            </CardContent>
+                        </Card>
 
                         <FontCard
                             selectedFontId={selectedFontId}
@@ -385,6 +350,14 @@ export default function ThemePage() {
                                         onChange={(e) => handleGlobalStyleChange('radius', e.target.value)}
                                         spellCheck={false}
                                     />
+
+                                    <div className="rounded-md border bg-background p-3">
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
+                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
+                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -422,6 +395,22 @@ export default function ThemePage() {
                                         onChange={(e) => handleGlobalStyleChange('spacing', e.target.value)}
                                         spellCheck={false}
                                     />
+
+                                    <div className="rounded-md border bg-background p-3">
+                                        <div
+                                            className="rounded-md border bg-card"
+                                            style={{ padding: theme.light?.spacing ?? mergedTheme.light.spacing }}
+                                        >
+                                            <div
+                                                className="grid grid-cols-3"
+                                                style={{ gap: theme.light?.spacing ?? mergedTheme.light.spacing }}
+                                            >
+                                                <div className="h-8 rounded-md bg-muted" />
+                                                <div className="h-8 rounded-md bg-muted" />
+                                                <div className="h-8 rounded-md bg-muted" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -449,6 +438,15 @@ export default function ThemePage() {
                                         onChange={(e) => handleGlobalStyleChange('letterSpacing', e.target.value)}
                                         spellCheck={false}
                                     />
+
+                                    <div className="rounded-md border bg-background p-3">
+                                        <div
+                                            className="rounded-md border bg-card p-3 text-sm"
+                                            style={{ letterSpacing: theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing }}
+                                        >
+                                            Texto de prueba
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -476,6 +474,15 @@ export default function ThemePage() {
                                         onChange={(e) => handleGlobalStyleChange('trackingNormal', e.target.value)}
                                         spellCheck={false}
                                     />
+
+                                    <div className="rounded-md border bg-background p-3">
+                                        <div
+                                            className="rounded-md border bg-card p-3 text-sm"
+                                            style={{ letterSpacing: theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal }}
+                                        >
+                                            Texto de prueba
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
@@ -484,7 +491,7 @@ export default function ThemePage() {
                     <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced} className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-base font-semibold">Opciones avanzadas</h3>
+                                <p className="text-base font-semibold">Opciones avanzadas</p>
                                 <p className="text-sm text-muted-foreground">
                                     Muestra todas las variables del tema, importacion y presets de sombras.
                                 </p>

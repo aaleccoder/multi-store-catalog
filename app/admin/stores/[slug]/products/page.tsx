@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, JSX } from "react";
+import { useState, useCallback, JSX, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { formatPrice as formatCurrencyPrice } from "@/lib/currency-client";
 import { toNumber } from "@/lib/number";
@@ -16,6 +16,7 @@ import {
   Filter,
 } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/trpc/client";
 import AdminResource, {
   Column,
   FormField,
@@ -25,6 +26,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import {
   Table,
@@ -91,6 +99,17 @@ type PriceType = {
   isDefault?: boolean;
 };
 type VariantType = { id: string; isActive: boolean; prices?: PriceType[] };
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+};
+type Subcategory = {
+  id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+};
 
 export default function ProductsPage() {
   const params = useParams<{ slug?: string }>();
@@ -100,6 +119,9 @@ export default function ProductsPage() {
   const storeBasePath = storeSlug
     ? `/admin/stores/${storeSlug}`
     : "/admin/stores";
+  const fetchUrl = storeSlug
+    ? `/api/admin/products?storeSlug=${encodeURIComponent(storeSlug)}`
+    : "/api/admin/products";
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -108,8 +130,8 @@ export default function ProductsPage() {
   >(null);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [subcategoryFilter, setSubcategoryFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [priceMinFilter, setPriceMinFilter] = useState<string>("");
   const [priceMaxFilter, setPriceMaxFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState({
@@ -279,6 +301,35 @@ export default function ProductsPage() {
     [sortKey, sortDirection],
   );
 
+  // Fetch categories and subcategories using tRPC hooks
+  const { data: categoriesData = [] } = trpc.admin.categories.list.useQuery(
+    { storeSlug },
+    { enabled: !!storeSlug }
+  );
+  const { data: subcategoriesData = [] } = trpc.admin.subcategories.list.useQuery(
+    { storeSlug },
+    { enabled: !!storeSlug }
+  );
+
+  // Use the data directly with proper typing
+  const categories = categoriesData as Category[];
+  const subcategories = subcategoriesData as Subcategory[];
+
+  // Filter subcategories based on selected category
+  const filteredSubcategories = categoryFilter !== "all"
+    ? subcategories.filter((sub) => sub.categoryId === categoryFilter)
+    : subcategories;
+
+  // Reset subcategory filter if it's not in the filtered list
+  useEffect(() => {
+    if (categoryFilter !== "all" && subcategoryFilter !== "all") {
+      const isValid = filteredSubcategories.some(sub => sub.id === subcategoryFilter);
+      if (!isValid) {
+        setSubcategoryFilter("all");
+      }
+    }
+  }, [categoryFilter, subcategoryFilter, filteredSubcategories]);
+
   const formFields: FormField[] = [
     { name: "name", label: "Nombre", type: "text", required: true },
     { name: "slug", label: "Slug", type: "text" },
@@ -312,7 +363,7 @@ export default function ProductsPage() {
         <AdminResource<Product>
           title="Productos"
           trpcResource="admin.products"
-          fetchUrl=""
+          fetchUrl={fetchUrl}
           listTransform={listTransform}
           columns={columns}
           formFields={formFields}
@@ -340,25 +391,46 @@ export default function ProductsPage() {
                   {/* Category Filter */}
                   <div className="space-y-2">
                     <Label htmlFor="category-filter">Categoría</Label>
-                    <Input
-                      id="category-filter"
-                      type="text"
-                      placeholder="Filtrar por categoría..."
+                    <Select
                       value={categoryFilter}
-                      onChange={(e) => setCategoryFilter(e.target.value)}
-                    />
+                      onValueChange={(value) => {
+                        setCategoryFilter(value);
+                        setSubcategoryFilter("all"); // Reset subcategory when category changes
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar categoría..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas las categorías</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Subcategory Filter */}
                   <div className="space-y-2">
                     <Label htmlFor="subcategory-filter">Subcategoría</Label>
-                    <Input
-                      id="subcategory-filter"
-                      type="text"
-                      placeholder="Filtrar por subcategoría..."
+                    <Select
                       value={subcategoryFilter}
-                      onChange={(e) => setSubcategoryFilter(e.target.value)}
-                    />
+                      onValueChange={setSubcategoryFilter}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={categoryFilter !== "all" ? "Seleccionar subcategoría..." : "Seleccionar subcategoría..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas las subcategorías</SelectItem>
+                        {filteredSubcategories.map((subcategory) => (
+                          <SelectItem key={subcategory.id} value={subcategory.id}>
+                            {subcategory.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Price Range Filters */}
@@ -504,19 +576,15 @@ export default function ProductsPage() {
             const filteredItems: Product[] = items.filter(
               (product: Product) => {
                 // Category filter
-                if (categoryFilter) {
-                  const categoryName = product.category?.name?.toLowerCase() || "";
-                  const filterLower = categoryFilter.toLowerCase();
-                  if (!categoryName.includes(filterLower)) {
+                if (categoryFilter !== "all") {
+                  if (!product.categoryId || product.categoryId !== categoryFilter) {
                     return false;
                   }
                 }
 
                 // Subcategory filter
-                if (subcategoryFilter) {
-                  const subcategoryName = product.subcategory?.name?.toLowerCase() || "";
-                  const filterLower = subcategoryFilter.toLowerCase();
-                  if (!subcategoryName.includes(filterLower)) {
+                if (subcategoryFilter !== "all") {
+                  if (!product.subcategoryId || product.subcategoryId !== subcategoryFilter) {
                     return false;
                   }
                 }

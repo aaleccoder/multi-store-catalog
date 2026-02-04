@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Save } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
@@ -17,7 +18,11 @@ type ContactSettings = {
 }
 
 export default function SettingsPage() {
-    const queryResult = trpc.admin.settings.list.useQuery()
+    const params = useParams<{ slug?: string }>()
+    const storeSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
+    const queryResult = trpc.admin.settings.list.useQuery(
+        storeSlug ? { storeSlug } : undefined,
+    )
     const { data: settingsData, isLoading, refetch } = queryResult as any
     const updateSettings = trpc.admin.settings.update.useMutation({
         onSuccess: () => {
@@ -47,7 +52,8 @@ export default function SettingsPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         updateSettings.mutate({
-            contact
+            contact,
+            storeSlug: storeSlug || undefined,
         })
     }
 

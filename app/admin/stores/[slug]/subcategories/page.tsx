@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useParams } from "next/navigation";
 import AdminResource from "@/components/admin/admin-resource";
 import { trpc } from "@/trpc/client";
 import { generateSlug, sanitizeSlugInput } from "@/lib/utils";
@@ -133,7 +134,17 @@ function SubcategoryForm({
 }
 
 export default function SubcategoriesPage() {
-  const catsQuery = trpc.admin.categories.list.useQuery();
+  const params = useParams<{ slug?: string }>();
+  const storeSlug = Array.isArray(params?.slug)
+    ? params.slug[0]
+    : params?.slug;
+  const fetchUrl = storeSlug
+    ? `/api/admin/subcategories?storeSlug=${encodeURIComponent(storeSlug)}`
+    : "/api/admin/subcategories";
+
+  const catsQuery = trpc.admin.categories.list.useQuery(
+    storeSlug ? { storeSlug } : undefined,
+  );
 
   const loadDependencies = useCallback(async () => {
     if (catsQuery.isLoading) await catsQuery.refetch();
@@ -154,7 +165,7 @@ export default function SubcategoriesPage() {
         <div className="">
           <AdminResource
             title="Subcategorías"
-            fetchUrl="/api/admin/subcategories"
+            fetchUrl={fetchUrl}
             columns={[
               { header: "Nombre", accessor: "name", sortable: true },
               { header: "Slug", accessor: "slug", sortable: true },

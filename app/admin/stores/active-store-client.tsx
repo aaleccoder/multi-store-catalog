@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ActiveStoreClientProps {
     storeId: string
@@ -10,6 +11,7 @@ interface ActiveStoreClientProps {
 
 export function ActiveStoreClient({ storeId, currentActiveStoreId }: ActiveStoreClientProps) {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const attemptedStoreIdRef = useRef<string | null>(null)
 
     useEffect(() => {
@@ -31,11 +33,13 @@ export function ActiveStoreClient({ storeId, currentActiveStoreId }: ActiveStore
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ storeId }),
                     signal: controller.signal,
+                    credentials: 'include',
                 })
 
                 if (!res.ok) throw new Error('No se pudo seleccionar la tienda')
                 if (cancelled) return
 
+                await queryClient.invalidateQueries()
                 router.refresh()
             } catch (err) {
                 if (cancelled) return
@@ -51,7 +55,7 @@ export function ActiveStoreClient({ storeId, currentActiveStoreId }: ActiveStore
             cancelled = true
             controller.abort()
         }
-    }, [currentActiveStoreId, router, storeId])
+    }, [currentActiveStoreId, queryClient, router, storeId])
 
     return null
 }

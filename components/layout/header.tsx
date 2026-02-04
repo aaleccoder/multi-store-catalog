@@ -27,12 +27,14 @@ export const Header = ({ store }: { store?: Store }) => {
             className="cursor-pointer flex flex-row items-center gap-2"
             aria-label="Ir a inicio"
           >
-            <Logo
-              className="h-16 w-16 object-cover p-1"
-              aria-label="Una Ganga logo"
-              width={128}
-              height={128}
-            />
+            <div className="">
+              <Logo
+                className="object-cover"
+                aria-label="Una Ganga logo"
+                width={92}
+                height={92}
+              />
+            </div>
             <p>{store?.name}</p>
           </button>
         </div>

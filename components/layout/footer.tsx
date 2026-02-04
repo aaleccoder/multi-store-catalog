@@ -24,7 +24,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Dirección</h3>
+            <p className="font-semibold mb-4 text-foreground">Dirección</p>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
               <address className="not-italic">
@@ -34,7 +34,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Contacto</h3>
+            <p className="font-semibold mb-4 text-foreground">Contacto</p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {branding.contactEmail && (
                 <li className="hover:text-primary transition-colors">
@@ -50,7 +50,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Síguenos</h3>
+            <p className="font-semibold mb-4 text-foreground">Síguenos</p>
             <div className="flex gap-4">
               {branding.socialFacebook && (
                 <Link

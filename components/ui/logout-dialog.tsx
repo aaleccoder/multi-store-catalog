@@ -25,7 +25,7 @@ export function LogoutDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirmar Cierre de Sesión</DialogTitle>
+          <DialogTitle>Confirmar cierre de sesión</DialogTitle>
           <DialogDescription>
             ¿Estás seguro de que quieres cerrar sesión?
           </DialogDescription>

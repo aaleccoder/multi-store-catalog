@@ -1,7 +1,14 @@
 "use client"
 
 import AdminResource from '@/components/admin/admin-resource'
+import { useParams } from 'next/navigation'
 export default function CurrenciesPage() {
+    const params = useParams<{ slug?: string }>()
+    const storeSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug
+    const fetchUrl = storeSlug
+        ? `/api/admin/currencies?storeSlug=${encodeURIComponent(storeSlug)}`
+        : '/api/admin/currencies'
+
     return (
         <div className="min-h-screen bg-background">
 
@@ -9,7 +16,7 @@ export default function CurrenciesPage() {
                 <div className="">
                     <AdminResource
                         title="Monedas"
-                        fetchUrl="/api/admin/currencies"
+                        fetchUrl={fetchUrl}
                         columns={[
                             { header: 'Nombre', accessor: 'name' },
                             { header: 'Código', accessor: 'code' },

@@ -31,13 +31,11 @@ import { createNumberInputHandlers } from '@/lib/number-input'
 import { CreateCurrencyDialog } from './product-form/dialogs/CreateResourceDialogs'
 import { useCreateCurrency } from './product-form/hooks/useCreateDialogs'
 import { SpecificationsFormFields } from './product-form/sections/SpecificationsFormFields'
+import { PricingSection } from './product-form/sections/PricingSection'
+import type { PriceInput } from './product-form/types'
 
-export interface VariantPrice {
-    price: number
-    salePrice?: number | null
-    currency: string
-    isDefault?: boolean
-    taxIncluded?: boolean
+export interface VariantPrice extends PriceInput {
+    // Additional fields specific to variants can be added here if needed
 }
 
 export interface VariantImage {
@@ -242,32 +240,6 @@ export function ProductVariantEditor({
         onChange(newVariants)
     }
 
-    const updateVariantPrice = (index: number, priceIndex: number, data: Partial<VariantPrice>) => {
-        const newVariants = [...variants]
-        const newPrices = [...newVariants[index].prices]
-        newPrices[priceIndex] = { ...newPrices[priceIndex], ...data }
-        newVariants[index].prices = newPrices
-        onChange(newVariants)
-    }
-
-    const addPriceToVariant = (index: number) => {
-        const defaultCurrency = currencies[0]?.code || 'USD'
-        const newVariants = [...variants]
-        newVariants[index].prices.push({
-            price: 0,
-            currency: defaultCurrency,
-            isDefault: false,
-            taxIncluded: true
-        })
-        onChange(newVariants)
-    }
-
-    const removePriceFromVariant = (index: number, priceIndex: number) => {
-        const newVariants = [...variants]
-        newVariants[index].prices = newVariants[index].prices.filter((_, i) => i !== priceIndex)
-        onChange(newVariants)
-    }
-
     const handleImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (!files || files.length === 0) return
@@ -318,7 +290,7 @@ export function ProductVariantEditor({
         <div className="space-y-8">
             {/* Basic Info */}
             <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Información Básica</h3>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Información Básica</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label>Nombre</Label>
@@ -362,7 +334,7 @@ export function ProductVariantEditor({
 
             {/* Descriptions */}
             <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Descripciones</h3>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Descripciones</p>
                 <div className="space-y-2">
                     <Label>Descripción Corta</Label>
                     <Textarea
@@ -385,92 +357,26 @@ export function ProductVariantEditor({
 
             {/* Prices */}
             <div className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Precios</h3>
-                    <div className="flex gap-2">
-                        <Button type="button" variant="outline" size="sm" onClick={() => currencyDialog.setIsOpen(true)}>
-                            <Plus className="h-3 w-3 mr-1" /> Nueva Moneda
-                        </Button>
-                        <Button type="button" variant="outline" size="sm" onClick={() => addPriceToVariant(variantIndex)}>
-                            <Plus className="h-3 w-3 mr-1" /> Agregar Precio
-                        </Button>
-                    </div>
-                </div>
-                <div className="space-y-3">
-                    {currentVariant.prices.map((price, pIndex) => (
-                        <Card key={pIndex} className="p-3">
-                            <div className="grid grid-cols-12 gap-2 items-end">
-                                <div className="col-span-12 sm:col-span-4 space-y-1">
-                                    <Label className="text-xs">Precio</Label>
-                                    <Input
-                                        type="number"
-                                        value={price.price}
-                                        {...createNumberInputHandlers({
-                                            onChange: (value) => updateVariantPrice(variantIndex, pIndex, { price: value as any }),
-                                            defaultValue: 0,
-                                            parseType: 'float',
-                                        })}
-                                        className="h-8"
-                                    />
-                                </div>
-                                <div className="col-span-12 sm:col-span-4 space-y-1">
-                                    <Label className="text-xs">Oferta</Label>
-                                    <Input
-                                        type="number"
-                                        value={price.salePrice ?? ''}
-                                        {...createNumberInputHandlers({
-                                            onChange: (value) => updateVariantPrice(variantIndex, pIndex, { salePrice: value as any }),
-                                            defaultValue: null,
-                                            parseType: 'float',
-                                        })}
-                                        className="h-8"
-                                    />
-                                </div>
-                                <div className="col-span-10 sm:col-span-3 space-y-1">
-                                    <Label className="text-xs">Moneda</Label>
-                                    <Select
-                                        value={price.currency || currencies[0]?.code || 'USD'}
-                                        onValueChange={(val) => updateVariantPrice(variantIndex, pIndex, { currency: val })}
-                                    >
-                                        <SelectTrigger className="h-8">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {currencies.length === 0 ? (
-                                                <div className="px-4 py-2 text-sm text-muted-foreground">
-                                                    No hay monedas disponibles
-                                                </div>
-                                            ) : (
-                                                currencies.map(c => (
-                                                    <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
-                                                ))
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="col-span-2 sm:col-span-1 flex justify-end">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-destructive"
-                                        onClick={() => removePriceFromVariant(variantIndex, pIndex)}
-                                        disabled={currentVariant.prices.length === 1}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
+                <PricingSection
+                    formData={{
+                        prices: currentVariant.prices,
+                    } as any}
+                    onUpdate={(data) => {
+                        if (data.prices) {
+                            updateVariant(variantIndex, { prices: data.prices as VariantPrice[] })
+                        }
+                    }}
+                    currencies={currencies}
+                    loading={false}
+                    onCreateCurrency={() => currencyDialog.setIsOpen(true)}
+                />
             </div>
 
             <Separator />
 
             {/* Images */}
             <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Imágenes</h3>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Imágenes</p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                     {(currentVariant.coverImages || []).map((img, imgIndex) => (
                         <div key={imgIndex} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
@@ -527,7 +433,7 @@ export function ProductVariantEditor({
 
             {/* Specifications */}
             <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Especificaciones</h3>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Especificaciones</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <SpecificationsFormFields
                         specifications={currentVariant.specifications || {}}

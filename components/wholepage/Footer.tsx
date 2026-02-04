@@ -31,7 +31,7 @@ export default function Footer() {
 
                     {/* Quick Links */}
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-foreground">Enlaces rápidos</h3>
+                        <p className="font-semibold text-foreground">Enlaces rápidos</p>
                         <ul className="space-y-2 text-sm">
                             <li>
                                 <Link href="/#stores" className="hover:text-foreground transition-colors">
@@ -58,7 +58,7 @@ export default function Footer() {
 
                     {/* Legal */}
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-foreground">Legal</h3>
+                        <p className="font-semibold text-foreground">Legal</p>
                         <ul className="space-y-2 text-sm">
                             <li>
                                 <Link href="/terms" className="hover:text-foreground transition-colors">
@@ -75,7 +75,7 @@ export default function Footer() {
 
                     {/* Contact */}
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-foreground">Contacto</h3>
+                        <p className="font-semibold text-foreground">Contacto</p>
                         <ul className="space-y-3 text-sm">
                             <li>
                                 <a

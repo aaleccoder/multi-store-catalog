@@ -21,15 +21,6 @@ export const BrandingCard = ({ branding, onBrandingChange, onLogoFile, uploading
             <CardDescription>Configura el logo que se mostrara en el storefront.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="logo-url">Logo (URL)</Label>
-                <Input
-                    id="logo-url"
-                    value={branding.logoUrl ?? ''}
-                    onChange={(e) => onBrandingChange('logoUrl', e.target.value)}
-                    placeholder="https://.../logo.png"
-                />
-            </div>
 
             <div className="space-y-2">
                 <Label htmlFor="logo-alt">Texto alternativo</Label>
@@ -41,7 +32,7 @@ export const BrandingCard = ({ branding, onBrandingChange, onLogoFile, uploading
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="logo-width">Ancho (px)</Label>
                     <Input
@@ -62,7 +53,7 @@ export const BrandingCard = ({ branding, onBrandingChange, onLogoFile, uploading
                         onChange={(e) => onBrandingChange('logoHeight', e.target.value ? Number(e.target.value) : undefined)}
                     />
                 </div>
-            </div>
+            </div> */}
 
             <div className="space-y-2">
                 <Label>Vista previa</Label>

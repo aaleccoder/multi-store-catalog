@@ -43,6 +43,14 @@ export const priceInputSchema = z.object({
     salePrice: z.number().optional().nullable(),
     isDefault: z.boolean().optional(),
     taxIncluded: z.boolean().optional(),
+}).refine((data) => {
+    if (data.price !== undefined && data.salePrice !== undefined && data.salePrice !== null) {
+        return data.salePrice <= data.price;
+    }
+    return true;
+}, {
+    message: "El precio de venta no puede ser mayor al precio regular",
+    path: ["salePrice"],
 })
 
 export const specificationsSchema = z.object({
@@ -81,7 +89,16 @@ export const productSchema = z.object({
         salePrice: z.number().optional().nullable(),
         isDefault: z.boolean().optional(),
         taxIncluded: z.boolean().optional().nullable(),
-    })).optional(),
+    })).refine((prices) => {
+        return prices.every(price => {
+            if (price.price !== undefined && price.salePrice !== undefined && price.salePrice !== null) {
+                return price.salePrice <= price.price;
+            }
+            return true;
+        });
+    }, {
+        message: "El precio de venta no puede ser mayor al precio regular",
+    }).optional(),
     variants: z.array(z.object({
         id: z.string().optional(),
         name: z.string().min(1),
@@ -97,6 +114,7 @@ export const productSchema = z.object({
         prices: z.array(priceInputSchema).optional(),
     })).optional(),
     storeId: idString.optional(),
+    storeSlug: z.string().optional(),
 })
 
 export const mediaAltSchema = z.object({ alt: z.string().optional() })

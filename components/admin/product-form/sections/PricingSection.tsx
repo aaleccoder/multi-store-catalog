@@ -9,7 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, AlertCircle } from "lucide-react";
 import type { ProductFormData, PriceInput } from "../types";
 import type { Currency } from "@/lib/currency-client";
 import { createNumberInputHandlers } from "@/lib/number-input";
@@ -41,9 +41,26 @@ export function PricingSection({
         return { amount, percent };
     };
 
+    const validateSalePrice = (price: number, salePrice?: number) => {
+        if (salePrice !== undefined && salePrice !== null && salePrice > price) {
+            return "El precio de venta no puede ser mayor al precio regular";
+        }
+        return null;
+    };
+
     const handlePriceChange = (index: number, updates: Partial<PriceInput>) => {
         const newPrices = [...(formData.prices || [])];
-        newPrices[index] = { ...newPrices[index], ...updates };
+        const currentPrice = newPrices[index];
+
+        // If price is being updated, revalidate sale price
+        if ('price' in updates && currentPrice.salePrice !== undefined && currentPrice.salePrice !== null) {
+            const newPrice = updates.price ?? 0;
+            const validationError = validateSalePrice(newPrice, currentPrice.salePrice);
+            newPrices[index] = { ...currentPrice, ...updates, validationError: validationError || undefined };
+        } else {
+            newPrices[index] = { ...currentPrice, ...updates };
+        }
+
         onUpdate({ prices: newPrices });
     };
 
@@ -164,20 +181,43 @@ export function PricingSection({
                                 type="number"
                                 step="0.01"
                                 min="0"
+                                max={p.price || undefined}
                                 value={p.salePrice ?? ""}
                                 {...createNumberInputHandlers({
                                     onChange: (value) => {
+                                        const salePriceValue = value === "" ? undefined : (value as unknown as number);
+                                        const validationError = p.price > 0 ? validateSalePrice(p.price, salePriceValue) : null;
+
                                         handlePriceChange(idx, {
-                                            salePrice:
-                                                value === "" ? undefined : (value as unknown as number),
+                                            salePrice: salePriceValue,
+                                            validationError: validationError || undefined,
                                         });
                                     },
                                     defaultValue: null,
                                     parseType: "float",
                                 })}
+                                onBlur={(e) => {
+                                    const salePriceValue = e.target.value === "" ? undefined : parseFloat(e.target.value);
+
+                                    if (p.price > 0 && salePriceValue !== undefined && salePriceValue !== null) {
+                                        const validationError = validateSalePrice(p.price, salePriceValue);
+                                        if (validationError) {
+                                            handlePriceChange(idx, {
+                                                salePrice: p.price,
+                                                validationError: undefined,
+                                            });
+                                        }
+                                    }
+                                }}
+                                className={p.validationError ? "border-red-500" : ""}
                             />
                             <div className="min-h-[1.25rem]">
-                                {p.price > 0 && p.salePrice ? (
+                                {p.validationError ? (
+                                    <p className="text-xs text-red-600 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        {p.validationError}
+                                    </p>
+                                ) : p.price > 0 && p.salePrice ? (
                                     (() => {
                                         const discount = getDiscountDetails(p.price, p.salePrice);
                                         if (!discount) {

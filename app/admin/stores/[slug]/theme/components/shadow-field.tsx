@@ -45,12 +45,12 @@ export const ShadowField = ({ value, onChange }: ShadowFieldProps) => {
                 </select>
             </div>
 
-            <Input
+            {/* <Input
                 value={safeValue}
                 onChange={(e) => onChange(e.target.value)}
                 spellCheck={false}
                 placeholder="0px 4px 8px -2px hsl(0 0% 0% / 0.1)"
-            />
+            /> */}
 
             <div className="rounded-md border bg-background p-3">
                 <div

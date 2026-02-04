@@ -151,7 +151,7 @@ export const ProductCard = ({
       className="block h-full"
     >
       <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-white shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
-        <div className={isMobile ? "relative w-full aspect-[4/3]" : "relative aspect-square"}>
+        <div className={isMobile ? "relative w-full aspect-4/3" : "relative aspect-square"}>
           <div className={`relative overflow-hidden bg-secondary ${isMobile ? "w-full h-full" : "w-full h-full rounded-lg"}`}>
             {currentImage?.url ? (
               <Image
@@ -290,9 +290,9 @@ export const ProductCard = ({
             )}
 
             <div className={isMobile ? "" : "space-y-1"}>
-              <h3 className={`font-bold text-card-foreground leading-tight ${isMobile ? "text-base line-clamp-2" : "text-xl line-clamp-1 group-hover:text-primary transition-colors"}`}>
+              <p className={`font-bold text-card-foreground leading-tight ${isMobile ? "text-base line-clamp-2" : "text-xl line-clamp-1 group-hover:text-primary transition-colors"}`}>
                 {name}
-              </h3>
+              </p>
               {!isMobile && description && (
                 <p className="text-md text-muted-foreground line-clamp-1 leading-tight">
                   {description}
@@ -302,27 +302,8 @@ export const ProductCard = ({
 
             <div className={isMobile ? "flex flex-col" : "flex flex-col gap-1.5 mt-auto"}>
               <div className="flex flex-col">
-                {hasDiscount && regularPrice && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    {formatCurrencyPrice(
-                      regularPrice,
-                      typeof currency === "number" ? String(currency) : currency,
-                    )}
-                  </span>
-                )}
-                <span className={`font-bold text-primary ${isMobile ? "text-lg" : "text-xl"}`}>
-                  {pricePrefix && (
-                    <span className="text-xs font-normal text-muted-foreground mr-1">
-                      {pricePrefix}
-                    </span>
-                  )}
-                  {formatCurrencyPrice(
-                    price,
-                    typeof currency === "number" ? String(currency) : currency,
-                  )}
-                </span>
                 {(unit || weight || volume) && (
-                  <div className="text-xs text-muted-foreground flex flex-row items-center gap-1 line-clamp-1 md:mb-2 mb-1 leading-relaxed">
+                  <div className="text-xs text-muted-foreground flex flex-row items-center gap-1 line-clamp-1 leading-relaxed">
                     {unit && (
                       <span>
                         {unit.replace(/^(\d+)(\w)$/, "$1 $2")} unidades{(weight || volume) && " de"}
@@ -337,6 +318,27 @@ export const ProductCard = ({
                     )}
                   </div>
                 )}
+                <div className="flex items-baseline gap-4">
+                  <span className={`font-bold text-primary ${isMobile ? "text-lg" : "text-xl"}`}>
+                    {formatCurrencyPrice(
+                      price,
+                      typeof currency === "number" ? String(currency) : currency,
+                    )}
+                    {pricePrefix && (
+                      <span className="text-xs font-normal text-muted-foreground mr-1">
+                        {pricePrefix}
+                      </span>
+                    )}
+                    {hasDiscount && regularPrice && (
+                      <span className="text-xs text-muted-foreground line-through ml-2">
+                        {formatCurrencyPrice(
+                          regularPrice,
+                          typeof currency === "number" ? String(currency) : currency,
+                        )}
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

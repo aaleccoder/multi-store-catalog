@@ -254,7 +254,7 @@ export const FilterSidebarClient = ({
     <div className="space-y-6">
       {/* Sorting */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Ordenar por</h3>
+        <p className="text-sm font-bold text-foreground uppercase tracking-wide">Ordenar por</p>
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="bg-white dark:bg-background text-foreground">
             <SelectValue placeholder="Seleccionar orden" />
@@ -278,9 +278,9 @@ export const FilterSidebarClient = ({
         if (filter.type === 'multiselect' || filter.type === 'select') {
           return (
             <div key={filter.slug} className="space-y-3">
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+              <p className="text-sm font-bold text-foreground uppercase tracking-wide">
                 {filter.name}
-              </h3>
+              </p>
               <div className="space-y-2">
                 {filter.options?.map((option) => {
                   const isChecked = Array.isArray(filterState[filter.slug]) && (filterState[filter.slug] as string[]).includes(option.value)
@@ -310,9 +310,9 @@ export const FilterSidebarClient = ({
           const rangeValue = (filterState[filter.slug] as { min: number; max: number }) || { min: 0, max: 100 }
           return (
             <div key={filter.slug} className="space-y-3">
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+              <p className="text-sm font-bold text-foreground uppercase tracking-wide">
                 {filter.name} {filter.unit && `(${filter.unit})`}
-              </h3>
+              </p>
               <div className="space-y-4 px-1">
                 <Slider
                   value={[rangeValue.min, rangeValue.max]}
@@ -364,7 +364,7 @@ export const FilterSidebarClient = ({
       {currencies.length > 0 && (
         <>
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Moneda</h3>
+            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Moneda</p>
             <Select
               value={selectedCurrency || 'all'}
               onValueChange={(value) => setSelectedCurrency(value === 'all' ? '' : value)}
@@ -387,7 +387,7 @@ export const FilterSidebarClient = ({
       )}
 
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Precio</h3>
+        <p className="text-sm font-bold text-foreground uppercase tracking-wide">Precio</p>
         <div className="space-y-4 px-1">
           <div className="flex items-center gap-2">
             <div className="flex-1">
@@ -448,7 +448,7 @@ export const FilterSidebarClient = ({
 
       {/* Stock and Featured Filters */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Mostrar solo</h3>
+        <p className="text-sm font-bold text-foreground uppercase tracking-wide">Mostrar solo</p>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label htmlFor="inStock" className="text-sm font-medium cursor-pointer">

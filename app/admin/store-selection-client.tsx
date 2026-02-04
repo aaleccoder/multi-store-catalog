@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +14,7 @@ export interface StoreSelectionProps {
 
 export function StoreSelectionClient({ stores }: StoreSelectionProps) {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const [loadingId, setLoadingId] = useState<string | null>(null)
 
     const handleSelect = async (storeId: string, storeSlug: string) => {
@@ -22,12 +24,14 @@ export function StoreSelectionClient({ stores }: StoreSelectionProps) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ storeId }),
+                credentials: 'include',
             })
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
                 throw new Error(data.error || 'No se pudo seleccionar la tienda')
             }
             toast.success('Tienda seleccionada')
+            await queryClient.invalidateQueries()
             router.push(`/admin/stores/${storeSlug}`)
             router.refresh()
         } catch (err: any) {

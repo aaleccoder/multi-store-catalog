@@ -71,7 +71,9 @@ export default function MediaPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const isMobile = useIsMobile();
 
-  const { data, isLoading, isError } = trpc.admin.media.list.useQuery({});
+  const { data, isLoading, isError } = trpc.admin.media.list.useQuery({
+    storeSlug,
+  });
 
   const { data: mediaDetails, isLoading: detailsLoading } =
     trpc.admin.media.get.useQuery(selectedMedia?.id ?? "", {

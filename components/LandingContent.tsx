@@ -183,7 +183,7 @@ const LandingContent = ({
           </div>
         )}
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {stores.length === 0 && (
             <div className="col-span-full rounded-lg border border-dashed border-border/70 bg-card/60 px-6 py-10 text-center text-sm text-muted-foreground">
               {searchQuery
@@ -206,27 +206,27 @@ const LandingContent = ({
               <Link
                 key={store.id}
                 href={`/store/${store.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
+                className="group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
               >
-                <div className="flex h-40 items-center justify-center bg-linear-to-br from-primary/5 to-secondary/5 p-6">
+                <div className="flex h-40 items-center justify-center bg-linear-to-br from-primary/5 to-secondary/5 px-4 py-4">
                   <Image
                     src={logoSrc}
                     alt={logoAlt}
                     width={96}
                     height={96}
-                    className="h-24 w-24 object-contain transition-transform duration-300 group-hover:scale-110"
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
-                <div className="flex flex-col gap-3 p-6">
-                  <h3 className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors">
+                <div className="flex flex-col px-6 py-3 h-full">
+                  <p className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors">
                     {store.name}
-                  </h3>
+                  </p>
                   {store.description && (
                     <p className="line-clamp-2 text-sm text-muted-foreground">
                       {store.description}
                     </p>
                   )}
-                  <div className="mt-auto flex items-center text-sm font-medium text-primary">
+                  <div className="flex items-center text-sm font-medium text-primary mt-auto">
                     Ver catálogo
                     <span
                       aria-hidden

@@ -89,20 +89,23 @@ export default function Header() {
             <Button
               asChild
               variant="link"
-              className="h-fit w-fit p-0 hover:scale-110 cursor-pointer"
+              className="h-fit w-fit p-0 hover:scale-105 cursor-pointer hover:no-underline"
               onClick={() => router.push("/")}
             >
-              <Image
-                src="/android-chrome-192x192.png"
-                alt="Logo"
-                width={32}
-                height={32}
-                className="rounded"
-              />
+              <div>
+                <Image
+                  src="/android-chrome-192x192.png"
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  className="rounded"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-700 hidden md:block">Una Ganga - Catálogos</h1>
+                </div>
+
+              </div>
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-700 hidden md:block">Una Ganga - Catálogos</h1>
-            </div>
           </div>
           <nav className="hidden md:flex items-center gap-2">
             <Button
@@ -304,7 +307,7 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="bg-black text-white border-white/10"
+                className="bg-background text-foreground border-border"
               >
                 <VisuallyHidden>
                   <SheetTitle>Menú de navegación</SheetTitle>
@@ -326,7 +329,7 @@ export default function Header() {
                   <div className="px-4">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between border-b border-white/10 py-3 text-left text-lg font-medium"
+                      className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
                       onClick={() => setMobileSolutionsOpen((prev) => !prev)}
                       aria-expanded={mobileSolutionsOpen}
                     >
@@ -340,14 +343,14 @@ export default function Header() {
                       <div className="space-y-3 pt-4">
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/info")}
                         >
                           <div className="flex items-center gap-3">
-                            <Sparkles className="h-4 w-4 text-white/70" />
+                            <Sparkles className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-semibold">Cómo funciona</p>
-                              <p className="text-xs text-white/60">
+                              <p className="text-xs text-muted-foreground">
                                 Planes, beneficios y herramientas.
                               </p>
                             </div>
@@ -355,14 +358,14 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/#stores")}
                         >
                           <div className="flex items-center gap-3">
-                            <Store className="h-4 w-4 text-white/70" />
+                            <Store className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-semibold">Explorar tiendas</p>
-                              <p className="text-xs text-white/60">
+                              <p className="text-xs text-muted-foreground">
                                 Marcas activas y ejemplos reales.
                               </p>
                             </div>
@@ -371,14 +374,14 @@ export default function Header() {
                         {session && (
                           <button
                             type="button"
-                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                            className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                             onClick={() => navigate("/admin")}
                           >
                             <div className="flex items-center gap-3">
-                              <LogIn className="h-4 w-4 text-white/70" />
+                              <LogIn className="h-4 w-4 text-muted-foreground" />
                               <div>
                                 <p className="text-sm font-semibold">Panel de administración</p>
-                                <p className="text-xs text-white/60">
+                                <p className="text-xs text-muted-foreground">
                                   Gestiona catálogos y productos.
                                 </p>
                               </div>
@@ -392,7 +395,7 @@ export default function Header() {
                   <div className="px-4">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between border-b border-white/10 py-3 text-left text-lg font-medium"
+                      className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
                       onClick={() => setMobileResourcesOpen((prev) => !prev)}
                       aria-expanded={mobileResourcesOpen}
                     >
@@ -406,14 +409,14 @@ export default function Header() {
                       <div className="space-y-3 pt-4">
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/terms")}
                         >
                           <div className="flex items-center gap-3">
-                            <ScrollText className="h-4 w-4 text-white/70" />
+                            <ScrollText className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-semibold">Términos de uso</p>
-                              <p className="text-xs text-white/60">
+                              <p className="text-xs text-muted-foreground">
                                 Condiciones claras y transparentes.
                               </p>
                             </div>
@@ -421,14 +424,14 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/privacy")}
                         >
                           <div className="flex items-center gap-3">
-                            <ShieldCheck className="h-4 w-4 text-white/70" />
+                            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-semibold">Política de privacidad</p>
-                              <p className="text-xs text-white/60">
+                              <p className="text-xs text-muted-foreground">
                                 Protección de datos y seguridad.
                               </p>
                             </div>
@@ -436,14 +439,14 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left"
+                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/contact")}
                         >
                           <div className="flex items-center gap-3">
-                            <LifeBuoy className="h-4 w-4 text-white/70" />
+                            <LifeBuoy className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-semibold">Soporte y contacto</p>
-                              <p className="text-xs text-white/60">
+                              <p className="text-xs text-muted-foreground">
                                 Asistencia personalizada y guía.
                               </p>
                             </div>
@@ -456,7 +459,7 @@ export default function Header() {
                   <div className="px-4">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between border-b border-white/10 py-3 text-left text-lg font-medium"
+                      className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
                       onClick={() => navigate("/info")}
                     >
                       Pricing
@@ -466,7 +469,7 @@ export default function Header() {
                   <div className="px-4">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between border-b border-white/10 py-3 text-left text-lg font-medium"
+                      className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
                       onClick={() => navigate("/contact")}
                     >
                       Enterprise
@@ -478,13 +481,13 @@ export default function Header() {
                       <>
                         <Button
                           variant="outline"
-                          className="h-12 w-full rounded-full border-white/40 bg-transparent text-white hover:bg-white/10"
+                          className="h-12 w-full rounded-full border-border bg-transparent text-foreground hover:bg-muted"
                           onClick={() => navigate("/login-admin")}
                         >
                           Iniciar sesión
                         </Button>
                         <Button
-                          className="h-12 w-full rounded-full bg-white text-black hover:bg-white/90"
+                          className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={() => navigate("/info")}
                         >
                           Comenzar gratis
@@ -494,13 +497,13 @@ export default function Header() {
                       <>
                         <Button
                           variant="outline"
-                          className="h-12 w-full rounded-full border-white/40 bg-transparent text-white hover:bg-white/10"
+                          className="h-12 w-full rounded-full border-border bg-transparent text-foreground hover:bg-muted"
                           onClick={() => navigate("/admin")}
                         >
                           Panel de administración
                         </Button>
                         <Button
-                          className="h-12 w-full rounded-full bg-white text-black hover:bg-white/90"
+                          className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={openLogoutDialog}
                         >
                           Cerrar sesión

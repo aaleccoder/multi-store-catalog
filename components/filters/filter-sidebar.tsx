@@ -152,7 +152,7 @@ export const getFilterContent = async (
     <div className="p-4 pb-12 space-y-6">
       {!categorySlug && categories.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Categorías</h3>
+          <p className="text-sm font-bold text-foreground uppercase tracking-wide">Categorías</p>
           <div className="space-y-1">
             {categories.map((category) => (
               <Link
@@ -173,9 +173,9 @@ export const getFilterContent = async (
 
       {selectedCategory && subcategoriesForCategory.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+          <p className="text-sm font-bold text-foreground uppercase tracking-wide">
             Subcategorías
-          </h3>
+          </p>
           <div className="space-y-1">
             <Link
               href={`/store/${storeSlug}?category=${categorySlug}`}

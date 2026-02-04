@@ -13,9 +13,16 @@ const getStoreIdFromSlug = async (slug: string, userId: string) => {
     return store.id
 }
 
-const resolveStoreId = async (storeId: string | undefined, storeSlug: string | undefined, userId: string) => {
+const resolveStoreId = async (storeId: string | undefined, storeSlug: string | undefined, userId: string, activeStoreId?: string) => {
     if (storeId) return storeId
     if (storeSlug) return await getStoreIdFromSlug(storeSlug, userId)
+    if (activeStoreId) {
+        // Verify the active store belongs to the user
+        const store = await prisma.store.findFirst({
+            where: { id: activeStoreId, ownerId: userId }
+        })
+        if (store) return store.id
+    }
     const store = await prisma.store.findFirst({ where: { ownerId: userId }, orderBy: { createdAt: 'asc' } })
     if (!store) {
         throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Store not found for this user' })
@@ -50,7 +57,7 @@ export const adminSubcategoriesRouter = router({
 
     create: protectedProcedure.input(subcategorySchema).mutation(async ({ input, ctx }) => {
         try {
-            const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
+            const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id, ctx.activeStoreId)
             await ensureCategoryInStore(input.categoryId, storeId)
             const subcategory = await prisma.subcategory.create({
                 data: {
@@ -87,7 +94,7 @@ export const adminSubcategoriesRouter = router({
         .mutation(async ({ input, ctx }) => {
             const { id, data } = input
             try {
-                const storeId = await resolveStoreId(input.storeId ?? data.storeId, input.storeSlug ?? data.storeSlug, ctx.session.user.id)
+                const storeId = await resolveStoreId(input.storeId ?? data.storeId, input.storeSlug ?? data.storeSlug, ctx.session.user.id, ctx.activeStoreId)
                 const existing = await prisma.subcategory.findFirst({ where: { id, storeId } })
                 if (!existing) {
                     throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Subcategory not found for this store' })
@@ -128,7 +135,7 @@ export const adminSubcategoriesRouter = router({
 
     delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional() })).mutation(async ({ input, ctx }) => {
         try {
-            const storeId = await resolveStoreId(input.storeId, input.storeSlug, ctx.session.user.id)
+            const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id, ctx.activeStoreId)
             const existing = await prisma.subcategory.findFirst({ where: { id: input.id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Subcategory not found for this store' })

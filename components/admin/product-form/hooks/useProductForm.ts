@@ -33,18 +33,27 @@ export function useProductForm(productId?: string, storeSlug?: string) {
 
     const { data: productData, isLoading: productLoading } =
         trpc.admin.products.get.useQuery(
-            { id: productId || "" },
-            { enabled: !!productId }
+            { id: productId || "", storeSlug },
+            { enabled: !!productId && !!storeSlug }
         );
 
     const { data: categoriesData, isLoading: categoriesLoading } =
-        trpc.admin.categories.list.useQuery(undefined, { enabled: true });
+        trpc.admin.categories.list.useQuery(
+            storeSlug ? { storeSlug } : undefined,
+            { enabled: !!storeSlug }
+        );
 
     const { data: subcategoriesData, isLoading: subcategoriesLoading } =
-        trpc.admin.subcategories.list.useQuery(undefined, { enabled: true });
+        trpc.admin.subcategories.list.useQuery(
+            storeSlug ? { storeSlug } : undefined,
+            { enabled: !!storeSlug }
+        );
 
     const { data: currenciesData, isLoading: currenciesLoading } =
-        trpc.admin.currencies.list.useQuery(undefined, { enabled: true });
+        trpc.admin.currencies.list.useQuery(
+            storeSlug ? { storeSlug } : undefined,
+            { enabled: !!storeSlug }
+        );
 
     const utils = trpc.useUtils();
 
@@ -55,20 +64,21 @@ export function useProductForm(productId?: string, storeSlug?: string) {
         : categoriesLoading || subcategoriesLoading || currenciesLoading;
 
     const categories = useMemo(() => {
+        if (categoriesData) return categoriesData as any[];
         if (productData?.categories) return productData.categories as any[];
-        return (categoriesData as any[]) || [];
-    }, [productData?.categories, categoriesData]);
+        return [];
+    }, [categoriesData, productData?.categories]);
 
     const subcategories = useMemo(() => {
         const allSubs =
-            (productData?.subcategories as any[]) ??
             (subcategoriesData as any[]) ??
+            (productData?.subcategories as any[]) ??
             [];
         if (formData.categoryId) {
             return allSubs.filter((sub: any) => sub.categoryId === formData.categoryId);
         }
         return [];
-    }, [productData?.subcategories, subcategoriesData, formData.categoryId]);
+    }, [subcategoriesData, productData?.subcategories, formData.categoryId]);
 
     const currencies = useMemo(() => {
         if (productData?.currencies) return productData.currencies as any[];
@@ -84,7 +94,7 @@ export function useProductForm(productId?: string, storeSlug?: string) {
                 description: product.description,
                 shortDescription: product.shortDescription || "",
                 categoryId: product.categoryId,
-                subcategoryId: product.subcategoryId || "",
+                subcategoryId: product.subcategoryId ?? null,
                 coverImages: (product.coverImages || []).map((img: any, index: number) => ({
                     ...img,
                     isUploaded: true,
@@ -208,6 +218,20 @@ export function useProductForm(productId?: string, storeSlug?: string) {
                 },
             };
 
+            const normalizedCategoryId =
+                typeof submitData.categoryId === "string"
+                    ? submitData.categoryId.trim()
+                    : null;
+            const normalizedSubcategoryId =
+                typeof submitData.subcategoryId === "string"
+                    ? submitData.subcategoryId.trim()
+                    : null;
+
+            submitData.categoryId = normalizedCategoryId || null;
+            submitData.subcategoryId = submitData.categoryId
+                ? normalizedSubcategoryId || null
+                : null;
+
             if (submitData.prices && submitData.prices.length > 0) {
                 (submitData as any).prices = (submitData.prices as any[]).map(
                     (p) => ({
@@ -304,12 +328,19 @@ export function useProductForm(productId?: string, storeSlug?: string) {
             if (productId) {
                 await updateProductMutation.mutateAsync({
                     id: productId,
+                    storeSlug,
                     data: submitData as any,
                 });
             } else {
-                await createProductMutation.mutateAsync(submitData as any);
+                await createProductMutation.mutateAsync({
+                    ...(submitData as any),
+                    storeSlug,
+                });
             }
 
+            void utils.admin.products.list.invalidate(
+                storeSlug ? { storeSlug } : undefined
+            );
             toast.success("Producto guardado", { id: savingToastId });
             const basePath = storeSlug
                 ? `/admin/stores/${storeSlug}`

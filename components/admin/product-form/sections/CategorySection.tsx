@@ -54,8 +54,8 @@ export function CategorySection({
                             Opcional - esto ayuda a los clientes a encontrar tu producto.
                         </p>
                         <Select
-                            key={`category-${formData.categoryId}`}
-                            value={formData.categoryId || "none"}
+                            key={`category-${formData.categoryId ?? "none"}`}
+                            value={formData.categoryId ?? "none"}
                             onValueChange={(value) =>
                                 onUpdate({
                                     categoryId: value === "none" ? null : value,
@@ -109,8 +109,8 @@ export function CategorySection({
                             Opcional - elige una categoría más específica si aplica.
                         </p>
                         <Select
-                            key={`subcategory-${formData.categoryId}-${formData.subcategoryId}`}
-                            value={formData.subcategoryId || "none"}
+                            key={`subcategory-${formData.categoryId ?? "none"}-${formData.subcategoryId ?? "none"}`}
+                            value={formData.subcategoryId ?? "none"}
                             onValueChange={(value) =>
                                 onUpdate({
                                     subcategoryId: value === "none" ? null : value,

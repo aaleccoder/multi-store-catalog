@@ -15,6 +15,9 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { Eye } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface StorePageProps {
   params: Promise<{ slug: string }>;
 }
@@ -80,6 +83,11 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
       title: "Tema",
       description: "Colores y tipografias de la tienda.",
       href: `${basePath}/theme`,
+    },
+    {
+      title: "Identidad",
+      description: "Logo, contacto y redes sociales.",
+      href: `${basePath}/branding`,
     },
     {
       title: "Usuarios",

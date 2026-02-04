@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { trpc } from "@/trpc/client";
 import {
   Plus,
@@ -138,6 +139,7 @@ export function AdminResource<
     createDisabledMessage = "No se puede crear en este momento.",
   } = props;
 
+  const pathname = usePathname();
   const [items, setItems] = useState<T[]>([]);
 
   const isCreateEnabled = React.useMemo(
@@ -299,11 +301,19 @@ export function AdminResource<
       : null;
 
   useEffect(() => {
-    // If
-    //  tRPC hook is handling the list, don't trigger a manual fetch
+    // If tRPC hook is handling the list, don't trigger a manual fetch
     if (useTrpc && listQueryHook) return;
     fetchList();
   }, [useTrpc, listQueryHook, fetchList]);
+
+  // Refetch when pathname changes (e.g., switching stores)
+  useEffect(() => {
+    if (listQueryHook) {
+      listQueryHook.refetch();
+    } else {
+      fetchList();
+    }
+  }, [pathname]);
 
   // If using tRPC hooks directly, sync local items with the query result
   useEffect(() => {

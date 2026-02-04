@@ -9,6 +9,9 @@ import { ActiveStoreClient } from "../active-store-client";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import { StoreTheme } from "@/lib/theme";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface StoreLayoutProps {
   children: ReactNode;
   params: Promise<{ slug: string }>;
@@ -37,20 +40,18 @@ export default async function StoreLayout({
   const currentActiveStoreId = cookieStore.get("activeStoreId")?.value;
 
 
-  console.log(store.theme);
 
   return (
     <>
-      <StoreThemeProvider theme={store.theme as StoreTheme}>
-        <SidebarProvider>
-          <AdminNav />
-          <SidebarInset>{children}</SidebarInset>
-        </SidebarProvider>
-        <ActiveStoreClient
-          storeId={store.id}
-          currentActiveStoreId={currentActiveStoreId}
-        />
-      </StoreThemeProvider>
+      <SidebarProvider>
+        <AdminNav />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+      <ActiveStoreClient
+        key={store.id}
+        storeId={store.id}
+        currentActiveStoreId={currentActiveStoreId}
+      />
     </>
   );
 }

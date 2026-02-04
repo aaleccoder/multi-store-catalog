@@ -31,6 +31,8 @@ import { authClient } from "@/lib/auth-client";
 import { Role } from "@/generated/prisma/enums";
 import { trpc } from "@/trpc/client";
 import { LogoutDialog } from "@/components/ui/logout-dialog";
+import Image from "next/image";
+import { storeSchemaClient } from "@/lib/types";
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -39,7 +41,6 @@ export function AdminNav() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const segments = pathname.split("/").filter(Boolean);
-  // Expected paths: /admin/stores (segments: [admin, stores]) or /admin/stores/[slug]/...
   const storeSlug =
     segments[0] === "admin" && segments[1] === "stores" ? segments[2] : null;
   const storeBase = storeSlug ? `/admin/stores/${storeSlug}` : "/admin/stores";
@@ -50,6 +51,9 @@ export function AdminNav() {
       enabled: !!storeSlug,
     },
   );
+
+  const storeParsed = storeSchemaClient.safeParse(store);
+  const storeData = storeParsed.success ? storeParsed.data : undefined;
 
   const navigation = [
     {
@@ -87,6 +91,11 @@ export function AdminNav() {
       name: "Tema",
       href: storeSlug ? `${storeBase}/theme` : "/admin/stores",
       icon: Palette,
+    },
+    {
+      name: "Identidad",
+      href: storeSlug ? `${storeBase}/branding` : "/admin/stores",
+      icon: ImageIcon,
     },
   ];
 
@@ -128,24 +137,29 @@ export function AdminNav() {
       <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
         <SidebarHeader className="">
           <button
-            onClick={() => router.push(`/admin/stores/${store?.slug}`)}
+            onClick={() => router.push(storeSlug ? `/admin/stores/${storeSlug}` : "/admin/stores")}
             className="shrink-0 cursor-pointer flex flex-row items-center"
             aria-label="Ir a inicio"
           >
-            <LogoProps
-              className="h-16 w-16 md:h-18 md:w-18 text-[#c90606]"
-              aria-label="Logo de Una Ganga"
-            />
+            <div className="relative">
+              <Image
+                src={storeData?.theme?.branding?.logoUrl || "/logo.png"}
+                alt={storeData?.theme?.branding?.logoAlt || "Logo"}
+                className="object-cover"
+                width={92}
+                height={92}
+              />
+            </div>
             {store && (
               <div className="flex flex-row text-xl font-bold text-foreground px-4 items-center">
                 <p>{store.name}</p>
               </div>
             )}
           </button>
-          <Button className="cursor-pointer justify-start" variant={"ghost"}>
+          <Link href="/admin/stores" className="cursor-pointer justify-start flex flex-row items-center px-4 py-2 hover:bg-primary rounded-md">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            <Link href="/admin/stores">Ir a tiendas</Link>
-          </Button>
+            <span >Ir a tiendas</span>
+          </Link>
         </SidebarHeader>
 
         <SidebarContent className="px-4">
@@ -205,7 +219,7 @@ export function AdminNav() {
             <span>Cerrar Sesión</span>
           </Button>
         </SidebarFooter>
-      </Sidebar>
+      </Sidebar >
       <LogoutDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

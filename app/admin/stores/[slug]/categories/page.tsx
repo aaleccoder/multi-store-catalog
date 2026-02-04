@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import AdminResource from "@/components/admin/admin-resource";
 import { IconPicker, IconName } from "@/components/ui/icon-picker";
 import { Input } from "@/components/ui/input";
@@ -184,13 +185,21 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
 }
 
 export default function CategoriesPage() {
+  const params = useParams<{ slug?: string }>();
+  const storeSlug = Array.isArray(params?.slug)
+    ? params.slug[0]
+    : params?.slug;
+  const fetchUrl = storeSlug
+    ? `/api/admin/categories?storeSlug=${encodeURIComponent(storeSlug)}`
+    : "/api/admin/categories";
+
   return (
     <div className="min-h-screen bg-background">
       <main className="md:pt-20 lg:pt-0">
         <div className="">
           <AdminResource
             title="Categorías"
-            fetchUrl="/api/admin/categories"
+            fetchUrl={fetchUrl}
             columns={[
               { header: "Nombre", accessor: "name", sortable: true },
               {

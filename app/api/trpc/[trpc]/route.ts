@@ -7,7 +7,17 @@ const handler = (req: Request) => {
         endpoint: '/api/trpc',
         req,
         router: appRouter,
-        createContext: async ({ req }) => ({ session: await getApiSession(req) }),
+        createContext: async ({ req }) => {
+            const session = await getApiSession(req)
+            const cookieHeader = req.headers.get('cookie') || ''
+            const activeStoreIdMatch = cookieHeader.match(/activeStoreId=([^;]+)/)
+            const activeStoreId = activeStoreIdMatch ? activeStoreIdMatch[1] : undefined
+            
+            return {
+                session,
+                activeStoreId,
+            }
+        },
     })
 }
 

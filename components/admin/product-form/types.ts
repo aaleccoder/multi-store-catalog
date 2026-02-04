@@ -29,6 +29,7 @@ export interface PriceInput {
     currency: string;
     isDefault?: boolean;
     taxIncluded?: boolean;
+    validationError?: string;
 }
 
 export interface ProductFormData {

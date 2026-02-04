@@ -220,7 +220,7 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => router.back()}
+                                onClick={() => router.push("/admin/stores/" + storeSlug + "/products")}
                                 disabled={saving}
                                 className="w-full sm:w-auto"
                             >

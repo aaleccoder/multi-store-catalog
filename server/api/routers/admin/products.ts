@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../../trpc";
 import { prisma } from "@/lib/db";
+import type { Prisma } from "@/generated/prisma/client";
 import { z } from "zod";
 import { productSchema, productUpdateSchema } from "@/lib/api-validators";
 import { toNumber } from "@/lib/number";
@@ -11,8 +12,22 @@ import {
 } from "@/lib/error-codes";
 import { revalidatePath } from "next/cache";
 
-const resolveStoreId = async (storeId: string | undefined, userId: string) => {
+const resolveStoreId = async (
+  storeId: string | undefined,
+  storeSlug: string | undefined,
+  userId: string,
+  activeStoreId?: string,
+) => {
   if (storeId) return storeId;
+  if (storeSlug) return await getStoreIdFromSlug(storeSlug, userId);
+  if (activeStoreId) {
+    const store = await prisma.store.findFirst({
+      where: { id: activeStoreId, ownerId: userId },
+    });
+    if (store) return store.id;
+  }
+
+
   const store = await prisma.store.findFirst({
     where: { ownerId: userId },
     orderBy: { createdAt: "asc" },
@@ -39,9 +54,19 @@ const getStoreIdFromSlug = async (slug: string, userId: string) => {
 
 export const adminProductsRouter = router({
   list: protectedProcedure
-    .input(z.object({ storeId: z.string().optional() }).optional())
+    .input(
+      z
+        .object({ storeId: z.string().optional(), storeSlug: z.string().optional() })
+        .optional(),
+    )
     .query(async ({ input, ctx }) => {
-      const storeId = await resolveStoreId(input?.storeId, ctx.session.user.id);
+      const storeId = await resolveStoreId(
+        input?.storeId,
+        input?.storeSlug,
+        ctx.session.user.id,
+        ctx.activeStoreId,
+      );
+      console.log(storeId, "id");
       const products = await prisma.product.findMany({
         where: { storeId },
         include: {
@@ -81,7 +106,9 @@ export const adminProductsRouter = router({
       const payload = input;
       const storeId = await resolveStoreId(
         payload.storeId,
+        payload.storeSlug,
         ctx.session.user.id,
+        ctx.activeStoreId,
       );
 
       // Normalize empty strings to undefined
@@ -119,10 +146,6 @@ export const adminProductsRouter = router({
             details: { resource: "category", id: normalizedCategoryId },
           });
         }
-      } else {
-        throw createErrorWithCode(ErrorCode.MISSING_REQUIRED_FIELD, {
-          message: "Category is required",
-        });
       }
 
       try {
@@ -138,7 +161,7 @@ export const adminProductsRouter = router({
             slug: payload.slug,
             description: payload.description,
             shortDescription: payload.shortDescription,
-            categoryId: normalizedCategoryId,
+            categoryId: normalizedCategoryId || null,
             subcategoryId: resolvedSubcategoryId,
             coverImages: {
               create: (payload.coverImages || []).map((image: any) => ({
@@ -242,11 +265,12 @@ export const adminProductsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const { id } = input;
-      const storeId =
-        input.storeId ||
-        (input.storeSlug
-          ? await getStoreIdFromSlug(input.storeSlug, ctx.session.user.id)
-          : await resolveStoreId(undefined, ctx.session.user.id));
+      const storeId = await resolveStoreId(
+        input.storeId,
+        input.storeSlug,
+        ctx.session.user.id,
+        ctx.activeStoreId,
+      );
 
       const [product, allCategories, allSubcategories, allCurrencies] =
         await Promise.all([
@@ -318,6 +342,7 @@ export const adminProductsRouter = router({
       z.object({
         id: z.string(),
         storeId: z.string().optional(),
+        storeSlug: z.string().optional(),
         data: productUpdateSchema,
       }),
     )
@@ -325,15 +350,47 @@ export const adminProductsRouter = router({
       const { id, data } = input;
       const storeId = await resolveStoreId(
         input.storeId ?? data.storeId,
+        input.storeSlug ?? data.storeSlug,
         ctx.session.user.id,
+        ctx.activeStoreId,
       );
 
-      // Normalize empty strings to undefined
-      const normalizedCategoryId = data.categoryId?.trim() || undefined;
-      const normalizedSubcategoryId = data.subcategoryId?.trim() || undefined;
+      const rawCategoryId = data.categoryId;
+      const rawSubcategoryId = data.subcategoryId;
 
-      let resolvedSubcategoryId: string | undefined = undefined;
-      if (normalizedSubcategoryId) {
+      const normalizedCategoryId =
+        typeof rawCategoryId === "string" ? rawCategoryId.trim() : rawCategoryId;
+      const normalizedSubcategoryId =
+        typeof rawSubcategoryId === "string"
+          ? rawSubcategoryId.trim()
+          : rawSubcategoryId;
+
+      const shouldClearCategory =
+        normalizedCategoryId === null || normalizedCategoryId === "";
+      const shouldClearSubcategory =
+        normalizedSubcategoryId === null ||
+        normalizedSubcategoryId === "" ||
+        shouldClearCategory;
+
+      let resolvedCategoryId: string | undefined = undefined;
+      let resolvedSubcategoryId: string | null | undefined = undefined;
+
+      if (!shouldClearCategory && typeof normalizedCategoryId === "string") {
+        const category = await prisma.category.findFirst({
+          where: { id: normalizedCategoryId, storeId },
+        });
+        if (!category) {
+          throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
+            message: "Category not found for this store",
+            details: { resource: "category", id: normalizedCategoryId },
+          });
+        }
+        resolvedCategoryId = normalizedCategoryId;
+      }
+
+      if (shouldClearSubcategory) {
+        resolvedSubcategoryId = null;
+      } else if (typeof normalizedSubcategoryId === "string") {
         const subcategory = await prisma.subcategory.findFirst({
           where: {
             OR: [{ id: normalizedSubcategoryId }, { slug: normalizedSubcategoryId }],
@@ -347,19 +404,6 @@ export const adminProductsRouter = router({
           });
         }
         resolvedSubcategoryId = subcategory.id;
-      }
-
-      // Only validate category if categoryId is provided
-      if (normalizedCategoryId) {
-        const category = await prisma.category.findFirst({
-          where: { id: normalizedCategoryId, storeId },
-        });
-        if (!category) {
-          throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, {
-            message: "Category not found for this store",
-            details: { resource: "category", id: normalizedCategoryId },
-          });
-        }
       }
 
       const {
@@ -386,12 +430,27 @@ export const adminProductsRouter = router({
           });
         }
 
+        const updateData: Prisma.ProductUpdateInput = {
+          ...(restOfData as Prisma.ProductUpdateInput),
+        };
+
+        if (shouldClearCategory) {
+          updateData.category = { disconnect: true };
+        } else if (resolvedCategoryId) {
+          updateData.category = { connect: { id: resolvedCategoryId } };
+        }
+
+        if (resolvedSubcategoryId !== undefined) {
+          updateData.subcategory =
+            resolvedSubcategoryId === null
+              ? { disconnect: true }
+              : { connect: { id: resolvedSubcategoryId } };
+        }
+
         const product = await prisma.product.update({
           where: { id },
           data: {
-            ...restOfData,
-            ...(normalizedCategoryId && { categoryId: normalizedCategoryId }),
-            ...(resolvedSubcategoryId !== undefined && { subcategoryId: resolvedSubcategoryId }),
+            ...updateData,
           },
         });
 
@@ -545,9 +604,20 @@ export const adminProductsRouter = router({
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.string(), storeId: z.string().optional() }))
+    .input(
+      z.object({
+        id: z.string(),
+        storeId: z.string().optional(),
+        storeSlug: z.string().optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
-      const storeId = await resolveStoreId(input.storeId, ctx.session.user.id);
+      const storeId = await resolveStoreId(
+        input.storeId,
+        input.storeSlug,
+        ctx.session.user.id,
+        ctx.activeStoreId,
+      );
       const existing = await prisma.product.findFirst({
         where: { id: input.id, storeId },
       });
