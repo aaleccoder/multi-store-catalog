@@ -160,7 +160,7 @@ export const ProductGridClient = ({
 
             <div className="hidden md:flex items-center gap-2">
               <Select value={currentSort} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[200px] text-black">
+                <SelectTrigger className="w-[200px] text-foreground">
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
@@ -259,7 +259,7 @@ export const ProductGridClient = ({
 
           <div className="hidden md:flex items-center gap-2">
             <Select value={currentSort} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-[200px] text-black">
+              <SelectTrigger className="w-[200px] text-foreground">
                 <SelectValue placeholder="Ordenar por" />
               </SelectTrigger>
               <SelectContent>

@@ -86,8 +86,8 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
             <Button
               onClick={() => (window.location.href = `/store/${storeSlug}`)}
               className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategorySlug
-                ? 'bg-primary text-white backdrop-blur-md'
-                : 'hover:bg-primary/5 text-black foreground bg-transparent'
+                ? 'bg-primary text-primary-foreground backdrop-blur-md'
+                : 'hover:bg-primary/5 text-foreground bg-transparent'
                 }`}
             >
               <Package className="h-4 w-4" />
@@ -103,8 +103,8 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
                   key={category.id}
                   onClick={() => (window.location.href = `/store/${storeSlug}?category=${category.slug}`)}
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
-                    ? 'bg-primary text-white backdrop-blur-md'
-                    : 'hover:bg-primary/5 text-black bg-transparent'
+                    ? 'bg-primary text-primary-foreground backdrop-blur-md'
+                    : 'hover:bg-primary/5 text-foreground bg-transparent'
                     }`}
                 >
                   <CategoryIcon icon={category.icon} className="h-4 w-4" />

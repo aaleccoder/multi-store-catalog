@@ -31,8 +31,8 @@ export const Header = ({ store }: { store?: Store }) => {
               <Logo
                 className="object-cover"
                 aria-label="Una Ganga logo"
-                width={92}
-                height={92}
+                width={64}
+                height={64}
               />
             </div>
             <p>{store?.name}</p>
