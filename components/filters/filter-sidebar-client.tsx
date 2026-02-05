@@ -69,6 +69,7 @@ export const FilterSidebarClient = ({
   )
 
   // Allow empty / arbitrary price values. Store min/max as numbers or undefined.
+  // Default to 0-1000$ range so users can see the slider
   const [priceRange, setPriceRange] = useState<[number, number] | null>(() => {
     const priceParam = searchParams.get('price')
     if (priceParam) {
@@ -77,7 +78,7 @@ export const FilterSidebarClient = ({
       const max = maxStr !== '' ? parseFloat(maxStr) : undefined
       if (min !== undefined && max !== undefined && !isNaN(min) && !isNaN(max)) return [min, max]
     }
-    return null
+    return [0, 1000] // Default range so slider is always visible
   })
 
   const [priceMin, setPriceMin] = useState<number | undefined>(() => {
@@ -87,7 +88,7 @@ export const FilterSidebarClient = ({
       const min = minStr !== '' ? parseFloat(minStr) : undefined
       return isNaN(min as number) ? undefined : (min as number | undefined)
     }
-    return undefined
+    return 0 // Default to 0
   })
 
   const [priceMax, setPriceMax] = useState<number | undefined>(() => {
@@ -97,7 +98,7 @@ export const FilterSidebarClient = ({
       const max = maxStr !== '' ? parseFloat(maxStr) : undefined
       return isNaN(max as number) ? undefined : (max as number | undefined)
     }
-    return undefined
+    return 1000 // Default to 1000
   })
 
   const [onlyInStock, setOnlyInStock] = useState(searchParams.get('inStock') === 'true')
@@ -186,9 +187,9 @@ export const FilterSidebarClient = ({
   const clearFilters = () => {
     // Reset all state to defaults
     setFilterState({})
-    setPriceRange(null)
-    setPriceMin(undefined)
-    setPriceMax(undefined)
+    setPriceRange([0, 1000]) // Reset to default range
+    setPriceMin(0) // Reset to default min
+    setPriceMax(1000) // Reset to default max
     setOnlyInStock(false)
     setOnlyFeatured(false)
     setSortBy('-createdAt')
@@ -204,8 +205,8 @@ export const FilterSidebarClient = ({
   }
 
   const hasActiveFilters =
-    priceMin !== undefined ||
-    priceMax !== undefined ||
+    (priceMin !== undefined && priceMin !== 0) ||
+    (priceMax !== undefined && priceMax !== 1000) ||
     onlyInStock ||
     onlyFeatured ||
     selectedCurrency !== '' ||
@@ -226,8 +227,8 @@ export const FilterSidebarClient = ({
   const handleMinInputChange = (value: string) => {
     // allow blank to unset
     if (value.trim() === '') {
-      setPriceMin(undefined)
-      setPriceRange(priceMax !== undefined ? [0, priceMax] : null)
+      setPriceMin(0) // Default to 0 instead of undefined
+      setPriceRange(priceMax !== undefined ? [0, priceMax] : [0, 1000])
       return
     }
 
@@ -239,8 +240,8 @@ export const FilterSidebarClient = ({
 
   const handleMaxInputChange = (value: string) => {
     if (value.trim() === '') {
-      setPriceMax(undefined)
-      setPriceRange(priceMin !== undefined ? [priceMin, 0] : null)
+      setPriceMax(1000) // Default to 1000 instead of undefined
+      setPriceRange(priceMin !== undefined ? [priceMin, 1000] : [0, 1000])
       return
     }
 
@@ -427,16 +428,14 @@ export const FilterSidebarClient = ({
             </div>
           </div>
 
-          {/* Price slider */}
-          {priceRange && (
-            <Slider
-              value={priceRange}
-              max={1000}
-              step={10}
-              className="w-full"
-              onValueChange={handleSliderChange}
-            />
-          )}
+          {/* Price slider - always visible with default range */}
+          <Slider
+            value={priceRange || [0, 1000]}
+            max={1000}
+            step={10}
+            className="w-full"
+            onValueChange={handleSliderChange}
+          />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>${priceMin ?? 0}</span>
             <span>${priceMax ?? 1000}</span>

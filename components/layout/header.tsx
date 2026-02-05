@@ -29,7 +29,7 @@ export const Header = ({ store }: { store?: Store }) => {
           >
             <div className="">
               <Logo
-                className="object-cover"
+                className="object-cover p-1"
                 aria-label="Una Ganga logo"
                 width={64}
                 height={64}

@@ -1,5 +1,5 @@
 "use client";
-import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, ShoppingCart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   type Currency,
 } from "@/lib/currency-client";
 import { QuantityPicker } from "@/components/ui/quantity-picker";
+import { openWhatsApp, type WhatsAppItem } from "@/lib/whatsapp";
 
 interface ProductCardProps {
   id: number | string;
@@ -141,6 +142,18 @@ export const ProductCard = ({
     }
   };
 
+  const handleWhatsAppOrder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const whatsappItem: WhatsAppItem = {
+      name,
+      quantity: 1,
+      price,
+      currency,
+    };
+    openWhatsApp([whatsappItem], price, currency);
+  };
+
   const currentImage = imageList[currentImageIndex];
 
   return (
@@ -150,9 +163,9 @@ export const ProductCard = ({
       }
       className="block h-full"
     >
-      <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-white shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
+      <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-card shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
         <div className={isMobile ? "relative w-full aspect-4/3" : "relative aspect-square"}>
-          <div className={`relative overflow-hidden bg-secondary ${isMobile ? "w-full h-full" : "w-full h-full rounded-lg"}`}>
+          <div className={`relative overflow-hidden bg-secondary ${isMobile ? "w-full h-full" : "w-full h-full"}`}>
             {currentImage?.url ? (
               <Image
                 src={currentImage.url}
@@ -176,7 +189,7 @@ export const ProductCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 onClick={handlePrevImage}
               >
                 <ChevronLeft className="h-4 w-4 text-card-foreground" />
@@ -184,7 +197,7 @@ export const ProductCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 onClick={handleNextImage}
               >
                 <ChevronRight className="h-4 w-4 text-card-foreground" />
@@ -199,7 +212,7 @@ export const ProductCard = ({
                 isMobile ? (
                   <div
                     key={index}
-                    className={`rounded-full transition-all ${index === currentImageIndex
+                    className={`transition-all ${index === currentImageIndex
                       ? "bg-white w-3 h-1.5"
                       : "bg-white/50 w-1.5 h-1.5"
                       }`}
@@ -208,7 +221,7 @@ export const ProductCard = ({
                   <button
                     key={index}
                     onClick={handleDotClick(index)}
-                    className={`rounded-full transition-all ${index === currentImageIndex
+                    className={`transition-all ${index === currentImageIndex
                       ? "bg-card w-6 h-2"
                       : "bg-card/50 hover:bg-card/75 w-2 h-2"
                       }`}
@@ -247,7 +260,7 @@ export const ProductCard = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-3 right-3 rounded-full bg-transparent hover:bg-card/60 transition-all ${isMobile ? "h-7 w-7 transition-colors" : "opacity-0 group-hover:opacity-100 h-8 w-8"} ${isInWishlist(id)
+            className={`absolute top-3 right-3 bg-transparent hover:bg-card/60 transition-all ${isMobile ? "h-7 w-7 transition-colors" : "opacity-0 group-hover:opacity-100 h-8 w-8"} ${isInWishlist(id)
               ? "text-destructive"
               : "text-muted-foreground hover:text-destructive"
               }`}
@@ -365,16 +378,27 @@ export const ProductCard = ({
                 </div>
               )
             ) : inStock ? (
-              <Button
-                className={`w-full bg-accent hover:bg-accent/80 text-primary font-bold rounded-lg flex items-center justify-center active:bg-accent/70 transition-all duration-200 h-10 ${isMobile ? "px-3 py-3 text-sm" : "px-4 py-3 text-sm hover:shadow-md active:scale-95 shadow-sm"}`}
-                onClick={handleAddToCartClick}
-              >
-                <span className="flex-1">Agregar al carrito</span>
-                <ShoppingCart className="h-4 w-4 ml-auto" />
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  className={`bg-accent hover:bg-accent/80 text-primary font-bold flex items-center justify-center active:bg-accent/70 transition-all duration-200 h-10 ${isMobile ? "px-2 py-3 text-sm" : "px-3 py-3 text-sm hover:shadow-md active:scale-95 shadow-sm"}`}
+                  onClick={handleAddToCartClick}
+                >
+                  <ShoppingCart className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  {isMobile && ""}
+                  {!isMobile && "Agregar"}
+                </Button>
+                <Button
+                  className={`bg-primary hover:bg-primary/80 text-primary-foreground font-bold flex items-center justify-center active:bg-primary/90 transition-all duration-200 h-10 ${isMobile ? "px-2 py-3 text-sm" : "px-3 py-3 text-sm hover:shadow-md active:scale-95 shadow-sm"}`}
+                  onClick={handleWhatsAppOrder}
+                >
+                  <MessageCircle className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  {isMobile && ""}
+                  {!isMobile && "Ordenar"}
+                </Button>
+              </div>
             ) : (
               <Button
-                className={`w-full bg-muted text-muted-foreground font-medium rounded-lg h-10 ${isMobile ? "px-3 py-3 text-sm" : "px-4 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm disabled:active:scale-100"}`}
+                className={`w-full bg-muted text-muted-foreground font-medium h-10 ${isMobile ? "px-3 py-3 text-sm" : "px-4 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm disabled:active:scale-100"}`}
                 disabled
               >
                 Agotado

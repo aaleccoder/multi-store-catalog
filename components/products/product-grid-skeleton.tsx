@@ -1,6 +1,15 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const ProductGridSkeleton = () => {
+interface ProductGridSkeletonProps {
+  mobileView?: "grid" | "list";
+  desktopColumns?: number;
+}
+
+export const ProductGridSkeleton = ({
+  mobileView = "grid",
+  desktopColumns = 3,
+}: ProductGridSkeletonProps) => {
+  const mobileCols = mobileView === "list" ? 1 : 2;
   return (
     <div className="w-full p-6 md:p-8">
       <div className="mb-6 flex items-center justify-between">
@@ -10,14 +19,17 @@ export const ProductGridSkeleton = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div
+        className={`grid gap-6 ${mobileCols === 1 ? "grid-cols-1" : "grid-cols-2"} md:grid-cols-[repeat(var(--grid-cols),minmax(0,1fr))]`}
+        style={{ "--grid-cols": desktopColumns } as React.CSSProperties}
+      >
         {Array.from({ length: 8 }).map((_, index) => (
           <ProductCardSkeleton key={index} />
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const ProductCardSkeleton = () => {
   return (
@@ -37,5 +49,5 @@ const ProductCardSkeleton = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

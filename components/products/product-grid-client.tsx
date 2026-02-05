@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProductCard } from "./product-card";
 import { toNumber } from "@/lib/number";
 import { ProductGridSkeleton } from "./product-grid-skeleton";
 import Link from "next/link";
-import { ChevronLeft, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -25,7 +25,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { trpc } from "@/trpc/client";
-import { useLoading } from "@/components/utils/loading-context";
 import { SearchAndFiltersBar } from "../search/search-and-filter-mobile";
 import { FilterSheet } from "@/components/filters/filter-sheet";
 
@@ -36,6 +35,9 @@ interface ProductGridClientProps {
   filterContent?: React.ReactNode;
 }
 
+const MIN_CARD_WIDTH = 280;
+const MAX_DESKTOP_COLUMNS = 6;
+
 export const ProductGridClient = ({
   storeSlug,
   categorySlug,
@@ -44,11 +46,15 @@ export const ProductGridClient = ({
 }: ProductGridClientProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { setIsLoading: setGlobalLoading } = useLoading();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const [maxColumns, setMaxColumns] = useState(4);
 
   const currentSort = searchParams.get("sort") || "-createdAt";
   const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+  const mobileView = searchParams.get("view") === "list" ? "list" : "grid";
+  const mobileCols = mobileView === "list" ? 1 : 2;
+  const colsParam = parseInt(searchParams.get("cols") || "", 10);
 
   // tRPC queries
   const categoryQuery = trpc.categories.list.useQuery(
@@ -93,31 +99,63 @@ export const ProductGridClient = ({
     subcategoryQuery.isLoading ||
     productsQuery.isLoading;
 
-  const handleSortChange = (value: string) => {
+  useEffect(() => {
+    const element = gridRef.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+
+    const updateColumns = () => {
+      const width = element.clientWidth || 0;
+      const nextMax = Math.max(2, Math.floor(width / MIN_CARD_WIDTH));
+      setMaxColumns(Math.min(nextMax, MAX_DESKTOP_COLUMNS));
+    };
+
+    updateColumns();
+    const observer = new ResizeObserver(updateColumns);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const clampColumns = (value: number) =>
+    Math.min(Math.max(value, 2), Math.min(maxColumns, MAX_DESKTOP_COLUMNS));
+  const fallbackCols = Math.min(3, maxColumns);
+  const desktopCols = Number.isFinite(colsParam)
+    ? clampColumns(colsParam)
+    : fallbackCols;
+
+  const updateSearchParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === "-createdAt") {
-      params.delete("sort");
-    } else {
-      params.set("sort", value);
-    }
-    params.delete("page"); // Reset to page 1 when sorting changes
-    router.push(`/store/${storeSlug}?${params.toString()}`);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null) {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+    const qs = params.toString();
+    router.push(qs ? `/store/${storeSlug}?${qs}` : `/store/${storeSlug}`);
+  };
+
+  const handleSortChange = (value: string) => {
+    updateSearchParams({
+      sort: value === "-createdAt" ? null : value,
+      page: null,
+    });
   };
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (page === 1) {
-      params.delete("page");
-    } else {
-      params.set("page", page.toString());
-    }
-    router.push(`/store/${storeSlug}?${params.toString()}`);
+    updateSearchParams({ page: page === 1 ? null : page.toString() });
     // Scroll to top of product grid
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
-    return <ProductGridSkeleton />;
+    return (
+      <ProductGridSkeleton
+        mobileView={mobileView}
+        desktopColumns={desktopCols}
+      />
+    );
   }
 
   if (!products || products.length === 0) {
@@ -258,6 +296,28 @@ export const ProductGridClient = ({
           </div>
 
           <div className="hidden md:flex items-center gap-2">
+            <Select
+              value={desktopCols.toString()}
+              onValueChange={(value) =>
+                updateSearchParams({ cols: value === "3" ? null : value })
+              }
+            >
+              <SelectTrigger className="w-[160px] text-foreground">
+                <SelectValue placeholder="Columnas" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from(
+                  { length: Math.max(0, Math.min(maxColumns, MAX_DESKTOP_COLUMNS) - 1) },
+                  (_, i) => {
+                  const cols = i + 2;
+                  return (
+                    <SelectItem key={cols} value={cols.toString()}>
+                      {cols} columnas
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
             <Select value={currentSort} onValueChange={handleSortChange}>
               <SelectTrigger className="w-[200px] text-foreground">
                 <SelectValue placeholder="Ordenar por" />
@@ -280,7 +340,33 @@ export const ProductGridClient = ({
             {filterContent}
           </div>
           <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] auto-rows-fr gap-6">
+            <div className="mb-4 flex items-center justify-end md:hidden">
+              <div className="inline-flex rounded-md border border-border overflow-hidden">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={`h-9 px-3 text-xs ${mobileView === "list" ? "bg-muted text-foreground" : "text-muted-foreground"}`}
+                  onClick={() => updateSearchParams({ view: "list" })}
+                >
+                  Lista
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={`h-9 px-3 text-xs ${mobileView === "grid" ? "bg-muted text-foreground" : "text-muted-foreground"}`}
+                  onClick={() => updateSearchParams({ view: null })}
+                >
+                  Grid
+                </Button>
+              </div>
+            </div>
+            <div
+              ref={gridRef}
+              className={`grid auto-rows-fr gap-6 ${mobileCols === 1 ? "grid-cols-1" : "grid-cols-2"} md:grid-cols-[repeat(var(--grid-cols),minmax(0,1fr))]`}
+              style={
+                { "--grid-cols": desktopCols } as React.CSSProperties
+              }
+            >
               {products.map((product: any) => {
                 const imageData = product.coverImages?.[0];
                 const imageUrl = imageData?.url || "";

@@ -122,9 +122,6 @@ export default function SettingsPage() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4">
                 <p className="text-muted-foreground">No se encontro la tienda solicitada.</p>
-                <Button asChild>
-                    <Link href="/admin/stores">Volver</Link>
-                </Button>
             </div>
         )
     }
