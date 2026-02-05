@@ -26,6 +26,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { LogoutDialog } from "@/components/ui/logout-dialog";
+import { ModeToggle } from "../mode-toogle";
 
 export default function Header() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 border-b-2 border-gray-300 p-4 backdrop-blur-xl transition-all"
+        className={`fixed top-0 left-0 right-0 z-50 border-b-2 border-border p-4 backdrop-blur-xl transition-all"
           }`}
       >
         <div className="mx-auto max-w-9xl px-4 flex items-center justify-between">
@@ -101,7 +102,7 @@ export default function Header() {
                   className="rounded"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-700 hidden md:block">Una Ganga - Catálogos</h1>
+                  <h1 className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</h1>
                 </div>
 
               </div>
@@ -110,14 +111,14 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
-              className="text-gray-700 hover:text-gray-900"
+              className="text-foreground hover:text-foreground"
               onClick={() => router.push("/#stores")}
             >
               Tiendas
             </Button>
             <Button
               variant="ghost"
-              className="text-gray-700 hover:text-gray-900"
+              className="text-foreground hover:text-foreground"
               onClick={() => router.push("/info")}
             >
               Planes
@@ -126,7 +127,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-foreground hover:text-foreground"
                   onMouseEnter={openHelpMenu}
                   onMouseLeave={closeHelpMenu}
                   onFocus={openHelpMenu}
@@ -137,7 +138,7 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[340px] rounded-2xl border-white/20 bg-white/90 p-3 shadow-2xl backdrop-blur-xl"
+                className="w-[340px] rounded-2xl border-border/20 bg-background/90 p-3 shadow-2xl backdrop-blur-xl"
                 onMouseEnter={openHelpMenu}
                 onMouseLeave={closeHelpMenu}
               >
@@ -268,14 +269,15 @@ export default function Header() {
             </DropdownMenu>
           </nav>
           <div className="hidden md:flex items-center gap-2">
+            <ModeToggle />
             {!session ? (
               <Button
                 variant="default"
                 size="lg"
-                className="group relative overflow-hidden rounded-full bg-linear-to-r from-accent via-primary to-secondary text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:shadow-xl focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none"
+                className="group relative overflow-hidden rounded-full bg-banner-bg border-2 border-banner-border text-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-xl hover:bg-primary group-hover:text-white focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none"
                 onClick={() => router.push("/info")}
               >
-                <span className="relative z-10 text-primary-foreground">¿Quieres tener tu propio catálogo?</span>
+                <span className="relative z-10 text-primary font-semibold group-hover:text">¿Quieres tener tu propio catálogo?</span>
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-white/0 via-white/35 to-white/0 opacity-70 transition-transform duration-700 group-hover:translate-x-full" />
                 <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-white/25" />
               </Button>
@@ -299,7 +301,7 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="text-foreground hover:text-foreground"
                   aria-label="Abrir menú"
                 >
                   <Menu className="h-5 w-5" />

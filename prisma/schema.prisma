@@ -21,23 +21,48 @@ model Settings {
   settings Json
 }
 
+model StoreCategory {
+  id          String                    @id @default(cuid())
+  name        String                    @unique
+  slug        String                    @unique
+  description String?
+  icon        String?
+  isActive    Boolean                   @default(true)
+  createdAt   DateTime                  @default(now())
+  stores      StoreCategoryAssignment[]
+}
+
+model StoreCategoryAssignment {
+  id              String        @id @default(cuid())
+  storeId         String
+  store           Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeCategoryId String
+  storeCategory   StoreCategory @relation(fields: [storeCategoryId], references: [id], onDelete: Cascade)
+  assignedAt      DateTime      @default(now())
+
+  @@unique([storeId, storeCategoryId])
+  @@index([storeId])
+  @@index([storeCategoryId])
+}
+
 model Store {
-  id            String        @id @default(cuid())
-  name          String
-  slug          String        @unique
-  description   String?
-  isActive      Boolean       @default(true)
-  settings      Settings?
-  ownerId       String
-  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  categories    Category[]
-  subcategories Subcategory[]
-  products      Product[]
-  currencies    Currency[]
-  theme         Json          @default("{}")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  prices        Price[]
+  id              String                    @id @default(cuid())
+  name            String
+  slug            String                    @unique
+  description     String?
+  isActive        Boolean                   @default(true)
+  settings        Settings?
+  ownerId         String
+  owner           User                      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  categories      Category[]
+  subcategories   Subcategory[]
+  products        Product[]
+  currencies      Currency[]
+  theme           Json                      @default("{}")
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  prices          Price[]
+  storeCategories StoreCategoryAssignment[]
 }
 
 model Category {

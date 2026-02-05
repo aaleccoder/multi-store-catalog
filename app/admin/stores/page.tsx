@@ -26,8 +26,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, Eye, Edit, Trash, MoreHorizontal } from "lucide-react";
+import { Settings, Eye, Edit, Trash, MoreHorizontal, X } from "lucide-react";
 import Header from "@/components/wholepage/Header";
+import { trpc } from "@/trpc/client";
 
 interface StoreFormProps {
   formData: any;
@@ -36,6 +37,30 @@ interface StoreFormProps {
 
 function StoreForm({ formData, setFormData }: StoreFormProps) {
   const [manuallyEditedSlug, setManuallyEditedSlug] = useState(false);
+  const { data: storeCategories = [] } = trpc.admin.stores.listStoreCategories.useQuery();
+  
+  const selectedCategoryIds = formData.storeCategoryIds || [];
+
+  const toggleCategory = (categoryId: string) => {
+    const current = selectedCategoryIds;
+    const isSelected = current.includes(categoryId);
+    
+    if (isSelected) {
+      // Remove category
+      setFormData((prev: any) => ({
+        ...prev,
+        storeCategoryIds: current.filter((id: string) => id !== categoryId),
+      }));
+    } else {
+      // Add category (up to 5)
+      if (current.length < 5) {
+        setFormData((prev: any) => ({
+          ...prev,
+          storeCategoryIds: [...current, categoryId],
+        }));
+      }
+    }
+  };
 
   // Keep slug in sync with name unless the user has manually edited the slug.
   // Use a functional setter and avoid depending on the whole `formData` object
@@ -108,6 +133,68 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
           className="w-full border rounded p-2"
         />
       </div>
+      
+      {/* Store Categories Selection */}
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label>Categorías de Tienda (máximo 5)</Label>
+          <p className="text-sm text-muted-foreground">
+            Selecciona hasta 5 categorías que describan tu tienda
+          </p>
+        </div>
+        
+        {/* Selected Categories */}
+        {selectedCategoryIds.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {selectedCategoryIds.map((categoryId: string) => {
+              const category = storeCategories.find((c: any) => c.id === categoryId);
+              if (!category) return null;
+              return (
+                <Badge
+                  key={categoryId}
+                  variant="default"
+                  className="cursor-pointer hover:bg-destructive transition-colors"
+                  onClick={() => toggleCategory(categoryId)}
+                >
+                  <span className="mr-1">{category.icon}</span>
+                  {category.name}
+                  <X className="ml-1 h-3 w-3" />
+                </Badge>
+              );
+            })}
+          </div>
+        )}
+        
+        {/* Available Categories Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+          {storeCategories.map((category: any) => {
+            const isSelected = selectedCategoryIds.includes(category.id);
+            const isDisabled = !isSelected && selectedCategoryIds.length >= 5;
+            
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => !isDisabled && toggleCategory(category.id)}
+                disabled={isDisabled}
+                className={`
+                  flex items-center gap-2 p-2 rounded-md border text-left text-sm transition-all
+                  ${isSelected 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : isDisabled
+                    ? 'opacity-50 cursor-not-allowed bg-muted'
+                    : 'hover:bg-accent hover:border-accent-foreground/20'
+                  }
+                `}
+              >
+                <span className="text-lg">{category.icon}</span>
+                <span className="flex-1 truncate">{category.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      
       <div className="flex items-center space-x-2">
         <Switch
           id="isActive"
@@ -225,6 +312,23 @@ export default function StoresPage() {
                           <p className="text-sm text-muted-foreground line-clamp-3">
                             {store.description || "Sin descripción"}
                           </p>
+                          
+                          {/* Store Categories */}
+                          {store.storeCategories && store.storeCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {store.storeCategories.slice(0, 3).map((assignment: any) => (
+                                <Badge key={assignment.id} variant="outline" className="text-xs">
+                                  <span className="mr-1">{assignment.storeCategory.icon}</span>
+                                  {assignment.storeCategory.name}
+                                </Badge>
+                              ))}
+                              {store.storeCategories.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{store.storeCategories.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <Button asChild className="mt-3">
                           <Link href={`/admin/stores/${store.slug}`}>

@@ -6,7 +6,7 @@ import { Mail, Phone, Instagram, Facebook, Twitter } from "lucide-react";
 
 export default function Footer() {
     return (
-        <footer className="bg-muted text-muted-foreground border-t">
+        <footer className="bg-muted text-muted-foreground border-t-2 border-secondary/30">
             <div className="container mx-auto px-6 py-12">
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {/* Brand Section */}
@@ -143,7 +143,7 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-12 border-t pt-8">
+                <div className="mt-12 border-t border-primary rounded-md pt-8">
                     <div className="flex flex-col items-center justify-between gap-4 text-sm md:flex-row">
                         <p>&copy; {new Date().getFullYear()} Una Ganga - Catálogos. Todos los derechos reservados.</p>
                         <p className="text-xs">Hecho con ❤️ para emprendedores</p>

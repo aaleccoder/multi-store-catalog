@@ -41,7 +41,6 @@ export default async function RootLayout({
 
   const storeTheme = (storeData.theme ?? null) as unknown as StoreTheme | null;
 
-  // Nested layouts must not render <html> / <body>; only the root layout should.
   return (
     <StoreThemeProvider theme={storeTheme ?? undefined}>
       <div

@@ -17,6 +17,7 @@ export const storeSchema = z.object({
   slug: z.string().min(1),
   description: z.string().nullable().optional(),
   isActive: z.boolean(),
+  storeCategoryIds: z.array(z.string()).max(5).optional(),
   theme: z
     .object({
       light: z.record(z.string(), z.string()).optional(),
@@ -79,6 +80,20 @@ export const adminStoresRouter = router({
     return prisma.store.findMany({
       where: { ownerId: ctx.session.user.id },
       orderBy: { createdAt: "asc" },
+      include: {
+        storeCategories: {
+          include: {
+            storeCategory: true,
+          },
+        },
+      },
+    });
+  }),
+
+  listStoreCategories: protectedProcedure.query(async () => {
+    return prisma.storeCategory.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
     });
   }),
 
@@ -122,6 +137,12 @@ export const adminStoresRouter = router({
           branding: { ...defaultStoreTheme.branding },
           fontId: defaultStoreTheme.fontId,
         };
+        
+        // If no categories provided, default to "General"
+        const categoryIds = input.storeCategoryIds?.length 
+          ? input.storeCategoryIds 
+          : [(await prisma.storeCategory.findFirst({ where: { slug: 'general' } }))?.id].filter(Boolean) as string[];
+        
         const store = await prisma.store.create({
           data: {
             name: input.name,
@@ -130,6 +151,11 @@ export const adminStoresRouter = router({
             isActive: input.isActive ?? false,
             ownerId: ctx.session.user.id,
             theme: resolvedTheme,
+            storeCategories: {
+              create: categoryIds.map(categoryId => ({
+                storeCategoryId: categoryId,
+              })),
+            },
             currencies: {
               create: [
                 {
@@ -239,6 +265,24 @@ export const adminStoresRouter = router({
             },
             fontId: incomingTheme?.fontId ?? existingTheme?.fontId,
           };
+        }
+
+        // Handle store category updates
+        if (patch.storeCategoryIds !== undefined) {
+          // Delete existing assignments
+          await prisma.storeCategoryAssignment.deleteMany({
+            where: { storeId: id },
+          });
+          
+          // Create new assignments (up to 5)
+          if (patch.storeCategoryIds.length > 0) {
+            await prisma.storeCategoryAssignment.createMany({
+              data: patch.storeCategoryIds.slice(0, 5).map(categoryId => ({
+                storeId: id,
+                storeCategoryId: categoryId,
+              })),
+            });
+          }
         }
 
         // If there's nothing to update, return the existing store as-is.
