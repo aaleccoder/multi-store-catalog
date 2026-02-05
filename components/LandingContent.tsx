@@ -84,7 +84,7 @@ const LandingContent = ({
   const updateParams = (updates: Record<string, string | null>) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
-      
+
       Object.entries(updates).forEach(([key, value]) => {
         if (value) {
           params.set(key, value);
@@ -92,12 +92,12 @@ const LandingContent = ({
           params.delete(key);
         }
       });
-      
+
       // Reset to page 1 when filters change
       if (updates.search !== undefined || updates.category !== undefined || updates.sort !== undefined) {
         params.delete("page");
       }
-      
+
       router.push(`/?${params.toString()}`);
     });
   };
@@ -199,16 +199,16 @@ const LandingContent = ({
     >
       <div className="space-y-8 lg:space-y-10">
         {/* Hero conversion block */}
-        <div className="relative left-1/2 right-1/2 w-screen -translate-x-1/2">
+        <div className="relative w-full">
           <div className="mx-auto max-w-7xl px-6">
             <div className="border border-border/60 bg-card bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-7 sm:p-9 lg:p-10">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                    Para negocios
+                    ¿Tienes un negocio?
                   </p>
                   <h2 className="text-xl font-semibold tracking-tight sm:text-2xl lg:text-3xl">
-                    ¿Tienes un negocio?
+                    Administra tu propio catálogo
                   </h2>
                   <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
                     Crea tu propio catálogo digital, vende en línea y llega a más
@@ -249,7 +249,7 @@ const LandingContent = ({
               className="pl-10"
             />
           </div>
-          
+
           {/* Filter Controls */}
           <div className="flex gap-2">
             <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
@@ -278,7 +278,7 @@ const LandingContent = ({
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedSort || "popular"} onValueChange={handleSortChange}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Ordenar" />
@@ -314,7 +314,7 @@ const LandingContent = ({
                 const now = new Date();
                 const diff = now.getTime() - new Date(date).getTime();
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                
+
                 if (days === 0) return "Hoy";
                 if (days === 1) return "Hace 1 día";
                 if (days < 7) return `Hace ${days} días`;
@@ -337,9 +337,8 @@ const LandingContent = ({
                   <Link
                     key={store.id}
                     href={`/store/${store.slug}`}
-                    className={`group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/50 ${
-                      featured ? "col-span-2 lg:col-span-2" : ""
-                    }`}
+                    className={`group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/50 ${featured ? "col-span-2 lg:col-span-2" : ""
+                      }`}
                   >
                     {/* Badge for featured/new stores */}
                     {(store.isFeatured || store.isNew) && (
@@ -354,16 +353,14 @@ const LandingContent = ({
                     )}
 
                     {/* Logo container with ambient background */}
-                    <div className={`relative flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-6 ${
-                      featured ? "h-48 lg:h-56" : "h-40"
-                    }`}>
-                      {/* Logo frame - 1:1 aspect ratio with intentional styling */}
-                      <div className={`relative aspect-square bg-background/80 backdrop-blur-sm shadow-sm ring-1 ring-border/50 p-4 overflow-hidden transition-all duration-300 group-hover:shadow-md group-hover:ring-primary/30 ${
-                        featured ? "w-32 lg:w-36" : "w-24"
+                    <div className={`relative flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-6 ${featured ? "h-48 lg:h-56" : "h-40"
                       }`}>
+                      {/* Logo frame - 1:1 aspect ratio with intentional styling */}
+                      <div className={`relative aspect-square bg-background/80 backdrop-blur-sm shadow-sm ring-1 ring-border/50 p-4 overflow-hidden transition-all duration-300 group-hover:shadow-md group-hover:ring-primary/30 ${featured ? "w-32 lg:w-36" : "w-24"
+                        }`}>
                         {/* Subtle inner gradient */}
                         <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-transparent pointer-events-none" />
-                        
+
                         {/* Logo */}
                         <div className="relative h-full w-full flex items-center justify-center">
                           <Image
@@ -379,21 +376,19 @@ const LandingContent = ({
 
                     <div className="flex flex-col gap-3 px-6 py-4 h-full">
                       {/* PRIMARY: Store name */}
-                      <h3 className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${
-                        featured ? "text-2xl" : "text-xl"
-                      }`}>
+                      <h3 className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${featured ? "text-2xl" : "text-xl"
+                        }`}>
                         {store.name}
                       </h3>
-                      
+
                       {/* SECONDARY: Description */}
                       {store.description && (
-                        <p className={`text-sm text-muted-foreground/90 leading-snug ${
-                          featured ? "line-clamp-3" : "line-clamp-2"
-                        }`}>
+                        <p className={`text-sm text-muted-foreground/90 leading-snug ${featured ? "line-clamp-3" : "line-clamp-2"
+                          }`}>
                           {store.description}
                         </p>
                       )}
-                      
+
                       {/* TERTIARY: Activity signals */}
                       <div className="flex flex-col gap-2 mt-auto pt-2 border-t border-border/50">
                         <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
@@ -403,13 +398,13 @@ const LandingContent = ({
                             <span>Abierta ahora</span>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
                           {/* Product count */}
                           {store.productCount > 0 && (
                             <span>{store.productCount} {store.productCount === 1 ? "producto" : "productos"}</span>
                           )}
-                          
+
                           {/* Category count */}
                           {store.categoryCount > 0 && (
                             <span>•</span>
@@ -418,7 +413,7 @@ const LandingContent = ({
                             <span>{store.categoryCount} {store.categoryCount === 1 ? "categoría" : "categorías"}</span>
                           )}
                         </div>
-                        
+
                         {/* Last updated */}
                         {store.updatedAt && (
                           <div className="text-xs text-muted-foreground/60">
@@ -426,7 +421,7 @@ const LandingContent = ({
                           </div>
                         )}
                       </div>
-                      
+
                       {/* CTA Button - Strong affordance */}
                       <div className="mt-2">
                         <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary/10 text-primary font-semibold text-sm transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25">

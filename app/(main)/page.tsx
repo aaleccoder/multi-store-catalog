@@ -96,10 +96,10 @@ export default async function LandingPage({
 
     const productCount = store._count.products;
     const categoryCount = store._count.categories;
-    
+
     // Calculate if store is new (created in last 7 days)
     const isNew = new Date().getTime() - new Date(store.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-    
+
     // Top 4 stores with most products are featured
     const isFeatured = topFeaturedIds.has(store.id);
 
@@ -116,7 +116,7 @@ export default async function LandingPage({
   const totalPages = Math.ceil(totalCount / STORES_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="text-foreground flex flex-col">
       <Header />
       <LandingContent
         stores={storesWithBranding}

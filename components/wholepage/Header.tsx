@@ -82,10 +82,9 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 border-b-2 border-border p-4 backdrop-blur-xl transition-all"
-          }`}
+        className="sticky top-0 left-0 right-0 z-50 border-b-2 border-border p-4 backdrop-blur-xl transition-all"
       >
-        <div className="mx-auto max-w-9xl px-4 flex items-center justify-between">
+        <div className="mx-auto flex w-full max-w-screen-2xl items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button
               asChild
@@ -138,7 +137,7 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[340px] rounded-2xl border-border/20 bg-background/90 p-3 shadow-2xl backdrop-blur-xl"
+                className="w-[340px] border-border/20 bg-background/90 p-3 shadow-2xl backdrop-blur-xl"
                 onMouseEnter={openHelpMenu}
                 onMouseLeave={closeHelpMenu}
               >
@@ -148,11 +147,11 @@ export default function Header() {
                   </p>
                 </div>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/terms")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <ScrollText className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -164,11 +163,11 @@ export default function Header() {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/privacy")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <ShieldCheck className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -180,11 +179,11 @@ export default function Header() {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/contact")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <LifeBuoy className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -202,11 +201,11 @@ export default function Header() {
                   </p>
                 </div>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/info")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <Sparkles className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -218,11 +217,11 @@ export default function Header() {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/#stores")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <Store className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -234,11 +233,11 @@ export default function Header() {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/login-admin")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <LogIn className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -250,11 +249,11 @@ export default function Header() {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl p-2"
+                  className="p-2"
                   onSelect={() => router.push("/contact")}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
                       <MessageCircle className="h-4 w-4" />
                     </span>
                     <div className="flex flex-col">
@@ -274,12 +273,14 @@ export default function Header() {
               <Button
                 variant="default"
                 size="lg"
-                className="group relative overflow-hidden rounded-full bg-banner-bg border-2 border-banner-border text-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-xl hover:bg-primary group-hover:text-white focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none"
+                className="group relative max-w-[20rem] overflow-hidden bg-banner-bg border-2 border-banner-border text-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-xl hover:bg-primary group-hover:text-primary-foreground focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none whitespace-normal text-center leading-snug"
                 onClick={() => router.push("/info")}
               >
-                <span className="relative z-10 text-primary font-semibold group-hover:text">¿Quieres tener tu propio catálogo?</span>
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-white/0 via-white/35 to-white/0 opacity-70 transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-white/25" />
+                <span className="relative z-10 text-primary font-semibold group-hover:text-primary-foreground">
+                  ¿Quieres tener tu propio catálogo?
+                </span>
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-background/35 to-transparent opacity-70 transition-transform duration-700 group-hover:translate-x-full" />
+                <span className="pointer-events-none absolute inset-0 ring-1 ring-border/25" />
               </Button>
             ) : (
               <>
@@ -345,7 +346,7 @@ export default function Header() {
                       <div className="space-y-3 pt-4">
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/info")}
                         >
                           <div className="flex items-center gap-3">
@@ -360,7 +361,7 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/#stores")}
                         >
                           <div className="flex items-center gap-3">
@@ -376,7 +377,7 @@ export default function Header() {
                         {session && (
                           <button
                             type="button"
-                            className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                            className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                             onClick={() => navigate("/admin")}
                           >
                             <div className="flex items-center gap-3">
@@ -411,7 +412,7 @@ export default function Header() {
                       <div className="space-y-3 pt-4">
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/terms")}
                         >
                           <div className="flex items-center gap-3">
@@ -426,7 +427,7 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/privacy")}
                         >
                           <div className="flex items-center gap-3">
@@ -441,7 +442,7 @@ export default function Header() {
                         </button>
                         <button
                           type="button"
-                          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-left"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
                           onClick={() => navigate("/contact")}
                         >
                           <div className="flex items-center gap-3">
@@ -483,13 +484,13 @@ export default function Header() {
                       <>
                         <Button
                           variant="outline"
-                          className="h-12 w-full rounded-full border-border bg-transparent text-foreground hover:bg-muted"
+                          className="h-12 w-full border-border bg-transparent text-foreground hover:bg-muted"
                           onClick={() => navigate("/login-admin")}
                         >
                           Iniciar sesión
                         </Button>
                         <Button
-                          className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                          className="h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={() => navigate("/info")}
                         >
                           Comenzar gratis
@@ -499,13 +500,13 @@ export default function Header() {
                       <>
                         <Button
                           variant="outline"
-                          className="h-12 w-full rounded-full border-border bg-transparent text-foreground hover:bg-muted"
+                          className="h-12 w-full border-border bg-transparent text-foreground hover:bg-muted"
                           onClick={() => navigate("/admin")}
                         >
                           Panel de administración
                         </Button>
                         <Button
-                          className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                          className="h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={openLogoutDialog}
                         >
                           Cerrar sesión
