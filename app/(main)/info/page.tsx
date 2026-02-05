@@ -108,7 +108,7 @@ export default function InfoPage() {
                                 alt="Una Ganga Logo"
                                 width={80}
                                 height={80}
-                                className="mx-auto rounded-lg shadow-lg"
+                                className="mx-auto"
                             />
                         </div>
                         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
@@ -179,8 +179,8 @@ export default function InfoPage() {
                             <Card
                                 key={index}
                                 className={`relative ${plan.highlighted
-                                        ? "border-primary shadow-lg scale-105"
-                                        : "border-border/50"
+                                    ? "border-primary shadow-lg scale-105"
+                                    : "border-border/50"
                                     }`}
                             >
                                 {plan.highlighted && (

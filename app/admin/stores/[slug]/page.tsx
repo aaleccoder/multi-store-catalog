@@ -81,7 +81,7 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
     },
     {
       title: "Tema",
-      description: "Colores y tipografias de la tienda.",
+      description: "Colores y tipografías de la tienda.",
       href: `${basePath}/theme`,
     },
     {
@@ -197,7 +197,7 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
+    <div className="border border-border/70 bg-card p-4 shadow-sm">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-3xl font-bold">{value}</p>
     </div>

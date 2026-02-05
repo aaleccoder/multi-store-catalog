@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { StoreTheme } from '@/lib/theme'
 
 interface BrandingCardProps {
@@ -57,14 +58,14 @@ export const BrandingCard = ({ branding, onBrandingChange, onLogoFile, uploading
 
             <div className="space-y-2">
                 <Label>Vista previa</Label>
-                <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-border bg-muted/30">
+                <div className="flex h-32 items-center justify-center border border-dashed border-border bg-muted/30">
                     {branding.logoUrl ? (
                         <Image
                             src={branding.logoUrl}
                             alt={branding.logoAlt ?? 'Logo de la tienda'}
                             width={branding.logoWidth ?? 100}
                             height={branding.logoHeight ?? 100}
-                            className="object-contain max-h-28"
+                            className="h-9 w-9 border border-border shadow-sm"
                         />
                     ) : (
                         <span className="text-sm text-muted-foreground">Anade la URL de tu logo.</span>

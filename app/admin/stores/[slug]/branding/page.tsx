@@ -8,12 +8,13 @@ import { toast } from 'sonner'
 
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { defaultStoreBranding, defaultStoreTheme, StoreTheme } from '@/lib/theme'
 import { defaultStoreFontId } from '@/lib/store-fonts'
 import { BrandingCard } from '../theme/components/branding-card'
 import { fileToBase64 } from '../theme/theme-utils'
 
-export default function BrandingPage() {
+export default function SettingsPage() {
     const router = useRouter()
     const params = useParams()
     const storeSlug = typeof params?.slug === 'string' ? params.slug : ''
@@ -134,8 +135,8 @@ export default function BrandingPage() {
                 <div className="p-4 md:p-8 space-y-6">
                     <div className="flex items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold">Identidad de la tienda</h1>
-                            <p className="text-sm text-muted-foreground">Logo, datos de contacto y redes sociales.</p>
+                            <h1 className="text-3xl font-bold">Configuración de la tienda</h1>
+                            <p className="text-sm text-muted-foreground">Gestiona la configuración general de tu tienda.</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button asChild variant="outline">
@@ -147,13 +148,21 @@ export default function BrandingPage() {
                         </div>
                     </div>
 
-                    <div className="max-w-3xl">
-                        <BrandingCard
-                            branding={branding}
-                            onBrandingChange={handleBrandingChange}
-                            onLogoFile={handleLogoFile}
-                            uploading={uploadMedia.isPending}
-                        />
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Identidad de la tienda</CardTitle>
+                                <CardDescription>Logo, datos de contacto y redes sociales.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <BrandingCard
+                                    branding={branding}
+                                    onBrandingChange={handleBrandingChange}
+                                    onLogoFile={handleLogoFile}
+                                    uploading={uploadMedia.isPending}
+                                />
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </main>

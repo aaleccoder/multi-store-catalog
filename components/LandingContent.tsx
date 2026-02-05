@@ -363,13 +363,20 @@ const LandingContent = ({
 
                         {/* Logo */}
                         <div className="relative h-full w-full flex items-center justify-center">
-                          <Image
-                            src={logoSrc}
-                            alt={logoAlt}
-                            width={featured ? 96 : 64}
-                            height={featured ? 96 : 64}
-                            className="max-h-full max-w-full object-contain"
-                          />
+
+                          {logoSrc ? (
+                            <Image
+                              src={logoSrc}
+                              alt={logoAlt}
+                              width={featured ? 96 : 64}
+                              height={featured ? 96 : 64}
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Store className="h-12 w-12 text-muted-foreground" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

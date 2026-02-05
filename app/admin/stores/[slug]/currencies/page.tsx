@@ -12,7 +12,7 @@ export default function CurrenciesPage() {
     return (
         <div className="min-h-screen bg-background">
 
-            <main className="md:pt-20 lg:pt-0">
+            <main className="">
                 <div className="">
                     <AdminResource
                         title="Monedas"

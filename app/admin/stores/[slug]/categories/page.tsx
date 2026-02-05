@@ -85,7 +85,7 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
               description: e.target.value,
             }))
           }
-          className="w-full border rounded p-2"
+          className="w-full border p-2"
         />
       </div>
       <div className="space-y-2">
@@ -95,22 +95,20 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
             <button
               type="button"
               onClick={() => setIconMode("picker")}
-              className={`px-3 py-1 rounded ${
-                displayIconMode === "picker"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
+              className={`px-3 py-1 ${displayIconMode === "picker"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
             >
               Selector de Iconos
             </button>
             <button
               type="button"
               onClick={() => setIconMode("custom")}
-              className={`px-3 py-1 rounded ${
-                displayIconMode === "custom"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
+              className={`px-3 py-1 ${displayIconMode === "custom"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
             >
               Subir SVG
             </button>
@@ -162,7 +160,7 @@ function CategoryForm({ formData, setFormData }: CategoryFormProps) {
               <div className="flex items-center gap-2">
                 <Label>Vista previa:</Label>
                 <div
-                  className="w-8 h-8 flex items-center justify-center border rounded p-1"
+                  className="w-8 h-8 flex items-center justify-center border p-1"
                   dangerouslySetInnerHTML={{ __html: formData.icon }}
                 />
               </div>

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { LogoutDialog } from "@/components/ui/logout-dialog";
 import { ModeToggle } from "../mode-toogle";
 
@@ -90,37 +91,37 @@ export default function Header() {
               asChild
               variant="link"
               className="h-fit w-fit p-0 hover:scale-105 cursor-pointer hover:no-underline"
-              onClick={() => router.push("/")}
             >
-              <div>
-                <Image
-                  src="/apple-icon.png"
-                  alt="Logo"
-                  width={32}
-                  height={32}
-                  className="rounded"
-                />
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</h1>
+              <Link href="/" >
+                <div className="flex flex-row items-center gap-2">
+                  <Image
+                    src="/apple-icon.png"
+                    alt="Logo"
+                    width={32}
+                    height={32}
+                    className="rounded"
+                  />
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</h1>
+                  </div>
                 </div>
-
-              </div>
+              </Link>
             </Button>
           </div>
           <nav className="hidden md:flex items-center gap-2">
             <Button
+              asChild
               variant="ghost"
               className="text-foreground hover:text-foreground"
-              onClick={() => router.push("/#stores")}
             >
-              Tiendas
+              <Link href="/#stores">Tiendas</Link>
             </Button>
             <Button
+              asChild
               variant="ghost"
               className="text-foreground hover:text-foreground"
-              onClick={() => router.push("/info")}
             >
-              Planes
+              <Link href="/info">Planes</Link>
             </Button>
             <DropdownMenu open={isHelpOpen} onOpenChange={setIsHelpOpen} modal={false}>
               <DropdownMenuTrigger asChild>
@@ -148,51 +149,57 @@ export default function Header() {
                 </div>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/terms")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <ScrollText className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Términos de uso</span>
-                      <span className="text-xs text-muted-foreground">
-                        Condiciones y reglas de la plataforma.
+                  <Link href="/terms">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <ScrollText className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Términos de uso</span>
+                        <span className="text-xs text-muted-foreground">
+                          Condiciones y reglas de la plataforma.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/privacy")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <ShieldCheck className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Política de privacidad</span>
-                      <span className="text-xs text-muted-foreground">
-                        Cómo cuidamos tus datos y los de tus clientes.
+                  <Link href="/privacy">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <ShieldCheck className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Política de privacidad</span>
+                        <span className="text-xs text-muted-foreground">
+                          Cómo cuidamos tus datos y los de tus clientes.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/contact")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <LifeBuoy className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Soporte y contacto</span>
-                      <span className="text-xs text-muted-foreground">
-                        Te ayudamos con dudas y configuración.
+                  <Link href="/contact">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <LifeBuoy className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Soporte y contacto</span>
+                        <span className="text-xs text-muted-foreground">
+                          Te ayudamos con dudas y configuración.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-2" />
                 <div className="px-2 pb-2 pt-1">
@@ -202,67 +209,75 @@ export default function Header() {
                 </div>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/info")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <Sparkles className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Cómo funciona</span>
-                      <span className="text-xs text-muted-foreground">
-                        Planes, beneficios y por qué te conviene.
+                  <Link href="/info">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <Sparkles className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Cómo funciona</span>
+                        <span className="text-xs text-muted-foreground">
+                          Planes, beneficios y por qué te conviene.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/#stores")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <Store className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Explorar tiendas</span>
-                      <span className="text-xs text-muted-foreground">
-                        Mira marcas activas y ejemplos reales.
+                  <Link href="/#stores">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <Store className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Explorar tiendas</span>
+                        <span className="text-xs text-muted-foreground">
+                          Mira marcas activas y ejemplos reales.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/login-admin")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <LogIn className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Iniciar sesión</span>
-                      <span className="text-xs text-muted-foreground">
-                        Accede al panel de administración.
+                  <Link href="/login-admin">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <LogIn className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Iniciar sesión</span>
+                        <span className="text-xs text-muted-foreground">
+                          Accede al panel de administración.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="p-2"
-                  onSelect={() => router.push("/contact")}
+                  asChild
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
-                      <MessageCircle className="h-4 w-4" />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Habla con ventas</span>
-                      <span className="text-xs text-muted-foreground">
-                        Te orientamos con planes y migraciones.
+                  <Link href="/contact">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
+                        <MessageCircle className="h-4 w-4" />
                       </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">Habla con ventas</span>
+                        <span className="text-xs text-muted-foreground">
+                          Te orientamos con planes y migraciones.
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -271,24 +286,26 @@ export default function Header() {
             <ModeToggle />
             {!session ? (
               <Button
+                asChild
                 variant="default"
                 size="lg"
                 className="group relative max-w-[20rem] overflow-hidden bg-banner-bg border-2 border-banner-border text-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-xl hover:bg-primary group-hover:text-primary-foreground focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none whitespace-normal text-center leading-snug"
-                onClick={() => router.push("/info")}
               >
-                <span className="relative z-10 text-primary font-semibold group-hover:text-primary-foreground">
-                  ¿Quieres tener tu propio catálogo?
-                </span>
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-background/35 to-transparent opacity-70 transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="pointer-events-none absolute inset-0 ring-1 ring-border/25" />
+                <Link href="/info">
+                  <span className="relative z-10 text-primary font-semibold group-hover:text-primary-foreground">
+                    ¿Quieres tener tu propio catálogo?
+                  </span>
+                  <span className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-background/35 to-transparent opacity-70 transition-transform duration-700 group-hover:translate-x-full" />
+                  <span className="pointer-events-none absolute inset-0 ring-1 ring-border/25" />
+                </Link>
               </Button>
             ) : (
               <>
                 <Button
+                  asChild
                   variant="outline"
-                  onClick={() => router.push("/admin")}
                 >
-                  Panel de administración
+                  <Link href="/admin">Panel de administración</Link>
                 </Button>
                 <Button variant="destructive" onClick={() => setIsDialogOpen(true)}>
                   <LogOut className="h-4 w-4" />
@@ -344,10 +361,10 @@ export default function Header() {
                     </button>
                     {mobileSolutionsOpen && (
                       <div className="space-y-3 pt-4">
-                        <button
-                          type="button"
-                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                          onClick={() => navigate("/info")}
+                        <Link
+                          href="/info"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                          onClick={() => setIsMobileOpen(false)}
                         >
                           <div className="flex items-center gap-3">
                             <Sparkles className="h-4 w-4 text-muted-foreground" />
@@ -358,11 +375,11 @@ export default function Header() {
                               </p>
                             </div>
                           </div>
-                        </button>
-                        <button
-                          type="button"
-                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                          onClick={() => navigate("/#stores")}
+                        </Link>
+                        <Link
+                          href="/#stores"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                          onClick={() => setIsMobileOpen(false)}
                         >
                           <div className="flex items-center gap-3">
                             <Store className="h-4 w-4 text-muted-foreground" />
@@ -373,12 +390,12 @@ export default function Header() {
                               </p>
                             </div>
                           </div>
-                        </button>
+                        </Link>
                         {session && (
-                          <button
-                            type="button"
-                            className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                            onClick={() => navigate("/admin")}
+                          <Link
+                            href="/admin"
+                            className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                            onClick={() => setIsMobileOpen(false)}
                           >
                             <div className="flex items-center gap-3">
                               <LogIn className="h-4 w-4 text-muted-foreground" />
@@ -389,7 +406,7 @@ export default function Header() {
                                 </p>
                               </div>
                             </div>
-                          </button>
+                          </Link>
                         )}
                       </div>
                     )}
@@ -410,10 +427,10 @@ export default function Header() {
                     </button>
                     {mobileResourcesOpen && (
                       <div className="space-y-3 pt-4">
-                        <button
-                          type="button"
-                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                          onClick={() => navigate("/terms")}
+                        <Link
+                          href="/terms"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                          onClick={() => setIsMobileOpen(false)}
                         >
                           <div className="flex items-center gap-3">
                             <ScrollText className="h-4 w-4 text-muted-foreground" />
@@ -424,11 +441,11 @@ export default function Header() {
                               </p>
                             </div>
                           </div>
-                        </button>
-                        <button
-                          type="button"
-                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                          onClick={() => navigate("/privacy")}
+                        </Link>
+                        <Link
+                          href="/privacy"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                          onClick={() => setIsMobileOpen(false)}
                         >
                           <div className="flex items-center gap-3">
                             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
@@ -439,11 +456,11 @@ export default function Header() {
                               </p>
                             </div>
                           </div>
-                        </button>
-                        <button
-                          type="button"
-                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left"
-                          onClick={() => navigate("/contact")}
+                        </Link>
+                        <Link
+                          href="/contact"
+                          className="w-full border border-border bg-muted/40 px-4 py-3 text-left block"
+                          onClick={() => setIsMobileOpen(false)}
                         >
                           <div className="flex items-center gap-3">
                             <LifeBuoy className="h-4 w-4 text-muted-foreground" />
@@ -454,56 +471,56 @@ export default function Header() {
                               </p>
                             </div>
                           </div>
-                        </button>
+                        </Link>
                       </div>
                     )}
                   </div>
 
                   <div className="px-4">
-                    <button
-                      type="button"
+                    <Link
+                      href="/info"
                       className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
-                      onClick={() => navigate("/info")}
+                      onClick={() => setIsMobileOpen(false)}
                     >
                       Pricing
-                    </button>
+                    </Link>
                   </div>
 
                   <div className="px-4">
-                    <button
-                      type="button"
+                    <Link
+                      href="/contact"
                       className="flex w-full items-center justify-between border-b border-border py-3 text-left text-lg font-medium"
-                      onClick={() => navigate("/contact")}
+                      onClick={() => setIsMobileOpen(false)}
                     >
                       Enterprise
-                    </button>
+                    </Link>
                   </div>
 
                   <div className="mt-auto space-y-3 px-4 pb-6">
                     {!session ? (
                       <>
                         <Button
+                          asChild
                           variant="outline"
                           className="h-12 w-full border-border bg-transparent text-foreground hover:bg-muted"
-                          onClick={() => navigate("/login-admin")}
                         >
-                          Iniciar sesión
+                          <Link href="/login-admin">Iniciar sesión</Link>
                         </Button>
                         <Button
+                          asChild
                           className="h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                          onClick={() => navigate("/info")}
                         >
-                          Comenzar gratis
+                          <Link href="/info">Comenzar gratis</Link>
                         </Button>
                       </>
                     ) : (
                       <>
                         <Button
+                          asChild
                           variant="outline"
                           className="h-12 w-full border-border bg-transparent text-foreground hover:bg-muted"
-                          onClick={() => navigate("/admin")}
                         >
-                          Panel de administración
+                          <Link href="/admin">Panel de administración</Link>
                         </Button>
                         <Button
                           className="h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90"

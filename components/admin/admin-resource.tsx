@@ -486,7 +486,7 @@ export function AdminResource<
   const sortedFiltered = getSortedItems(filtered);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col mt-4">
+    <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col md:pt-20 lg:pt-0 mt-14">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 w-full">
         <h1 className="text-3xl font-bold">{title}</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -568,7 +568,7 @@ export function AdminResource<
                                 [f.name]: e.target.value,
                               })
                             }
-                            className="w-full border rounded p-2"
+                            className="w-full border p-2"
                           />
                         ) : f.type === "switch" ? (
                           <Switch
@@ -696,7 +696,7 @@ export function AdminResource<
       {renderList ? (
         renderList(filtered, loading, handleEdit, handleDelete)
       ) : (
-        <div className="bg-card rounded-lg border border-border">
+        <div className="bg-card border border-border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -774,7 +774,7 @@ export function AdminResource<
                         </Button>
                         <Button
                           variant="ghost"
-                          className="hover:bg-destructive hover:text-white text-destructive"
+                          className="hover:bg-destructive hover:text-destructive-foreground text-destructive"
                           size="icon"
                           onClick={() => {
                             setItemToDelete(item);

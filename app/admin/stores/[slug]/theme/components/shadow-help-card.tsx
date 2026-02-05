@@ -9,7 +9,7 @@ export const ShadowHelpCard = () => (
             <CardDescription>Como funcionan los valores de sombra en CSS</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="bg-muted/50 p-3 rounded-md font-mono text-sm space-y-2">
+            <div className="bg-muted/50 p-3 font-mono text-sm space-y-2">
                 <p><span className="text-primary font-bold">Sintaxis:</span> offsetX offsetY blur spread color</p>
                 <p className="text-xs text-muted-foreground">El orden importa: primero se desplaza la sombra (X y Y), luego se difumina (blur), despues se expande o contrae (spread) y por ultimo se pinta el color.</p>
                 <p className="text-xs text-muted-foreground">Puedes encadenar varias sombras separadas por comas; cada conjunto sigue la misma distribucion.</p>
@@ -19,7 +19,7 @@ export const ShadowHelpCard = () => (
             <div className="space-y-3">
                 <div>
                     <p className="font-semibold text-sm mb-2">Ejemplo de tu sombra:</p>
-                    <div className="bg-muted/50 p-3 rounded-md font-mono text-xs space-y-1">
+                    <div className="bg-muted/50 p-3 font-mono text-xs space-y-1">
                         <p><span className="text-blue-600">0px</span> <span className="text-green-600">4px</span> <span className="text-purple-600">8px</span> <span className="text-orange-600">-1px</span> <span className="text-red-600">hsl(0 0% 0% / 0.08)</span>,</p>
                         <p><span className="text-blue-600">0px</span> <span className="text-green-600">4px</span> <span className="text-purple-600">6px</span> <span className="text-orange-600">-2px</span> <span className="text-red-600">hsl(0 0% 0% / 0.08)</span></p>
                     </div>
@@ -48,7 +48,7 @@ export const ShadowHelpCard = () => (
                     </div>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3 rounded-md">
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-3">
                     <p className="text-xs font-semibold mb-1">Como funciona tu ejemplo:</p>
                     <ul className="text-xs space-y-1 text-muted-foreground">
                         <li>- <span className="font-mono">0px 4px 8px -1px</span>: Sombra suave abajo, ligeramente contraida</li>

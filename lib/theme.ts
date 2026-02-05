@@ -144,16 +144,16 @@ export interface StoreBranding {
 }
 
 export const defaultStoreBranding: StoreBranding = {
-  logoUrl: "/android-chrome-192x192.png",
-  logoAlt: "Lea Logo",
+  logoUrl: "",
+  logoAlt: "",
   logoWidth: 100,
   logoHeight: 100,
-  contactEmail: "info@Lea.com",
-  contactPhone: "+5363404607",
-  contactAddress: "Calle 94 y 5ta Avenida, Miramar, La Habana",
-  socialFacebook: "#",
-  socialInstagram: "#",
-  socialTwitter: "#",
+  contactEmail: "",
+  contactPhone: "",
+  contactAddress: "",
+  socialFacebook: "",
+  socialInstagram: "",
+  socialTwitter: "",
 };
 
 export interface StoreTheme {

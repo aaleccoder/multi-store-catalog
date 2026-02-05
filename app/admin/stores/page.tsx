@@ -38,13 +38,13 @@ interface StoreFormProps {
 function StoreForm({ formData, setFormData }: StoreFormProps) {
   const [manuallyEditedSlug, setManuallyEditedSlug] = useState(false);
   const { data: storeCategories = [] } = trpc.admin.stores.listStoreCategories.useQuery();
-  
+
   const selectedCategoryIds = formData.storeCategoryIds || [];
 
   const toggleCategory = (categoryId: string) => {
     const current = selectedCategoryIds;
     const isSelected = current.includes(categoryId);
-    
+
     if (isSelected) {
       // Remove category
       setFormData((prev: any) => ({
@@ -130,10 +130,10 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
               description: e.target.value,
             }))
           }
-          className="w-full border rounded p-2"
+          className="w-full border p-2"
         />
       </div>
-      
+
       {/* Store Categories Selection */}
       <div className="space-y-3">
         <div className="space-y-1">
@@ -142,7 +142,7 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
             Selecciona hasta 5 categorías que describan tu tienda
           </p>
         </div>
-        
+
         {/* Selected Categories */}
         {selectedCategoryIds.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -164,13 +164,13 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
             })}
           </div>
         )}
-        
+
         {/* Available Categories Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto border p-3">
           {storeCategories.map((category: any) => {
             const isSelected = selectedCategoryIds.includes(category.id);
             const isDisabled = !isSelected && selectedCategoryIds.length >= 5;
-            
+
             return (
               <button
                 key={category.id}
@@ -178,12 +178,12 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
                 onClick={() => !isDisabled && toggleCategory(category.id)}
                 disabled={isDisabled}
                 className={`
-                  flex items-center gap-2 p-2 rounded-md border text-left text-sm transition-all
-                  ${isSelected 
-                    ? 'bg-primary text-primary-foreground border-primary' 
+                  flex items-center gap-2 p-2 border text-left text-sm transition-all
+                  ${isSelected
+                    ? 'bg-primary text-primary-foreground border-primary'
                     : isDisabled
-                    ? 'opacity-50 cursor-not-allowed bg-muted'
-                    : 'hover:bg-accent hover:border-accent-foreground/20'
+                      ? 'opacity-50 cursor-not-allowed bg-muted'
+                      : 'hover:bg-accent hover:border-accent-foreground/20'
                   }
                 `}
               >
@@ -194,7 +194,7 @@ function StoreForm({ formData, setFormData }: StoreFormProps) {
           })}
         </div>
       </div>
-      
+
       <div className="flex items-center space-x-2">
         <Switch
           id="isActive"
@@ -254,7 +254,7 @@ export default function StoresPage() {
                       key={store.id}
                       className="border-border/70 grid grid-cols-2 gap-4 p-4"
                     >
-                      <div className="aspect-square relative overflow-hidden rounded-md">
+                      <div className="aspect-square relative overflow-hidden">
                         <Image
                           src={
                             store.theme?.branding?.logoUrl ||
@@ -312,7 +312,7 @@ export default function StoresPage() {
                           <p className="text-sm text-muted-foreground line-clamp-3">
                             {store.description || "Sin descripción"}
                           </p>
-                          
+
                           {/* Store Categories */}
                           {store.storeCategories && store.storeCategories.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">

@@ -116,7 +116,7 @@ function SubcategoryForm({
               description: e.target.value,
             }))
           }
-          className="w-full border rounded p-2"
+          className="w-full border p-2"
         />
       </div>
       <div className="flex items-center space-x-2">

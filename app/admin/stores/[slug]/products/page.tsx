@@ -152,11 +152,11 @@ export default function ProductsPage() {
         const imageUrl = coverImages[0]?.url || "";
 
         return imageUrl ? (
-          <div className="relative w-12 h-12 rounded overflow-hidden">
+          <div className="relative w-12 h-12 overflow-hidden">
             <Image src={imageUrl} alt={p.name} fill className="object-cover" />
           </div>
         ) : (
-          <div className="w-12 h-12 bg-muted rounded" />
+          <div className="w-12 h-12 bg-muted" />
         );
       },
     },
@@ -217,7 +217,7 @@ export default function ProductsPage() {
       render: (p: Product) => (
         <div className="flex gap-1">
           {p.isActive ? (
-            <Badge variant="outline" className="bg-green-50 text-green-700">
+            <Badge variant="outline" className="bg-green-600 text-green-50">
               Activo
             </Badge>
           ) : (
@@ -729,7 +729,7 @@ export default function ProductsPage() {
                         <TableCell colSpan={7} className="text-center py-8">
                           <div className="flex flex-col items-center gap-4">
                             <div className="flex gap-4 w-full justify-center">
-                              <Skeleton className="w-12 h-12 rounded" />
+                              <Skeleton className="w-12 h-12" />
                               <div className="flex-1 space-y-2">
                                 <Skeleton className="h-4 w-3/4" />
                                 <Skeleton className="h-4 w-1/2" />
@@ -830,7 +830,7 @@ export default function ProductsPage() {
                           <TableRow key={product.id}>
                             <TableCell>
                               {imageUrl ? (
-                                <div className="relative w-12 h-12 rounded overflow-hidden">
+                                <div className="relative w-12 h-12 overflow-hidden">
                                   <Image
                                     src={imageUrl}
                                     alt={product.name}
@@ -839,7 +839,7 @@ export default function ProductsPage() {
                                   />
                                 </div>
                               ) : (
-                                <div className="w-12 h-12 bg-muted rounded" />
+                                <div className="w-12 h-12 bg-muted" />
                               )}
                             </TableCell>
                             <TableCell className="font-medium">

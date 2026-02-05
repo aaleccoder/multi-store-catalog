@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { shadowPresets } from '../theme-constants'
 
 interface ShadowFieldProps {
@@ -31,18 +32,23 @@ export const ShadowField = ({ value, onChange }: ShadowFieldProps) => {
     return (
         <div className="space-y-2">
             <div className="flex gap-2">
-                <select
-                    className="border border-input rounded-md px-2 py-2 bg-background text-sm"
+                <Select
                     value={selectedPresetId}
-                    onChange={(e) => handlePresetChange(e.target.value)}
+                    onValueChange={handlePresetChange}
+                    className="border border-input px-2 py-2 bg-background text-sm"
                 >
-                    <option value="custom">Personalizada (texto)</option>
-                    {shadowPresets.map((preset) => (
-                        <option key={preset.id} value={preset.id}>
-                            {preset.label}
-                        </option>
-                    ))}
-                </select>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="custom">Personalizada (texto)</SelectItem>
+                        {shadowPresets.map((preset) => (
+                            <SelectItem key={preset.id} value={preset.id}>
+                                {preset.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* <Input
@@ -52,9 +58,9 @@ export const ShadowField = ({ value, onChange }: ShadowFieldProps) => {
                 placeholder="0px 4px 8px -2px hsl(0 0% 0% / 0.1)"
             /> */}
 
-            <div className="rounded-md border bg-background p-3">
+            <div className="border bg-background p-3">
                 <div
-                    className="h-16 rounded-md border bg-card flex items-center justify-center text-xs text-muted-foreground"
+                    className="h-16 border bg-card flex items-center justify-center text-xs text-muted-foreground"
                     style={{ boxShadow: previewShadow }}
                 >
                     Vista previa

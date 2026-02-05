@@ -25,7 +25,7 @@ export const ColorField = ({ value, onChange }: ColorFieldProps) => {
                 <PopoverTrigger asChild>
                     <button
                         type="button"
-                        className="h-9 w-9 rounded-md border border-border shadow-sm"
+                        className="h-9 w-9 border border-border shadow-sm"
                         style={{ background: preview }}
                         aria-label="Seleccionar color"
                     />

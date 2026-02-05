@@ -258,19 +258,6 @@ export default function ThemePage() {
                         />
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card className="h-full">
-                            <CardHeader>
-                                <CardTitle>Identidad de la tienda</CardTitle>
-                                <CardDescription>
-                                    Logo, datos de contacto y redes sociales.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Button asChild variant="outline">
-                                    <Link href={`/admin/stores/${storeSlug}/branding`}>Abrir identidad</Link>
-                                </Button>
-                            </CardContent>
-                        </Card>
 
                         <FontCard
                             selectedFontId={selectedFontId}
@@ -345,142 +332,126 @@ export default function ThemePage() {
                                         <span>2rem</span>
                                     </div>
                                     <input
-                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                                        className="h-9 w-full border border-input bg-background px-3 text-sm"
                                         value={theme.light?.radius ?? mergedTheme.light.radius}
-                                        onChange={(e) => handleGlobalStyleChange('radius', e.target.value)}
-                                        spellCheck={false}
+                                        onChange={(e) => handleGlobalStyleChange('radius', e.target.value)} />
+                                    <ShadowField
+                                        value={theme.light?.shadow ?? mergedTheme.light.shadow}
+                                        onChange={(value) => handleGlobalStyleChange('shadow', value)}
                                     />
-
-                                    <div className="rounded-md border bg-background p-3">
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
-                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
-                                            <div className="h-10 border bg-card" style={{ borderRadius: theme.light?.radius ?? mergedTheme.light.radius }} />
-                                        </div>
-                                    </div>
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <span className="text-sm font-medium">Sombra principal</span>
-                                <p className="text-xs text-muted-foreground">
-                                    Controla la elevacion base de tarjetas y bloques principales.
-                                </p>
-                                <ShadowField
-                                    value={theme.light?.shadow ?? mergedTheme.light.shadow}
-                                    onChange={(value) => handleGlobalStyleChange('shadow', value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <span className="text-sm font-medium">Espaciado base</span>
-                                <p className="text-xs text-muted-foreground">
-                                    Multiplicador de espacios para paddings y margins (ej: 0.25rem).
-                                </p>
                                 <div className="space-y-2">
-                                    <input
-                                        type="range"
-                                        min={0.125}
-                                        max={1}
-                                        step={0.025}
-                                        value={spacingValue}
-                                        onChange={(e) => handleGlobalStyleChange('spacing', `${e.target.value}rem`)}
-                                    />
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>0.125rem</span>
-                                        <span>{spacingValue.toFixed(3)}rem</span>
-                                        <span>1rem</span>
-                                    </div>
-                                    <input
-                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                                        value={theme.light?.spacing ?? mergedTheme.light.spacing}
-                                        onChange={(e) => handleGlobalStyleChange('spacing', e.target.value)}
-                                        spellCheck={false}
-                                    />
+                                    <span className="text-sm font-medium">Espaciado base</span>
+                                    <p className="text-xs text-muted-foreground">
+                                        Multiplicador de espacios para paddings y margins (ej: 0.25rem).
+                                    </p>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="range"
+                                            min={0.125}
+                                            max={1}
+                                            step={0.025}
+                                            value={spacingValue}
+                                            onChange={(e) => handleGlobalStyleChange('spacing', `${e.target.value}rem`)}
+                                        />
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>0.125rem</span>
+                                            <span>{spacingValue.toFixed(3)}rem</span>
+                                            <span>1rem</span>
+                                        </div>
+                                        <input
+                                            className="h-9 w-full border border-input bg-background px-3 text-sm"
+                                            value={theme.light?.spacing ?? mergedTheme.light.spacing}
+                                            onChange={(e) => handleGlobalStyleChange('spacing', e.target.value)}
+                                            spellCheck={false}
+                                        />
 
-                                    <div className="rounded-md border bg-background p-3">
-                                        <div
-                                            className="rounded-md border bg-card"
-                                            style={{ padding: theme.light?.spacing ?? mergedTheme.light.spacing }}
-                                        >
+                                        <div className="border bg-background p-3">
                                             <div
-                                                className="grid grid-cols-3"
-                                                style={{ gap: theme.light?.spacing ?? mergedTheme.light.spacing }}
+                                                className="border bg-card"
+                                                style={{ padding: theme.light?.spacing ?? mergedTheme.light.spacing }}
                                             >
-                                                <div className="h-8 rounded-md bg-muted" />
-                                                <div className="h-8 rounded-md bg-muted" />
-                                                <div className="h-8 rounded-md bg-muted" />
+                                                <div
+                                                    className="grid grid-cols-3"
+                                                    style={{ gap: theme.light?.spacing ?? mergedTheme.light.spacing }}
+                                                >
+                                                    <div className="h-8 bg-muted" />
+                                                    <div className="h-8 bg-muted" />
+                                                    <div className="h-8 bg-muted" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <span className="text-sm font-medium">Espaciado entre letras</span>
-                                <p className="text-xs text-muted-foreground">
-                                    Ajusta la separacion general de letras (ej: 0em, 0.02em).
-                                </p>
                                 <div className="space-y-2">
-                                    <input
-                                        type="range"
-                                        min={-0.05}
-                                        max={0.2}
-                                        step={0.01}
-                                        value={letterSpacingValue}
-                                        onChange={(e) => handleGlobalStyleChange('letterSpacing', `${e.target.value}em`)}
-                                    />
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>-0.05em</span>
-                                        <span>{letterSpacingValue.toFixed(2)}em</span>
-                                        <span>0.20em</span>
-                                    </div>
-                                    <input
-                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                                        value={theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing}
-                                        onChange={(e) => handleGlobalStyleChange('letterSpacing', e.target.value)}
-                                        spellCheck={false}
-                                    />
+                                    <span className="text-sm font-medium">Espaciado entre letras</span>
+                                    <p className="text-xs text-muted-foreground">
+                                        Ajusta la separacion general de letras (ej: 0em, 0.02em).
+                                    </p>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="range"
+                                            min={-0.05}
+                                            max={0.2}
+                                            step={0.01}
+                                            value={letterSpacingValue}
+                                            onChange={(e) => handleGlobalStyleChange('letterSpacing', `${e.target.value}em`)}
+                                        />
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>-0.05em</span>
+                                            <span>{letterSpacingValue.toFixed(2)}em</span>
+                                            <span>0.20em</span>
+                                        </div>
+                                        <input
+                                            className="h-9 w-full border border-input bg-background px-3 text-sm"
+                                            value={theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing}
+                                            onChange={(e) => handleGlobalStyleChange('letterSpacing', e.target.value)}
+                                            spellCheck={false}
+                                        />
 
-                                    <div className="rounded-md border bg-background p-3">
-                                        <div
-                                            className="rounded-md border bg-card p-3 text-sm"
-                                            style={{ letterSpacing: theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing }}
-                                        >
-                                            Texto de prueba
+                                        <div className="border bg-background p-3">
+                                            <div
+                                                className="border bg-card p-3 text-sm"
+                                                style={{ letterSpacing: theme.light?.letterSpacing ?? mergedTheme.light.letterSpacing }}
+                                            >
+                                                Texto de prueba
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <span className="text-sm font-medium">Tracking normal</span>
-                                <p className="text-xs text-muted-foreground">
-                                    Ajuste fino del tracking por defecto para textos largos.
-                                </p>
                                 <div className="space-y-2">
-                                    <input
-                                        type="range"
-                                        min={-0.05}
-                                        max={0.2}
-                                        step={0.01}
-                                        value={trackingNormalValue}
-                                        onChange={(e) => handleGlobalStyleChange('trackingNormal', `${e.target.value}em`)}
-                                    />
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>-0.05em</span>
-                                        <span>{trackingNormalValue.toFixed(2)}em</span>
-                                        <span>0.20em</span>
-                                    </div>
-                                    <input
-                                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                                        value={theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal}
-                                        onChange={(e) => handleGlobalStyleChange('trackingNormal', e.target.value)}
-                                        spellCheck={false}
-                                    />
+                                    <span className="text-sm font-medium">Tracking normal</span>
+                                    <p className="text-xs text-muted-foreground">
+                                        Ajuste fino del tracking por defecto para textos largos.
+                                    </p>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="range"
+                                            min={-0.05}
+                                            max={0.2}
+                                            step={0.01}
+                                            value={trackingNormalValue}
+                                            onChange={(e) => handleGlobalStyleChange('trackingNormal', `${e.target.value}em`)}
+                                        />
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>-0.05em</span>
+                                            <span>{trackingNormalValue.toFixed(2)}em</span>
+                                            <span>0.20em</span>
+                                        </div>
+                                        <input
+                                            className="h-9 w-full border border-input bg-background px-3 text-sm"
+                                            value={theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal}
+                                            onChange={(e) => handleGlobalStyleChange('trackingNormal', e.target.value)}
+                                            spellCheck={false}
+                                        />
 
-                                    <div className="rounded-md border bg-background p-3">
-                                        <div
-                                            className="rounded-md border bg-card p-3 text-sm"
-                                            style={{ letterSpacing: theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal }}
-                                        >
-                                            Texto de prueba
+                                        <div className="border bg-background p-3">
+                                            <div
+                                                className="border bg-card p-3 text-sm"
+                                                style={{ letterSpacing: theme.light?.trackingNormal ?? mergedTheme.light.trackingNormal }}
+                                            >
+                                                Texto de prueba
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

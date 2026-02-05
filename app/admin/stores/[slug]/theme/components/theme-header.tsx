@@ -25,7 +25,7 @@ export const ThemeHeader = ({ stores, activeStoreId, onStoreChange, storeName, o
                 <Palette className="h-6 w-6" />
                 Tema de la tienda
             </h1>
-            <p className="text-sm text-muted-foreground">Ajusta los colores y tipografias usados en la tienda.</p>
+            <p className="text-sm text-muted-foreground">Ajusta los colores y tipografías usados en la tienda.</p>
         </div>
         <div className="flex gap-3 items-center">
             <Button onClick={onSave} disabled={saving}>

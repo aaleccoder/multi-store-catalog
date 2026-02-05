@@ -93,7 +93,7 @@ export function AdminNav() {
       icon: Palette,
     },
     {
-      name: "Identidad",
+      name: "Configuración",
       href: storeSlug ? `${storeBase}/branding` : "/admin/stores",
       icon: ImageIcon,
     },

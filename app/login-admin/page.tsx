@@ -176,22 +176,22 @@ export default function LoginPage() {
       {/* Left side - App Screenshot */}
       <div className="relative hidden lg:flex lg:w-1/2 items-center justify-center overflow-hidden p-8" style={{ backgroundColor: 'var(--muted)' }}>
         {/* Decorative elements using primary/accent colors */}
-        <div className="absolute top-20 left-20 w-72 h-72 rounded-full blur-3xl" style={{ backgroundColor: 'var(--primary)', opacity: 0.15 }} />
-        <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl" style={{ backgroundColor: 'var(--accent)', opacity: 0.15 }} />
-        
+        <div className="absolute top-20 left-20 w-72 h-72 blur-3xl" style={{ backgroundColor: 'var(--primary)', opacity: 0.15 }} />
+        <div className="absolute bottom-20 right-20 w-96 h-96 blur-3xl" style={{ backgroundColor: 'var(--accent)', opacity: 0.15 }} />
+
         {/* Screenshot Image with Animated Border Outside */}
         <div className="relative z-10 w-full max-w-3xl p-2">
           {/* Animated border wrapper - outside the image */}
-          <div className="relative rounded-xl overflow-hidden shadow-2xl" style={{ backgroundColor: 'var(--card)' }}>
+          <div className="relative overflow-hidden shadow-2xl" style={{ backgroundColor: 'var(--card)' }}>
             {/* Prominent animated border on the outside */}
-            <div className="absolute -inset-[3px] rounded-xl pointer-events-none border-trace" />
-            
-            <Image 
-              src="/landing1.png" 
-              alt="Vista previa del Panel de Control" 
-              width={1200} 
+            <div className="absolute -inset-[3px] pointer-events-none border-trace" />
+
+            <Image
+              src="/landing1.png"
+              alt="Vista previa del Panel de Control"
+              width={1200}
               height={800}
-              className="w-full h-auto object-cover relative z-10 rounded-lg"
+              className="w-full h-auto object-cover relative z-10"
               priority
             />
           </div>
@@ -202,8 +202,8 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-24 py-12" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-sm mx-auto w-full">
           {/* Back to website */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center gap-2 text-sm transition-colors mb-8"
             style={{ color: 'var(--muted-foreground)' }}
           >
@@ -213,11 +213,11 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-md" style={{ backgroundColor: 'var(--primary)' }}>
-              <Image 
-                src="/android-chrome-512x512.png" 
-                alt="Logo de Catalog" 
-                width={32} 
+            <div className="w-10 h-10 flex items-center justify-center overflow-hidden shadow-md" style={{ backgroundColor: 'var(--primary)' }}>
+              <Image
+                src="/android-chrome-512x512.png"
+                alt="Logo de Catalog"
+                width={32}
                 height={32}
                 className="object-contain"
               />
@@ -226,12 +226,11 @@ export default function LoginPage() {
           </div>
 
           {/* Tabs */}
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-lg mb-6" style={{ backgroundColor: 'var(--muted)' }}>
+          <div className="grid grid-cols-2 gap-2 p-1 mb-6" style={{ backgroundColor: 'var(--muted)' }}>
             <button
               onClick={() => setActiveTab("login")}
-              className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                activeTab === "login" ? "shadow-sm" : ""
-              }`}
+              className={`py-2 px-4 text-sm font-medium transition-all ${activeTab === "login" ? "shadow-sm" : ""
+                }`}
               style={{
                 backgroundColor: activeTab === "login" ? 'var(--background)' : 'transparent',
                 color: activeTab === "login" ? 'var(--foreground)' : 'var(--muted-foreground)'
@@ -241,9 +240,8 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => setActiveTab("signup")}
-              className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                activeTab === "signup" ? "shadow-sm" : ""
-              }`}
+              className={`py-2 px-4 text-sm font-medium transition-all ${activeTab === "signup" ? "shadow-sm" : ""
+                }`}
               style={{
                 backgroundColor: activeTab === "signup" ? 'var(--background)' : 'transparent',
                 color: activeTab === "signup" ? 'var(--foreground)' : 'var(--muted-foreground)'
@@ -266,7 +264,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleLoginSubmit} className="space-y-4" noValidate>
                 {loginErrors.form && (
-                  <div className="rounded-md border p-3 text-sm" style={{ borderColor: 'var(--destructive)', color: 'var(--destructive)', backgroundColor: 'var(--destructive)', opacity: 0.1 }}>
+                  <div className="border p-3 text-sm" style={{ borderColor: 'var(--destructive)', color: 'var(--destructive)', backgroundColor: 'var(--destructive)', opacity: 0.1 }}>
                     {loginErrors.form}
                   </div>
                 )}
@@ -324,8 +322,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-end">
-                  <Link 
-                    href="/forgot-password" 
+                  <Link
+                    href="/forgot-password"
                     className="text-sm hover:underline transition-colors"
                     style={{ color: 'var(--muted-foreground)' }}
                   >
@@ -335,7 +333,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-10 text-white"
+                  className="w-full h-10 text-primary-foreground"
                   disabled={loading}
                   style={{ backgroundColor: 'var(--foreground)' }}
                 >
@@ -358,7 +356,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleSignUpSubmit} className="space-y-4" noValidate>
                 {signUpErrors.form && (
-                  <div className="rounded-md border p-3 text-sm" style={{ borderColor: 'var(--destructive)', color: 'var(--destructive)', backgroundColor: 'var(--destructive)', opacity: 0.1 }}>
+                  <div className="border p-3 text-sm" style={{ borderColor: 'var(--destructive)', color: 'var(--destructive)', backgroundColor: 'var(--destructive)', opacity: 0.1 }}>
                     {signUpErrors.form}
                   </div>
                 )}
@@ -469,7 +467,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-10 text-white"
+                  className="w-full h-10 text-primary-foreground"
                   disabled={loading}
                   style={{ backgroundColor: 'var(--foreground)' }}
                 >

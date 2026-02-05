@@ -52,7 +52,7 @@ export const SimpleColorPicker = ({ value, onChange }: SimpleColorPickerProps) =
             <div className="flex items-center gap-3">
                 <input
                     aria-label="Seleccionar color"
-                    className="h-10 w-12 cursor-pointer rounded border border-input bg-background"
+                    className="h-10 w-12 cursor-pointer border border-input bg-background"
                     type="color"
                     value={hex}
                     onChange={(e) => handleHexChange(e.target.value)}
@@ -79,7 +79,7 @@ export const SimpleColorPicker = ({ value, onChange }: SimpleColorPickerProps) =
                 />
             </div>
 
-            <div className="rounded-md border bg-secondary/50 px-2 py-1 text-xs font-mono text-muted-foreground">
+            <div className="border bg-secondary/50 px-2 py-1 text-xs font-mono text-muted-foreground">
                 {preview}
             </div>
         </div>

@@ -64,9 +64,9 @@ const ThemeKeyPreview = ({
         const bg = value?.trim() ? value : 'transparent'
         const fg = safeTextColor(bg)
         return (
-            <div className="rounded-md border bg-background p-3">
+            <div className="border bg-background p-3">
                 <div
-                    className="h-16 rounded-md border flex items-center justify-center text-xs"
+                    className="h-16 border flex items-center justify-center text-xs"
                     style={{ background: bg, color: fg }}
                 >
                     Vista previa
@@ -77,7 +77,7 @@ const ThemeKeyPreview = ({
 
     if (themeKey === 'radius') {
         return (
-            <div className="rounded-md border bg-background p-3">
+            <div className="border bg-background p-3">
                 <div className="grid grid-cols-3 gap-2">
                     <div className="h-10 border bg-card" style={{ borderRadius: value }} />
                     <div className="h-10 border bg-card" style={{ borderRadius: value }} />
@@ -90,12 +90,12 @@ const ThemeKeyPreview = ({
     if (themeKey === 'spacing') {
         const spacing = value?.trim() ? value : '0.25rem'
         return (
-            <div className="rounded-md border bg-background p-3">
-                <div className="rounded-md border bg-card" style={{ padding: spacing }}>
+            <div className="border bg-background p-3">
+                <div className="border bg-card" style={{ padding: spacing }}>
                     <div className="grid grid-cols-3" style={{ gap: spacing }}>
-                        <div className="h-8 rounded-md bg-muted" />
-                        <div className="h-8 rounded-md bg-muted" />
-                        <div className="h-8 rounded-md bg-muted" />
+                        <div className="h-8 bg-muted" />
+                        <div className="h-8 bg-muted" />
+                        <div className="h-8 bg-muted" />
                     </div>
                 </div>
             </div>
@@ -104,8 +104,8 @@ const ThemeKeyPreview = ({
 
     if (themeKey === 'letterSpacing' || themeKey === 'trackingNormal') {
         return (
-            <div className="rounded-md border bg-background p-3">
-                <div className="rounded-md border bg-card p-3 text-sm" style={{ letterSpacing: value }}>
+            <div className="border bg-background p-3">
+                <div className="border bg-card p-3 text-sm" style={{ letterSpacing: value }}>
                     Texto de prueba
                 </div>
             </div>
@@ -114,8 +114,8 @@ const ThemeKeyPreview = ({
 
     if (themeKey === 'fontMono') {
         return (
-            <div className="rounded-md border bg-background p-3">
-                <div className="rounded-md border bg-card p-3 text-sm" style={{ fontFamily: value }}>
+            <div className="border bg-background p-3">
+                <div className="border bg-card p-3 text-sm" style={{ fontFamily: value }}>
                     const hello = 'world'
                 </div>
             </div>
@@ -131,9 +131,9 @@ const ThemeKeyPreview = ({
         const opacity = themeMode.shadowOpacity ?? mergedMode.shadowOpacity ?? '0.1'
         const previewShadow = `${offsetX} ${offsetY} ${blur} ${spread} ${shadowColorWithOpacity(color, opacity)}`
         return (
-            <div className="rounded-md border bg-background p-3">
+            <div className="border bg-background p-3">
                 <div
-                    className="h-16 rounded-md border bg-card flex items-center justify-center text-xs text-muted-foreground"
+                    className="h-16 border bg-card flex items-center justify-center text-xs text-muted-foreground"
                     style={{ boxShadow: previewShadow }}
                 >
                     Vista previa
@@ -144,8 +144,8 @@ const ThemeKeyPreview = ({
 
     if (themeKey === 'fontSans' || themeKey === 'fontSerif') {
         return (
-            <div className="rounded-md border bg-background p-3">
-                <div className="rounded-md border bg-card p-3 text-sm" style={{ fontFamily: value }}>
+            <div className="border bg-background p-3">
+                <div className="border bg-card p-3 text-sm" style={{ fontFamily: value }}>
                     Titular de prueba
                 </div>
             </div>
@@ -155,9 +155,9 @@ const ThemeKeyPreview = ({
     if (themeKey.startsWith('shadow')) {
         const previewShadow = value?.trim() || 'none'
         return (
-            <div className="rounded-md border bg-background p-3">
+            <div className="border bg-background p-3">
                 <div
-                    className="h-16 rounded-md border bg-card flex items-center justify-center text-xs text-muted-foreground"
+                    className="h-16 border bg-card flex items-center justify-center text-xs text-muted-foreground"
                     style={{ boxShadow: previewShadow }}
                 >
                     Vista previa

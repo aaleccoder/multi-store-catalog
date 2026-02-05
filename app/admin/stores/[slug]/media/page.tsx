@@ -125,7 +125,7 @@ export default function MediaPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="relative aspect-square bg-muted rounded-lg">
+          <div className="relative aspect-square bg-muted">
             <Image
               src={mediaDetails.url}
               alt={mediaDetails.alt}
@@ -205,7 +205,7 @@ export default function MediaPage() {
           {isLoading && (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {Array.from({ length: 12 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-square rounded-lg" />
+                <Skeleton key={i} className="aspect-square" />
               ))}
             </div>
           )}
@@ -218,7 +218,7 @@ export default function MediaPage() {
             {data?.docs.map((media) => (
               <div
                 key={media.id}
-                className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer"
+                className="relative aspect-square overflow-hidden group cursor-pointer"
                 onClick={() => {
                   setSelectedMedia(media as Media);
                   setDetailsOpen(true);
