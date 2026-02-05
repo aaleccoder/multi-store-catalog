@@ -1,8 +1,26 @@
 import 'dotenv/config'
 import { faker } from '@faker-js/faker'
-import { PrismaClient, Prisma } from '../generated/prisma'
 
-const prisma = new PrismaClient()
+type PrismaModule = {
+  PrismaClient: new (...args: any[]) => any
+  Prisma: {
+    Decimal: new (value: string | number) => any
+  }
+}
+
+const loadPrismaModule = async (): Promise<PrismaModule> => {
+  try {
+    return (await import('../generated/prisma/client')) as PrismaModule
+  } catch (error) {
+    console.error(
+      'Prisma Client not found at ./generated/prisma. Run `pnpm prisma generate` or `pnpm db:seed` to generate it.',
+    )
+    throw error
+  }
+}
+
+let prisma: any = null
+let Prisma: PrismaModule['Prisma'] | null = null
 
 type CurrencySeed = {
   name: string
@@ -19,6 +37,13 @@ type StoreCategorySeed = {
   slug: string
   description: string
   icon: string
+}
+
+type StoreThemeSeed = {
+  name: string
+  light: Record<string, string>
+  dark: Record<string, string>
+  fontId: string
 }
 
 const CONFIG = {
@@ -137,6 +162,129 @@ const MATERIAL_OPTIONS = [
   { label: 'Wood', value: 'wood' },
 ]
 
+const THEME_PRESETS: StoreThemeSeed[] = [
+  {
+    name: 'Coastal',
+    fontId: 'lora',
+    light: {
+      background: 'oklch(98% 0.01 220)',
+      foreground: 'oklch(20% 0.02 230)',
+      primary: 'oklch(52% 0.14 240)',
+      primaryForeground: 'oklch(98% 0 0)',
+      accent: 'oklch(90% 0.05 200)',
+      accentForeground: 'oklch(20% 0.02 230)',
+      card: 'oklch(99% 0.005 220)',
+      cardForeground: 'oklch(20% 0.02 230)',
+      border: 'oklch(88% 0.02 220)',
+      ring: 'oklch(60% 0.12 230)',
+      radius: '0.75rem',
+    },
+    dark: {
+      background: 'oklch(16% 0.02 230)',
+      foreground: 'oklch(92% 0.01 220)',
+      primary: 'oklch(75% 0.12 230)',
+      primaryForeground: 'oklch(15% 0.02 230)',
+      accent: 'oklch(28% 0.03 220)',
+      accentForeground: 'oklch(92% 0.01 220)',
+      card: 'oklch(20% 0.02 230)',
+      cardForeground: 'oklch(92% 0.01 220)',
+      border: 'oklch(30% 0.02 230)',
+      ring: 'oklch(70% 0.1 230)',
+      radius: '0.75rem',
+    },
+  },
+  {
+    name: 'Sunset Market',
+    fontId: 'playfair',
+    light: {
+      background: 'oklch(98% 0.02 30)',
+      foreground: 'oklch(20% 0.03 20)',
+      primary: 'oklch(58% 0.19 35)',
+      primaryForeground: 'oklch(98% 0 0)',
+      accent: 'oklch(90% 0.08 45)',
+      accentForeground: 'oklch(20% 0.03 20)',
+      card: 'oklch(99% 0.01 30)',
+      cardForeground: 'oklch(20% 0.03 20)',
+      border: 'oklch(88% 0.04 30)',
+      ring: 'oklch(60% 0.18 35)',
+      radius: '0.5rem',
+    },
+    dark: {
+      background: 'oklch(15% 0.04 25)',
+      foreground: 'oklch(92% 0.02 35)',
+      primary: 'oklch(78% 0.16 40)',
+      primaryForeground: 'oklch(14% 0.03 25)',
+      accent: 'oklch(26% 0.05 30)',
+      accentForeground: 'oklch(92% 0.02 35)',
+      card: 'oklch(20% 0.04 25)',
+      cardForeground: 'oklch(92% 0.02 35)',
+      border: 'oklch(30% 0.04 30)',
+      ring: 'oklch(72% 0.15 35)',
+      radius: '0.5rem',
+    },
+  },
+  {
+    name: 'Forest Atelier',
+    fontId: 'merriweather',
+    light: {
+      background: 'oklch(97% 0.02 145)',
+      foreground: 'oklch(18% 0.03 150)',
+      primary: 'oklch(42% 0.14 150)',
+      primaryForeground: 'oklch(98% 0 0)',
+      accent: 'oklch(88% 0.07 140)',
+      accentForeground: 'oklch(18% 0.03 150)',
+      card: 'oklch(98% 0.02 145)',
+      cardForeground: 'oklch(18% 0.03 150)',
+      border: 'oklch(86% 0.04 145)',
+      ring: 'oklch(50% 0.12 150)',
+      radius: '0.65rem',
+    },
+    dark: {
+      background: 'oklch(14% 0.03 150)',
+      foreground: 'oklch(92% 0.02 140)',
+      primary: 'oklch(70% 0.12 150)',
+      primaryForeground: 'oklch(14% 0.03 150)',
+      accent: 'oklch(26% 0.05 145)',
+      accentForeground: 'oklch(92% 0.02 140)',
+      card: 'oklch(18% 0.03 150)',
+      cardForeground: 'oklch(92% 0.02 140)',
+      border: 'oklch(30% 0.04 150)',
+      ring: 'oklch(65% 0.1 150)',
+      radius: '0.65rem',
+    },
+  },
+  {
+    name: 'Studio Noir',
+    fontId: 'inter',
+    light: {
+      background: 'oklch(98% 0 0)',
+      foreground: 'oklch(16% 0 0)',
+      primary: 'oklch(28% 0.02 0)',
+      primaryForeground: 'oklch(98% 0 0)',
+      accent: 'oklch(92% 0 0)',
+      accentForeground: 'oklch(18% 0 0)',
+      card: 'oklch(99% 0 0)',
+      cardForeground: 'oklch(18% 0 0)',
+      border: 'oklch(90% 0 0)',
+      ring: 'oklch(30% 0.02 0)',
+      radius: '0.35rem',
+    },
+    dark: {
+      background: 'oklch(10% 0 0)',
+      foreground: 'oklch(92% 0 0)',
+      primary: 'oklch(85% 0 0)',
+      primaryForeground: 'oklch(10% 0 0)',
+      accent: 'oklch(24% 0 0)',
+      accentForeground: 'oklch(92% 0 0)',
+      card: 'oklch(14% 0 0)',
+      cardForeground: 'oklch(92% 0 0)',
+      border: 'oklch(24% 0 0)',
+      ring: 'oklch(80% 0 0)',
+      radius: '0.35rem',
+    },
+  },
+]
+
 const BRAND_OPTIONS = [
   { label: 'Acme', value: 'acme' },
   { label: 'Nova', value: 'nova' },
@@ -253,6 +401,10 @@ const buildTags = () => {
 }
 
 const buildPriceAmounts = (baseCents: number, multiplier: number) => {
+  if (!Prisma) {
+    throw new Error('Prisma Client not initialized.')
+  }
+
   const adjusted = Math.max(199, Math.round(baseCents * multiplier))
   const saleChance = faker.number.int({ min: 1, max: 100 }) <= 35
   const saleCents = saleChance
@@ -267,12 +419,29 @@ const buildPriceAmounts = (baseCents: number, multiplier: number) => {
   }
 }
 
-const buildTheme = () => ({
-  primary: faker.color.rgb({ format: 'hex' }),
-  accent: faker.color.rgb({ format: 'hex' }),
-  surface: faker.color.rgb({ format: 'hex' }),
-  logoUrl: imageUrl(`logo-${faker.string.alphanumeric(6)}`, 320, 200),
-})
+const buildTheme = (storeName: string, themeIndex: number) => {
+  const preset = THEME_PRESETS[themeIndex % THEME_PRESETS.length]
+  const logoSeed = slugify(storeName || `store-${themeIndex}`)
+
+  return {
+    light: preset.light,
+    dark: preset.dark,
+    fontId: preset.fontId,
+    branding: {
+      logoUrl: imageUrl(`logo-${logoSeed}`, 320, 200),
+      logoAlt: `${storeName} logo`,
+      logoWidth: 140,
+      logoHeight: 140,
+      faviconUrl: imageUrl(`favicon-${logoSeed}`, 64, 64),
+      contactEmail: faker.internet.email().toLowerCase(),
+      contactPhone: faker.phone.number(),
+      contactAddress: faker.location.streetAddress(),
+      socialFacebook: `https://facebook.com/${slugify(storeName)}`,
+      socialInstagram: `https://instagram.com/${slugify(storeName)}`,
+      socialTwitter: `https://x.com/${slugify(storeName)}`,
+    },
+  }
+}
 
 const buildSettings = (storeName: string) => ({
   storeName,
@@ -287,7 +456,27 @@ const buildSettings = (storeName: string) => ({
   },
 })
 
+const getDatabaseLabel = () => {
+  const url = process.env.DATABASE_URL
+  if (!url) return 'DATABASE_URL not set'
+
+  try {
+    const parsed = new URL(url)
+    const dbName = parsed.pathname.replace(/^\//, '') || '(no database)'
+    const schema = parsed.searchParams.get('schema')
+    return `${parsed.hostname}/${dbName}${schema ? ` (schema: ${schema})` : ''}`
+  } catch {
+    return 'DATABASE_URL is invalid'
+  }
+}
+
 async function main() {
+  const prismaModule = await loadPrismaModule()
+  Prisma = prismaModule.Prisma
+  prisma = new prismaModule.PrismaClient()
+
+  console.log('Seeding database:', getDatabaseLabel())
+
   if (process.env.FAKER_SEED) {
     faker.seed(Number(process.env.FAKER_SEED))
   }
@@ -336,12 +525,16 @@ async function main() {
     users.push({ id: user.id, email: user.email, name: user.name })
   }
 
+  let storeThemeIndex = 0
+
   for (const user of users) {
     const storeCount = randomInt(CONFIG.storesPerUser.min, CONFIG.storesPerUser.max)
 
     for (let storeIndex = 0; storeIndex < storeCount; storeIndex += 1) {
       const storeName = faker.company.name()
       const storeSlug = uniqueSlug(storeName, storeSlugSet)
+      const themeIndex = storeThemeIndex % THEME_PRESETS.length
+      storeThemeIndex += 1
 
       const store = await prisma.store.create({
         data: {
@@ -350,7 +543,7 @@ async function main() {
           description: faker.company.catchPhrase(),
           isActive: true,
           ownerId: user.id,
-          theme: buildTheme(),
+          theme: buildTheme(storeName, themeIndex),
         },
       })
 
@@ -598,6 +791,37 @@ async function main() {
       })
     }
   }
+
+  const [
+    userCount,
+    storeCount,
+    categoryCount,
+    subcategoryCount,
+    productCount,
+    variantCount,
+    priceCount,
+    mediaCount,
+  ] = await prisma.$transaction([
+    prisma.user.count(),
+    prisma.store.count(),
+    prisma.category.count(),
+    prisma.subcategory.count(),
+    prisma.product.count(),
+    prisma.productVariant.count(),
+    prisma.price.count(),
+    prisma.media.count(),
+  ])
+
+  console.log('Seed summary:', {
+    users: userCount,
+    stores: storeCount,
+    categories: categoryCount,
+    subcategories: subcategoryCount,
+    products: productCount,
+    variants: variantCount,
+    prices: priceCount,
+    media: mediaCount,
+  })
 }
 
 main()
@@ -609,5 +833,7 @@ main()
     process.exitCode = 1
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    if (prisma) {
+      await prisma.$disconnect()
+    }
   })

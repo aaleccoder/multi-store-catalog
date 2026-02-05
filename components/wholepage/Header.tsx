@@ -95,7 +95,7 @@ export default function Header() {
             >
               <div>
                 <Image
-                  src="/android-chrome-192x192.png"
+                  src="/apple-icon.png"
                   alt="Logo"
                   width={32}
                   height={32}
@@ -317,7 +317,7 @@ export default function Header() {
                 <div className="flex h-full flex-col gap-6 pt-12">
                   <div className="flex items-center gap-3 px-4">
                     <Image
-                      src="/android-chrome-192x192.png"
+                      src="/apple-icon.png"
                       alt="Logo"
                       width={40}
                       height={40}
