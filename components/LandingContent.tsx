@@ -251,9 +251,9 @@ const LandingContent = ({
           </div>
 
           {/* Filter Controls */}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent>
@@ -280,7 +280,7 @@ const LandingContent = ({
             </Select>
 
             <Select value={selectedSort || "popular"} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <SelectValue placeholder="Ordenar" />
               </SelectTrigger>
               <SelectContent>
@@ -337,26 +337,14 @@ const LandingContent = ({
                   <Link
                     key={store.id}
                     href={`/store/${store.slug}`}
-                    className={`group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/50 ${featured ? "col-span-2 lg:col-span-2" : ""
+                    className={`group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/50 ${featured ? "sm:col-span-2 lg:col-span-2" : ""
                       }`}
                   >
-                    {/* Badge for featured/new stores */}
-                    {(store.isFeatured || store.isNew) && (
-                      <div className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-lg">
-                        {store.isFeatured ? (
-                          <Star className="h-3.5 w-3.5" aria-hidden />
-                        ) : (
-                          <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                        )}
-                        <span>{store.isFeatured ? "Destacada" : "Nueva"}</span>
-                      </div>
-                    )}
-
                     {/* Logo container with ambient background */}
-                    <div className={`relative flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-6 ${featured ? "h-48 lg:h-56" : "h-40"
+                    <div className={`relative flex w-full items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-6 ${featured ? "h-44 sm:h-52 lg:h-60" : "h-36 sm:h-44"
                       }`}>
                       {/* Logo frame - 1:1 aspect ratio with intentional styling */}
-                      <div className={`relative aspect-square bg-background/80 backdrop-blur-sm shadow-sm ring-1 ring-border/50 p-4 overflow-hidden transition-all duration-300 group-hover:shadow-md group-hover:ring-primary/30 ${featured ? "w-32 lg:w-36" : "w-24"
+                      <div className={`relative aspect-square bg-background/80 backdrop-blur-sm shadow-sm ring-1 ring-border/50 p-3 overflow-hidden transition-all duration-300 group-hover:shadow-md group-hover:ring-primary/30 sm:p-4 ${featured ? "w-24 sm:w-36 lg:w-40" : "w-20 sm:w-28"
                         }`}>
                         {/* Subtle inner gradient */}
                         <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-transparent pointer-events-none" />
@@ -381,23 +369,35 @@ const LandingContent = ({
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 px-6 py-4 h-full">
+                    <div className="flex min-w-0 flex-1 flex-col gap-2 px-4 py-4 sm:gap-3 sm:px-6 sm:py-4 sm:h-full">
+                      {/* Badge for featured/new stores */}
+                      {(store.isFeatured || store.isNew) && (
+                        <div className="inline-flex w-fit items-center gap-1.5 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                          {store.isFeatured ? (
+                            <Star className="h-3.5 w-3.5" aria-hidden />
+                          ) : (
+                            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                          )}
+                          <span>{store.isFeatured ? "Destacada" : "Nueva"}</span>
+                        </div>
+                      )}
+
                       {/* PRIMARY: Store name */}
-                      <h3 className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${featured ? "text-2xl" : "text-xl"
+                      <h3 className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${featured ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
                         }`}>
                         {store.name}
                       </h3>
 
                       {/* SECONDARY: Description */}
                       {store.description && (
-                        <p className={`text-sm text-muted-foreground/90 leading-snug ${featured ? "line-clamp-3" : "line-clamp-2"
+                        <p className={`text-sm text-muted-foreground/90 leading-snug ${featured ? "line-clamp-2 sm:line-clamp-3" : "line-clamp-2"
                           }`}>
                           {store.description}
                         </p>
                       )}
 
                       {/* TERTIARY: Activity signals */}
-                      <div className="flex flex-col gap-2 mt-auto pt-2 border-t border-border/50">
+                      <div className="mt-2 flex flex-col gap-1.5 border-t border-border/50 pt-2 sm:mt-auto sm:gap-2">
                         <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
                           {/* Active badge */}
                           <div className="flex items-center gap-1.5">
@@ -406,7 +406,7 @@ const LandingContent = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground/70">
                           {/* Product count */}
                           {store.productCount > 0 && (
                             <span>{store.productCount} {store.productCount === 1 ? "producto" : "productos"}</span>
@@ -430,8 +430,8 @@ const LandingContent = ({
                       </div>
 
                       {/* CTA Button - Strong affordance */}
-                      <div className="mt-2">
-                        <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary/10 text-primary font-semibold text-sm transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25">
+                      <div className="mt-3 sm:mt-2">
+                        <div className="inline-flex w-full items-center justify-center gap-2 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/25 sm:w-auto sm:justify-start">
                           Ver catálogo
                           <ArrowRight className="h-4 w-4" aria-hidden />
                         </div>
@@ -457,7 +457,7 @@ const LandingContent = ({
                           {featuredStores.length}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                         {featuredStores.map((store: any) => renderStoreCard(store, true))}
                       </div>
                     </div>
@@ -473,7 +473,7 @@ const LandingContent = ({
                           {newStores.length}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                         {newStores.map((store: any) => renderStoreCard(store))}
                       </div>
                     </div>
@@ -487,7 +487,7 @@ const LandingContent = ({
                         {stores.length}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                       {stores.map((store: any) => renderStoreCard(store))}
                     </div>
                   </div>
@@ -501,7 +501,7 @@ const LandingContent = ({
         {totalPages > 1 && (
           <div className="pt-8">
             <Pagination>
-              <PaginationContent>
+              <PaginationContent className="flex-wrap justify-center">
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() =>

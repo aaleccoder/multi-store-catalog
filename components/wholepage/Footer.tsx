@@ -143,7 +143,7 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-12 border-t border-primary rounded-md pt-8">
+                <div className="mt-12 border-t border-primary pt-8">
                     <div className="flex flex-col items-center justify-between gap-4 text-sm md:flex-row">
                         <p>&copy; {new Date().getFullYear()} Una Ganga - Catálogos. Todos los derechos reservados.</p>
                         <p className="text-xs">Hecho con ❤️ para emprendedores</p>
