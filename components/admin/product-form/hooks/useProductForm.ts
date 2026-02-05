@@ -81,8 +81,8 @@ export function useProductForm(productId?: string, storeSlug?: string) {
     }, [subcategoriesData, productData?.subcategories, formData.categoryId]);
 
     const currencies = useMemo(() => {
-        if (productData?.currencies) return productData.currencies as any[];
-        return (currenciesData as any[]) || [];
+        const list = (productData?.currencies as any[]) ?? (currenciesData as any[]) ?? [];
+        return list.filter((currency) => currency?.isActive ?? true);
     }, [productData?.currencies, currenciesData]);
 
     useEffect(() => {

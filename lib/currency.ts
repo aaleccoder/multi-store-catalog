@@ -12,10 +12,17 @@ export async function getCurrencies(storeId: string): Promise<Currency[]> {
         return cached.currencies
     }
 
-    const currencies = await prisma.currency.findMany({
-        where: { isActive: true, storeId },
-        orderBy: { code: 'asc' },
+    const storeCurrencies = await prisma.storeCurrency.findMany({
+        where: {
+            storeId,
+            isEnabled: true,
+            currency: { isActive: true },
+        },
+        include: { currency: true },
+        orderBy: { currency: { code: 'asc' } },
     })
+
+    const currencies = storeCurrencies.map((item) => item.currency)
 
     currencyCache.set(storeId, { currencies, cacheTime: now })
     return currencies

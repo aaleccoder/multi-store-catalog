@@ -32,6 +32,8 @@ type CurrencySeed = {
   decimalPlaces: number
 }
 
+const ACTIVE_CURRENCY_CODES = new Set(['USD', 'EUR', 'CUP'])
+
 type StoreCategorySeed = {
   name: string
   slug: string
@@ -98,7 +100,7 @@ const STORE_CATEGORIES: StoreCategorySeed[] = [
 
 const CURRENCIES: CurrencySeed[] = [
   {
-    name: 'US Dollar',
+    name: 'Dólar estadounidense',
     code: 'USD',
     symbol: '$',
     symbolPosition: 'before',
@@ -116,7 +118,7 @@ const CURRENCIES: CurrencySeed[] = [
     decimalPlaces: 2,
   },
   {
-    name: 'British Pound',
+    name: 'Libra esterlina',
     code: 'GBP',
     symbol: '£',
     symbolPosition: 'before',
@@ -125,9 +127,414 @@ const CURRENCIES: CurrencySeed[] = [
     decimalPlaces: 2,
   },
   {
-    name: 'Mexican Peso',
+    name: 'Dólar canadiense',
+    code: 'CAD',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dólar australiano',
+    code: 'AUD',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dólar neozelandés',
+    code: 'NZD',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Franco suizo',
+    code: 'CHF',
+    symbol: 'CHF',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Yen japonés',
+    code: 'JPY',
+    symbol: '¥',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 0,
+  },
+  {
+    name: 'Yuan chino',
+    code: 'CNY',
+    symbol: '¥',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dólar de Hong Kong',
+    code: 'HKD',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dólar de Singapur',
+    code: 'SGD',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Won surcoreano',
+    code: 'KRW',
+    symbol: '₩',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 0,
+  },
+  {
+    name: 'Rupia india',
+    code: 'INR',
+    symbol: '₹',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Rupia indonesia',
+    code: 'IDR',
+    symbol: 'Rp',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso filipino',
+    code: 'PHP',
+    symbol: '₱',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Ringgit malayo',
+    code: 'MYR',
+    symbol: 'RM',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Baht tailandés',
+    code: 'THB',
+    symbol: '฿',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dong vietnamita',
+    code: 'VND',
+    symbol: '₫',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 0,
+  },
+  {
+    name: 'Corona sueca',
+    code: 'SEK',
+    symbol: 'kr',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Corona noruega',
+    code: 'NOK',
+    symbol: 'kr',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Corona danesa',
+    code: 'DKK',
+    symbol: 'kr',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Zloty polaco',
+    code: 'PLN',
+    symbol: 'zł',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Corona checa',
+    code: 'CZK',
+    symbol: 'Kč',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Forinto húngaro',
+    code: 'HUF',
+    symbol: 'Ft',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Leu rumano',
+    code: 'RON',
+    symbol: 'lei',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Lev búlgaro',
+    code: 'BGN',
+    symbol: 'лв',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Rublo ruso',
+    code: 'RUB',
+    symbol: '₽',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Lira turca',
+    code: 'TRY',
+    symbol: '₺',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Rand sudafricano',
+    code: 'ZAR',
+    symbol: 'R',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Dírham de los Emiratos Árabes Unidos',
+    code: 'AED',
+    symbol: 'د.إ',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Riyal saudí',
+    code: 'SAR',
+    symbol: 'ر.س',
+    symbolPosition: 'after',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Shékel israelí',
+    code: 'ILS',
+    symbol: '₪',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Real brasileño',
+    code: 'BRL',
+    symbol: 'R$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso mexicano',
     code: 'MXN',
     symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso argentino',
+    code: 'ARS',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso chileno',
+    code: 'CLP',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 0,
+  },
+  {
+    name: 'Peso colombiano',
+    code: 'COP',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Sol peruano',
+    code: 'PEN',
+    symbol: 'S/',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso uruguayo',
+    code: 'UYU',
+    symbol: '$U',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Boliviano',
+    code: 'BOB',
+    symbol: 'Bs',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Guaraní paraguayo',
+    code: 'PYG',
+    symbol: '₲',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 0,
+  },
+  {
+    name: 'Bolívar venezolano',
+    code: 'VES',
+    symbol: 'Bs',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso cubano',
+    code: 'CUP',
+    symbol: '$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Peso dominicano',
+    code: 'DOP',
+    symbol: 'RD$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Colón costarricense',
+    code: 'CRC',
+    symbol: '₡',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Quetzal guatemalteco',
+    code: 'GTQ',
+    symbol: 'Q',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Lempira hondureña',
+    code: 'HNL',
+    symbol: 'L',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Córdoba nicaragüense',
+    code: 'NIO',
+    symbol: 'C$',
+    symbolPosition: 'before',
+    decimalSeparator: '.',
+    thousandsSeparator: ',',
+    decimalPlaces: 2,
+  },
+  {
+    name: 'Balboa panameño',
+    code: 'PAB',
+    symbol: 'B/.',
     symbolPosition: 'before',
     decimalSeparator: '.',
     thousandsSeparator: ',',
@@ -502,6 +909,27 @@ async function main() {
     ),
   )
 
+  const globalCurrencies = await Promise.all(
+    CURRENCIES.map((currency) =>
+      prisma.currency.upsert({
+        where: { code: currency.code },
+        update: {
+          name: currency.name,
+          symbol: currency.symbol,
+          symbolPosition: currency.symbolPosition,
+          decimalSeparator: currency.decimalSeparator,
+          thousandsSeparator: currency.thousandsSeparator,
+          decimalPlaces: currency.decimalPlaces,
+          isActive: ACTIVE_CURRENCY_CODES.has(currency.code),
+        },
+        create: {
+          ...currency,
+          isActive: ACTIVE_CURRENCY_CODES.has(currency.code),
+        },
+      }),
+    ),
+  )
+
   const storeSlugSet = new Set<string>()
   const users: Array<{ id: string; email: string; name: string }> = []
 
@@ -566,35 +994,20 @@ async function main() {
         })),
       })
 
-      const currencySeeds = pickMany(CURRENCIES, randomInt(2, 3))
-      const currencies = []
-
-      for (const currencySeed of currencySeeds) {
-        const currency = await prisma.currency.upsert({
-          where: {
-            storeId_code: {
-              storeId: store.id,
-              code: currencySeed.code,
-            },
-          },
-          update: {
-            name: currencySeed.name,
-            symbol: currencySeed.symbol,
-            symbolPosition: currencySeed.symbolPosition,
-            decimalSeparator: currencySeed.decimalSeparator,
-            thousandsSeparator: currencySeed.thousandsSeparator,
-            decimalPlaces: currencySeed.decimalPlaces,
-            isActive: true,
-          },
-          create: {
-            ...currencySeed,
+      const currencies = globalCurrencies
+      if (currencies.length > 0) {
+        await prisma.storeCurrency.createMany({
+          data: currencies.map((currency) => ({
             storeId: store.id,
-            isActive: true,
-          },
+            currencyId: currency.id,
+            isEnabled: ACTIVE_CURRENCY_CODES.has(currency.code),
+          })),
         })
-
-        currencies.push(currency)
       }
+      const pricingCurrencies =
+        currencies.length > 0
+          ? pickMany(currencies, randomInt(2, Math.min(4, currencies.length)))
+          : []
 
       const categorySlugSet = new Set<string>()
       const categoryNameSet = new Set<string>()
@@ -693,7 +1106,7 @@ async function main() {
 
             const basePriceCents = randomInt(1500, 120000)
 
-            for (const [currencyIndex, currency] of currencies.entries()) {
+            for (const [currencyIndex, currency] of pricingCurrencies.entries()) {
               const multiplier =
                 currencyIndex === 0
                   ? 1
@@ -757,7 +1170,7 @@ async function main() {
                 })
               }
 
-              for (const [currencyIndex, currency] of currencies.entries()) {
+              for (const [currencyIndex, currency] of pricingCurrencies.entries()) {
                 const multiplier =
                   currencyIndex === 0
                   ? 1

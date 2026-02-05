@@ -35,24 +35,56 @@ export const adminCurrenciesRouter = router({
         .input(z.object({ storeId: z.string().optional(), storeSlug: z.string().optional() }).optional())
         .query(async ({ input, ctx }) => {
             const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id)
-            const currencies = await prisma.currency.findMany({ where: { storeId }, orderBy: { code: 'asc' } })
-            return currencies
+            const [currencies, storeCurrencies] = await Promise.all([
+                prisma.currency.findMany({ orderBy: { code: 'asc' } }),
+                prisma.storeCurrency.findMany({
+                    where: { storeId },
+                    select: { currencyId: true, isEnabled: true },
+                }),
+            ])
+
+            const enabledMap = new Map(storeCurrencies.map((item) => [item.currencyId, item.isEnabled]))
+
+            return currencies.map((currency) => ({
+                ...currency,
+                isActive: enabledMap.get(currency.id) ?? false,
+            }))
         }),
 
     create: protectedProcedure.input(currencySchema).mutation(async ({ input, ctx }) => {
         const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id, ctx.activeStoreId)
-        const currency = await prisma.currency.create({
-            data: {
+        const currency = await prisma.currency.upsert({
+            where: { code: input.code.toUpperCase() },
+            create: {
                 name: input.name,
-                code: input.code,
+                code: input.code.toUpperCase(),
                 symbol: input.symbol,
                 symbolPosition: input.symbolPosition || 'before',
                 decimalSeparator: input.decimalSeparator || '.',
                 thousandsSeparator: input.thousandsSeparator || ',',
                 decimalPlaces: input.decimalPlaces ?? 2,
-                isActive: input.isActive ?? true,
+                isActive: true,
+            },
+            update: {
+                name: input.name,
+                symbol: input.symbol,
+                symbolPosition: input.symbolPosition || 'before',
+                decimalSeparator: input.decimalSeparator || '.',
+                thousandsSeparator: input.thousandsSeparator || ',',
+                decimalPlaces: input.decimalPlaces ?? 2,
+            },
+        })
+
+        await prisma.storeCurrency.upsert({
+            where: { storeId_currencyId: { storeId, currencyId: currency.id } },
+            create: {
                 storeId,
-            }
+                currencyId: currency.id,
+                isEnabled: input.isActive ?? true,
+            },
+            update: {
+                isEnabled: input.isActive ?? true,
+            },
         })
 
         return currency
@@ -63,21 +95,32 @@ export const adminCurrenciesRouter = router({
         .mutation(async ({ input, ctx }) => {
             const { id, data } = input
             const storeId = await resolveStoreId(input.storeId ?? data.storeId, input.storeSlug ?? data.storeSlug, ctx.session.user.id, ctx.activeStoreId)
-            const existing = await prisma.currency.findFirst({ where: { id, storeId } })
+            const existing = await prisma.currency.findUnique({ where: { id } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })
             }
             const currency = await prisma.currency.update({
                 where: { id }, data: {
                     name: data.name,
-                    code: data.code,
+                    code: data.code.toUpperCase(),
                     symbol: data.symbol,
                     symbolPosition: data.symbolPosition || 'before',
                     decimalSeparator: data.decimalSeparator || '.',
                     thousandsSeparator: data.thousandsSeparator || ',',
                     decimalPlaces: data.decimalPlaces ?? 2,
-                    isActive: data.isActive ?? true,
                 }
+            })
+
+            await prisma.storeCurrency.upsert({
+                where: { storeId_currencyId: { storeId, currencyId: id } },
+                create: {
+                    storeId,
+                    currencyId: id,
+                    isEnabled: data.isActive ?? true,
+                },
+                update: {
+                    isEnabled: data.isActive ?? true,
+                },
             })
             return currency
         }),
@@ -85,12 +128,15 @@ export const adminCurrenciesRouter = router({
     delete: protectedProcedure.input(z.object({ id: z.string(), storeId: z.string().optional(), storeSlug: z.string().optional() })).mutation(async ({ input, ctx }) => {
         try {
             const storeId = await resolveStoreId(input?.storeId, input?.storeSlug, ctx.session.user.id, ctx.activeStoreId)
-            const existing = await prisma.currency.findFirst({ where: { id: input.id, storeId } })
+            const existing = await prisma.storeCurrency.findFirst({ where: { currencyId: input.id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })
             }
 
-            await prisma.currency.delete({ where: { id: input.id } })
+            await prisma.storeCurrency.update({
+                where: { id: existing.id },
+                data: { isEnabled: false },
+            })
             return { success: true }
         } catch (error: any) {
             // Check for Prisma errors and map to standardized codes

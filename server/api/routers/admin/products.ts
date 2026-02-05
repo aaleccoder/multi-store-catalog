@@ -149,10 +149,44 @@ export const adminProductsRouter = router({
       }
 
       try {
-        const currencies = await prisma.currency.findMany({
-          where: { storeId },
+        const storeCurrencies = await prisma.storeCurrency.findMany({
+          where: {
+            storeId,
+            isEnabled: true,
+            currency: { isActive: true },
+          },
+          include: { currency: true },
         });
-        const currencyMap = new Map(currencies.map((c) => [c.code, c.id]));
+        const currencyMap = new Map(
+          storeCurrencies.map((c) => [c.currency.code, c.currency.id]),
+        );
+        const allowedCurrencyCodes = new Set(currencyMap.keys());
+        const requestedCurrencyCodes = new Set<string>();
+
+        if (Array.isArray(payload.prices)) {
+          for (const price of payload.prices) {
+            if (price?.currency) requestedCurrencyCodes.add(price.currency);
+          }
+        }
+        if (Array.isArray(payload.variants)) {
+          for (const variant of payload.variants) {
+            if (!Array.isArray(variant?.prices)) continue;
+            for (const price of variant.prices) {
+              if (price?.currency) requestedCurrencyCodes.add(price.currency);
+            }
+          }
+        }
+
+        const inactiveCurrencies = Array.from(requestedCurrencyCodes).filter(
+          (code) => !allowedCurrencyCodes.has(code),
+        );
+        if (inactiveCurrencies.length > 0) {
+          throw createErrorWithCode(ErrorCode.INVALID_INPUT, {
+            message:
+              "Some prices use currencies that are not enabled for this store.",
+            details: { currencies: inactiveCurrencies },
+          });
+        }
 
         const product = await prisma.product.create({
           data: {
@@ -297,9 +331,14 @@ export const adminProductsRouter = router({
             where: { storeId },
             orderBy: { name: "asc" },
           }),
-          prisma.currency.findMany({
-            where: { storeId },
-            orderBy: { code: "asc" },
+          prisma.storeCurrency.findMany({
+            where: {
+              storeId,
+              isEnabled: true,
+              currency: { isActive: true },
+            },
+            include: { currency: true },
+            orderBy: { currency: { code: "asc" } },
           }),
         ]);
 
@@ -333,7 +372,7 @@ export const adminProductsRouter = router({
         },
         categories: allCategories,
         subcategories: allSubcategories,
-        currencies: allCurrencies,
+        currencies: allCurrencies.map((item) => item.currency),
       };
     }),
 
@@ -416,8 +455,44 @@ export const adminProductsRouter = router({
         ...restOfData
       } = data;
 
-      const currencies = await prisma.currency.findMany({ where: { storeId } });
-      const currencyMap = new Map(currencies.map((c) => [c.code, c.id]));
+      const storeCurrencies = await prisma.storeCurrency.findMany({
+        where: {
+          storeId,
+          isEnabled: true,
+          currency: { isActive: true },
+        },
+        include: { currency: true },
+      });
+      const currencyMap = new Map(
+        storeCurrencies.map((c) => [c.currency.code, c.currency.id]),
+      );
+      const allowedCurrencyCodes = new Set(currencyMap.keys());
+      const requestedCurrencyCodes = new Set<string>();
+
+      if (Array.isArray(prices)) {
+        for (const price of prices) {
+          if (price?.currency) requestedCurrencyCodes.add(price.currency);
+        }
+      }
+      if (Array.isArray(variants)) {
+        for (const variant of variants) {
+          if (!Array.isArray(variant?.prices)) continue;
+          for (const price of variant.prices) {
+            if (price?.currency) requestedCurrencyCodes.add(price.currency);
+          }
+        }
+      }
+
+      const inactiveCurrencies = Array.from(requestedCurrencyCodes).filter(
+        (code) => !allowedCurrencyCodes.has(code),
+      );
+      if (inactiveCurrencies.length > 0) {
+        throw createErrorWithCode(ErrorCode.INVALID_INPUT, {
+          message:
+            "Some prices use currencies that are not enabled for this store.",
+          details: { currencies: inactiveCurrencies },
+        });
+      }
 
       try {
         const existingProduct = await prisma.product.findFirst({

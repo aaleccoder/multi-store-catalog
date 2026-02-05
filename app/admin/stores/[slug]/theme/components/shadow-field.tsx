@@ -35,7 +35,6 @@ export const ShadowField = ({ value, onChange }: ShadowFieldProps) => {
                 <Select
                     value={selectedPresetId}
                     onValueChange={handlePresetChange}
-                    className="border border-input px-2 py-2 bg-background text-sm"
                 >
                     <SelectTrigger>
                         <SelectValue />

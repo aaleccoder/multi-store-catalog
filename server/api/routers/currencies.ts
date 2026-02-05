@@ -12,7 +12,16 @@ export const currenciesRouter = router({
                 throw new TRPCError({ code: 'NOT_FOUND', message: 'Store not found' })
             }
 
-            const currencies = await prisma.currency.findMany({ where: { isActive: true, storeId: store.id }, orderBy: { code: 'asc' } })
-            return currencies
+            const storeCurrencies = await prisma.storeCurrency.findMany({
+                where: {
+                    storeId: store.id,
+                    isEnabled: true,
+                    currency: { isActive: true },
+                },
+                include: { currency: true },
+                orderBy: { currency: { code: 'asc' } },
+            })
+
+            return storeCurrencies.map((item) => item.currency)
         }),
 })

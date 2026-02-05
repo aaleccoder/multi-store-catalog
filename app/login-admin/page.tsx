@@ -120,6 +120,38 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setLoginErrors({});
+
+    try {
+      const { error: authError } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/admin",
+      });
+
+      if (authError) {
+        let translatedMessage = authError.message;
+        if (translatedMessage) {
+          if (translatedMessage.includes("OAuth")) {
+            translatedMessage = "Error al iniciar sesión con Google";
+          }
+        }
+        setLoginErrors({
+          form: translatedMessage || "No se pudo iniciar sesión con Google",
+        });
+      } else {
+        router.push("/admin");
+      }
+    } catch (err: any) {
+      setLoginErrors({
+        form: err.message || "Ocurrió un error al iniciar sesión con Google",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -321,21 +353,37 @@ export default function LoginPage() {
                   )}
                 </div>
 
+                <div className="flex items-center justify-center">
+                  <div className="w-full">
+                    <Button
+                      variant={"secondary"}
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={loading}
+                      className="w-full h-10 flex items-center justify-center gap-2 font-medium transition-colors border"
+                    >
+                      <div className="text-primary-foreground">
+                        <svg height="200px" width="200px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 210 210" xmlSpace="preserve" style={{ color: 'var(--primary)' }}><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M0,105C0,47.103,47.103,0,105,0c23.383,0,45.515,7.523,64.004,21.756l-24.4,31.696C133.172,44.652,119.477,40,105,40 c-35.841,0-65,29.159-65,65s29.159,65,65,65c28.867,0,53.398-18.913,61.852-45H105V85h105v20c0,57.897-47.103,105-105,105 S0,162.897,0,105z"></path> </g></svg>
+                      </div>
+                      <span className="text-sm font-medium">Continuar con Google</span>
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-end">
                   <Link
                     href="/forgot-password"
                     className="text-sm hover:underline transition-colors"
-                    style={{ color: 'var(--muted-foreground)' }}
                   >
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
 
                 <Button
+                  variant="default"
                   type="submit"
-                  className="w-full h-10 text-primary-foreground"
+                  className="w-full h-10"
                   disabled={loading}
-                  style={{ backgroundColor: 'var(--foreground)' }}
                 >
                   {loading ? "Iniciando sesión..." : "Iniciar sesión en Catalog"}
                 </Button>
@@ -373,7 +421,6 @@ export default function LoginPage() {
                     value={signUpData.name}
                     onChange={handleSignUpInputChange}
                     className="h-10"
-                    style={{ backgroundColor: 'var(--background)' }}
                   />
                   {signUpErrors.name && (
                     <p className="text-xs" style={{ color: 'var(--destructive)' }}>{signUpErrors.name}</p>
@@ -392,7 +439,6 @@ export default function LoginPage() {
                     value={signUpData.email}
                     onChange={handleSignUpInputChange}
                     className="h-10"
-                    style={{ backgroundColor: 'var(--background)' }}
                   />
                   {signUpErrors.email && (
                     <p className="text-xs" style={{ color: 'var(--destructive)' }}>{signUpErrors.email}</p>
@@ -469,7 +515,6 @@ export default function LoginPage() {
                   type="submit"
                   className="w-full h-10 text-primary-foreground"
                   disabled={loading}
-                  style={{ backgroundColor: 'var(--foreground)' }}
                 >
                   {loading ? "Creando cuenta..." : "Crear cuenta en Catalog"}
                 </Button>

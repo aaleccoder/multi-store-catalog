@@ -10,6 +10,7 @@ import { generateSlug, sanitizeSlugInput } from "@/lib/utils";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import {
@@ -29,6 +30,7 @@ import {
 import { Settings, Eye, Edit, Trash, MoreHorizontal, X } from "lucide-react";
 import Header from "@/components/wholepage/Header";
 import { trpc } from "@/trpc/client";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 interface StoreFormProps {
   formData: any;
@@ -216,7 +218,7 @@ export default function StoresPage() {
     <div>
       <Header />
       <div>
-        <main className="pt-20">
+        <main className="">
           <AdminResource
             title="Mis Tiendas"
             fetchUrl="/api/admin/stores"
@@ -235,9 +237,33 @@ export default function StoresPage() {
               <>
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                   {loading && items.length === 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      Cargando tiendas...
-                    </div>
+                    <>
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <Card key={i} className="border-border/70 grid grid-cols-2 gap-4 p-4">
+                          <div className="aspect-square relative overflow-hidden">
+                            <Skeleton className="w-full h-full" />
+                          </div>
+                          <div className="flex flex-col justify-between space-y-2">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Skeleton className="h-6 w-24" />
+                                <div className="flex items-center gap-2">
+                                  <Skeleton className="h-6 w-16" />
+                                  <Skeleton className="h-8 w-8 rounded" />
+                                </div>
+                              </div>
+                              <Skeleton className="h-4 w-full" />
+                              <Skeleton className="h-4 w-3/4" />
+                              <div className="flex gap-1">
+                                <Skeleton className="h-5 w-16 rounded-full" />
+                                <Skeleton className="h-5 w-20 rounded-full" />
+                              </div>
+                            </div>
+                            <Skeleton className="h-10 w-full" />
+                          </div>
+                        </Card>
+                      ))}
+                    </>
                   )}
                   {!loading && items.length === 0 && (
                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
@@ -255,15 +281,18 @@ export default function StoresPage() {
                       className="border-border/70 grid grid-cols-2 gap-4 p-4"
                     >
                       <div className="aspect-square relative overflow-hidden">
-                        <Image
-                          src={
-                            store.theme?.branding?.logoUrl ||
-                            "/android-chrome-192x192.png"
-                          }
-                          alt={store.theme?.branding?.logoAlt || store.name}
-                          fill
-                          className="object-cover"
-                        />
+                        {store.theme?.branding?.logoUrl ? (
+                          <Image
+                            src={store.theme?.branding?.logoUrl}
+                            alt={store.theme?.branding?.logoAlt || store.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
+                            <span className="text-muted-foreground">No Logo</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col justify-between">
                         <div>
@@ -318,7 +347,12 @@ export default function StoresPage() {
                             <div className="flex flex-wrap gap-1 mt-2">
                               {store.storeCategories.slice(0, 3).map((assignment: any) => (
                                 <Badge key={assignment.id} variant="outline" className="text-xs">
-                                  <span className="mr-1">{assignment.storeCategory.icon}</span>
+                                  <span className="mr-1 inline-flex items-center">
+                                    <CategoryIcon
+                                      icon={assignment.storeCategory.icon}
+                                      className="h-3 w-3"
+                                    />
+                                  </span>
                                   {assignment.storeCategory.name}
                                 </Badge>
                               ))}

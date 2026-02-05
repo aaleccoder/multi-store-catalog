@@ -57,7 +57,7 @@ model Store {
   categories      Category[]
   subcategories   Subcategory[]
   products        Product[]
-  currencies      Currency[]
+  storeCurrencies StoreCurrency[]
   theme           Json                      @default("{}")
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
@@ -147,18 +147,30 @@ model ProductVariant {
 model Currency {
   id                 String  @id @default(cuid())
   name               String
-  code               String
+  code               String  @unique
   symbol             String
   symbolPosition     String  @default("before")
   decimalSeparator   String
   thousandsSeparator String
   decimalPlaces      Int
   isActive           Boolean @default(true)
-  storeId            String
-  store              Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
   prices             Price[]
+  storeCurrencies    StoreCurrency[]
+}
 
-  @@unique([storeId, code])
+model StoreCurrency {
+  id         String   @id @default(cuid())
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  currencyId String
+  currency   Currency @relation(fields: [currencyId], references: [id], onDelete: Cascade)
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([storeId, currencyId])
+  @@index([storeId])
+  @@index([currencyId])
 }
 
 model Price {

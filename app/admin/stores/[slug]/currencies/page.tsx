@@ -32,7 +32,7 @@ export default function CurrenciesPage() {
                             { name: 'decimalSeparator', label: 'Separador Decimal', type: 'hidden', defaultValue: '.' },
                             { name: 'thousandsSeparator', label: 'Separador de Miles', type: 'hidden', defaultValue: ',' },
                             { name: 'decimalPlaces', label: 'Lugares Decimales', type: 'hidden', defaultValue: 2 },
-                            { name: 'isActive', label: 'Activo', type: 'hidden', defaultValue: true },
+                            { name: 'isActive', label: 'Activo', type: 'switch', defaultValue: true },
                         ]}
                         searchKeys={['name', 'code']}
                     />

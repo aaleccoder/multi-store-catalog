@@ -35,6 +35,17 @@ export const productsRouter = router({
           });
         }
 
+        const enabledCurrencyIds = (
+          await prisma.storeCurrency.findMany({
+            where: {
+              storeId: store.id,
+              isEnabled: true,
+              currency: { isActive: true },
+            },
+            select: { currencyId: true },
+          })
+        ).map((item) => item.currencyId);
+
         const page = parseInt(searchParams.page ?? "1");
         const limit = parseInt(searchParams.limit ?? "12");
         const skip = (page - 1) * limit;
@@ -62,8 +73,13 @@ export const productsRouter = router({
         const search = searchParams.search;
 
         const currency = searchParams.currency;
-        if (currency)
-          where.prices = { some: { currencyId: currency, storeId: store.id } };
+        const isCurrencyEnabled =
+          currency ? enabledCurrencyIds.includes(currency) : false;
+        if (currency) {
+          where.prices = isCurrencyEnabled
+            ? { some: { currencyId: currency, storeId: store.id } }
+            : { some: { currencyId: "__disabled_currency__" } };
+        }
 
         const price = searchParams.price;
         if (price) {
@@ -77,12 +93,24 @@ export const productsRouter = router({
             priceWhere.amount = { ...(priceWhere.amount ?? {}), lte: max };
 
           if (Object.keys(priceWhere).length > 0) {
-            if (where.prices) {
+            if (currency && !isCurrencyEnabled) {
               where.prices = {
-                some: { currencyId: currency ?? undefined, ...priceWhere },
+                some: { currencyId: "__disabled_currency__" },
+              };
+            } else if (where.prices) {
+              where.prices = {
+                some: {
+                  currencyId: currency ?? { in: enabledCurrencyIds },
+                  ...priceWhere,
+                },
               };
             } else {
-              where.prices = { some: { ...priceWhere } };
+              where.prices = {
+                some: {
+                  currencyId: { in: enabledCurrencyIds },
+                  ...priceWhere,
+                },
+              };
             }
           }
         }
@@ -109,7 +137,10 @@ export const productsRouter = router({
                 slug: true,
               },
             },
-            prices: { include: { currency: true } },
+            prices: {
+              where: { currencyId: { in: enabledCurrencyIds } },
+              include: { currency: true },
+            },
             coverImages: {
               select: {
                 id: true,
@@ -126,7 +157,10 @@ export const productsRouter = router({
               select: {
                 id: true,
                 isActive: true,
-                prices: { include: { currency: true } },
+                prices: {
+                  where: { currencyId: { in: enabledCurrencyIds } },
+                  include: { currency: true },
+                },
               },
             },
           },

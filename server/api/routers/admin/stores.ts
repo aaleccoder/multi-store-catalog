@@ -143,6 +143,11 @@ export const adminStoresRouter = router({
           ? input.storeCategoryIds 
           : [(await prisma.storeCategory.findFirst({ where: { slug: 'general' } }))?.id].filter(Boolean) as string[];
         
+        const availableCurrencies = await prisma.currency.findMany({
+          where: { isActive: true },
+          orderBy: { code: "asc" },
+        });
+
         const store = await prisma.store.create({
           data: {
             name: input.name,
@@ -156,39 +161,11 @@ export const adminStoresRouter = router({
                 storeCategoryId: categoryId,
               })),
             },
-            currencies: {
-              create: [
-                {
-                  name: "US Dollar",
-                  code: "USD",
-                  symbol: "$",
-                  symbolPosition: "before",
-                  decimalSeparator: ".",
-                  thousandsSeparator: ",",
-                  decimalPlaces: 2,
-                  isActive: true,
-                },
-                {
-                  name: "Cuban Peso",
-                  code: "CUP",
-                  symbol: "$",
-                  symbolPosition: "before",
-                  decimalSeparator: ".",
-                  thousandsSeparator: ",",
-                  decimalPlaces: 2,
-                  isActive: true,
-                },
-                {
-                  name: "Euro",
-                  code: "EUR",
-                  symbol: "€",
-                  symbolPosition: "before",
-                  decimalSeparator: ".",
-                  thousandsSeparator: ",",
-                  decimalPlaces: 2,
-                  isActive: true,
-                },
-              ],
+            storeCurrencies: {
+              create: availableCurrencies.map((currency) => ({
+                currencyId: currency.id,
+                isEnabled: true,
+              })),
             },
           },
         });

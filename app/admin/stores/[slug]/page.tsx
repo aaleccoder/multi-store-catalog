@@ -44,7 +44,9 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
       prisma.product.count({ where: { storeId: store.id } }),
       prisma.category.count({ where: { storeId: store.id } }),
       prisma.subcategory.count({ where: { storeId: store.id } }),
-      prisma.currency.count({ where: { storeId: store.id } }),
+      prisma.storeCurrency.count({
+        where: { storeId: store.id, isEnabled: true },
+      }),
     ]);
 
   const basePath = `/admin/stores/${store.slug}`;

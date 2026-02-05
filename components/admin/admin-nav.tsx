@@ -142,13 +142,19 @@ export function AdminNav() {
             aria-label="Ir a inicio"
           >
             <div className="relative">
-              <Image
-                src={storeData?.theme?.branding?.logoUrl || "/logo.png"}
-                alt={storeData?.theme?.branding?.logoAlt || "Logo"}
-                className="object-cover"
-                width={92}
-                height={92}
-              />
+              {storeData?.theme?.branding?.logoUrl ? (
+                <Image
+                  src={storeData?.theme?.branding?.logoUrl}
+                  alt={storeData?.theme?.branding?.logoAlt || "Logo"}
+                  className="object-cover p-1"
+                  width={92}
+                  height={92}
+                />
+              ) : (
+                <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
+                  <span className="text-muted-foreground">No logo</span>
+                </div>
+              )}
             </div>
             {store && (
               <div className="flex flex-row text-xl font-bold text-foreground px-4 items-center">
