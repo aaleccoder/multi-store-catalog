@@ -102,7 +102,7 @@ export default function Header() {
                     className="rounded"
                   />
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</h1>
+                    <p className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</p>
                   </div>
                 </div>
               </Link>
