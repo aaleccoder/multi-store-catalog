@@ -1,0 +1,17 @@
+node_modules
+.pnpm-store
+.next
+.git
+.gitignore
+README.md
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.*
+*.log
+*.env
+.env*
+.generated
+.generated/
+generated
+prisma/dev.db
