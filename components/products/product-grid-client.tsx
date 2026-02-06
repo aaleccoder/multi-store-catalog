@@ -178,9 +178,9 @@ export const ProductGridClient = ({
           {/* Search Query Display */}
           {searchParams.get("search") && (
             <div className="mb-4">
-              <h2 className="text-lg font-semibold">
+              <p className="text-lg font-semibold">
                 Resultados de búsqueda para &quot;{searchParams.get("search")}&quot;
-              </h2>
+              </p>
             </div>
           )}
 
@@ -276,9 +276,9 @@ export const ProductGridClient = ({
         {/* Search Query Display */}
         {searchParams.get("search") && (
           <div className="mb-4">
-            <h2 className="text-lg font-semibold">
+            <p className="text-lg font-semibold">
               Resultados de búsqueda para &quot;{searchParams.get("search")}&quot;
-            </h2>
+            </p>
           </div>
         )}
 
@@ -309,13 +309,13 @@ export const ProductGridClient = ({
                 {Array.from(
                   { length: Math.max(0, Math.min(maxColumns, MAX_DESKTOP_COLUMNS) - 1) },
                   (_, i) => {
-                  const cols = i + 2;
-                  return (
-                    <SelectItem key={cols} value={cols.toString()}>
-                      {cols} columnas
-                    </SelectItem>
-                  );
-                })}
+                    const cols = i + 2;
+                    return (
+                      <SelectItem key={cols} value={cols.toString()}>
+                        {cols} columnas
+                      </SelectItem>
+                    );
+                  })}
               </SelectContent>
             </Select>
             <Select value={currentSort} onValueChange={handleSortChange}>

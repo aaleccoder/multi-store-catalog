@@ -114,7 +114,7 @@ export default function InfoPage() {
                         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                             Tu catálogo digital,{" "}
                             <span className="text-primary">listo en minutos</span>
-                        </h1>
+                        </p>
                         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
                             Crea y gestiona catálogos profesionales para tus tiendas. Sin complicaciones,
                             sin costos ocultos. Todo lo que necesitas en una sola plataforma.
@@ -135,9 +135,9 @@ export default function InfoPage() {
             <section className="py-16 lg:py-24">
                 <div className="mx-auto max-w-7xl px-6">
                     <div className="text-center space-y-4 mb-12">
-                        <h2 className="text-3xl font-bold sm:text-4xl">
+                        <p className="text-3xl font-bold sm:text-4xl">
                             Todo lo que necesitas para vender online
-                        </h2>
+                        </p>
                         <p className="mx-auto max-w-2xl text-muted-foreground">
                             Herramientas poderosas y fáciles de usar para llevar tu negocio al siguiente nivel
                         </p>
@@ -166,9 +166,9 @@ export default function InfoPage() {
             <section className="py-16 lg:py-24 bg-muted/30">
                 <div className="mx-auto max-w-7xl px-6">
                     <div className="text-center space-y-4 mb-12">
-                        <h2 className="text-3xl font-bold sm:text-4xl">
+                        <p className="text-3xl font-bold sm:text-4xl">
                             Planes que se adaptan a ti
-                        </h2>
+                        </p>
                         <p className="mx-auto max-w-2xl text-muted-foreground">
                             Comienza gratis y escala cuando lo necesites
                         </p>
@@ -224,9 +224,9 @@ export default function InfoPage() {
             <section className="py-16 lg:py-24 bg-background">
                 <div className="mx-auto max-w-7xl px-6">
                     <div className="text-center space-y-4 mb-12">
-                        <h2 className="text-3xl font-bold sm:text-4xl">
+                        <p className="text-3xl font-bold sm:text-4xl">
                             Legal y soporte
-                        </h2>
+                        </p>
                         <p className="mx-auto max-w-2xl text-muted-foreground">
                             Transparencia total y ayuda rápida cuando la necesites.
                         </p>
@@ -275,9 +275,9 @@ export default function InfoPage() {
                 <div className="mx-auto max-w-4xl px-6">
                     <Card className="border-primary/50 bg-linear-to-br from-primary/5 to-secondary/5">
                         <CardContent className="p-8 lg:p-12 text-center space-y-6">
-                            <h2 className="text-3xl font-bold sm:text-4xl">
+                            <p className="text-3xl font-bold sm:text-4xl">
                                 ¿Listo para comenzar?
-                            </h2>
+                            </p>
                             <p className="text-lg text-muted-foreground">
                                 Únete a cientos de negocios que ya están vendiendo online con Una Ganga
                             </p>

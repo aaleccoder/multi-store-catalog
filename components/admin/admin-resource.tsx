@@ -488,7 +488,7 @@ export function AdminResource<
   return (
     <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col md:pt-20 lg:pt-0 mt-14">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 w-full">
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <p className="text-3xl font-bold">{title}</p>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           {createPageUrl ? (
             <Link

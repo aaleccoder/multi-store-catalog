@@ -63,7 +63,7 @@ export default function UsersPage() {
 
     return (
         <div className="md:mt-20 p-4 md:p-8">
-            <h1 className="text-3xl font-bold mb-6">Gestión de Usuarios</h1>
+            <p className="text-3xl font-bold mb-6">Gestión de Usuarios</p>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button><PlusIcon className="w-4 h-4 mr-2" />Crear Usuario</Button>

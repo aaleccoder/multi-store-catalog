@@ -198,7 +198,7 @@ export default function MediaPage() {
       <main className="md:pt-20 lg:pt-0">
         <div className="p-4 md:p-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Medios</h1>
+            <p className="text-3xl font-bold">Medios</p>
             {/* TODO: Add Upload Button and functionality */}
           </div>
 

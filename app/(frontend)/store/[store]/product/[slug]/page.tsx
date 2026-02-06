@@ -366,9 +366,9 @@ export default async function ProductDetailPage({
             {product.description && (
               <Card className="mb-16">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4 text-foreground">
+                  <p className="text-2xl font-bold mb-4 text-foreground">
                     Descripción
-                  </h2>
+                  </p>
                   <RichTextRenderer content={String(product.description)} />
                 </CardContent>
               </Card>
@@ -376,9 +376,9 @@ export default async function ProductDetailPage({
 
             {relatedProducts.length > 0 && (
               <div className="mb-24">
-                <h2 className="text-2xl font-bold mb-6 text-foreground">
+                <p className="text-2xl font-bold mb-6 text-foreground">
                   Productos relacionados
-                </h2>
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {relatedProducts.map((relatedProduct) => {
                     const relatedCoverImages =

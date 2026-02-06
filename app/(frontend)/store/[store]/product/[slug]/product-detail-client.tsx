@@ -125,9 +125,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       {/* Product Info */}
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <p className="text-3xl font-bold text-foreground mb-2">
             {product.name}
-          </h1>
+          </p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             {selectedVariant?.sku ? (
               <span>SKU: {selectedVariant.sku}</span>
@@ -181,21 +181,21 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           {(specifications?.unit ||
             specifications?.weight ||
             specifications?.volume) && (
-            <div className="text-base text-muted-foreground flex flex-col gap-0.5 leading-none">
-              {specifications?.unit && (
-                <span>
-                  {specifications.unit.replace(/^(\d+).*$/, "$1")} unidades
-                </span>
-              )}
-              {(specifications?.weight || specifications?.volume) && (
-                <span>
-                  {specifications.weight
-                    ? `${specifications.weight} ${specifications.weightUnit || "g"}`
-                    : `${specifications.volume} ${specifications.volumeUnit || "ml"}`}
-                </span>
-              )}
-            </div>
-          )}
+              <div className="text-base text-muted-foreground flex flex-col gap-0.5 leading-none">
+                {specifications?.unit && (
+                  <span>
+                    {specifications.unit.replace(/^(\d+).*$/, "$1")} unidades
+                  </span>
+                )}
+                {(specifications?.weight || specifications?.volume) && (
+                  <span>
+                    {specifications.weight
+                      ? `${specifications.weight} ${specifications.weightUnit || "g"}`
+                      : `${specifications.volume} ${specifications.volumeUnit || "ml"}`}
+                  </span>
+                )}
+              </div>
+            )}
           {/* {taxIncluded && (
                         <p className="text-sm text-muted-foreground">Impuestos incluidos</p>
                     )} */}
@@ -216,7 +216,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                       ? "border-primary bg-primary/5 ring-1 ring-primary font-medium"
                       : "border-input bg-background",
                     (!variant.isActive || variant.stock <= 0) &&
-                      "opacity-50 cursor-not-allowed bg-muted",
+                    "opacity-50 cursor-not-allowed bg-muted",
                   )}
                   disabled={!variant.isActive || variant.stock <= 0}
                 >

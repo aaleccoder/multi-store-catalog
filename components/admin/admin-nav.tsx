@@ -130,7 +130,7 @@ export function AdminNav() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-border p-4">
         <div className="flex items-center">
           <SidebarTrigger />
-          <h1 className="text-xl font-bold px-4">Panel de Tiendas</h1>
+          <p className="text-xl font-bold px-4">Panel de Tiendas</p>
         </div>
       </div>
 

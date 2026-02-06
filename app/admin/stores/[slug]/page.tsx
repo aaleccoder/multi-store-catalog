@@ -110,7 +110,7 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2 mt-18 md:mt-0">
               <p className="text-sm text-muted-foreground">/{store.slug}</p>
-              <h1 className="text-3xl font-bold">{store.name}</h1>
+              <p className="text-3xl font-bold">{store.name}</p>
               <p className="text-sm text-muted-foreground max-w-2xl">
                 {store.description || "Sin descripcion"}
               </p>
@@ -156,7 +156,7 @@ export default async function StoreGroupPage({ params }: StorePageProps) {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Gestion rapida</h2>
+              <p className="text-xl font-semibold">Gestion rapida</p>
               <span className="text-sm text-muted-foreground">
                 Todo dentro de esta tienda
               </span>

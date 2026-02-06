@@ -71,7 +71,7 @@ export const contactRouter = router({
 
     const html = `
       <div style="font-family: Arial, sans-serif; color: #111;">
-        <h2>Nuevo mensaje de contacto</h2>
+        <p>Nuevo mensaje de contacto</p>
         <p><strong>Nombre:</strong> ${input.name}</p>
         <p><strong>Email:</strong> ${input.email}</p>
         ${input.company ? `<p><strong>Empresa:</strong> ${input.company}</p>` : ""}

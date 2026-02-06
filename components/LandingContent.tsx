@@ -207,9 +207,9 @@ const LandingContent = ({
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                     ¿Tienes un negocio?
                   </p>
-                  <h2 className="text-xl font-semibold tracking-tight sm:text-2xl lg:text-3xl">
+                  <p className="text-xl font-semibold tracking-tight sm:text-2xl lg:text-3xl">
                     Administra tu propio catálogo
-                  </h2>
+                  </p>
                   <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
                     Crea tu propio catálogo digital, vende en línea y llega a más
                     clientes con una tienda lista en minutos.
@@ -225,9 +225,9 @@ const LandingContent = ({
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold sm:text-4xl">
+            <p className="text-3xl font-bold sm:text-4xl">
               Tiendas Activas
-            </h1>
+            </p>
             <p className="text-muted-foreground">
               Explora nuestras marcas y encuentra lo que buscas
             </p>
@@ -383,10 +383,10 @@ const LandingContent = ({
                       )}
 
                       {/* PRIMARY: Store name */}
-                      <h3 className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${featured ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
+                      <p className={`font-bold leading-tight tracking-tight group-hover:text-primary transition-colors ${featured ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
                         }`}>
                         {store.name}
-                      </h3>
+                      </p>
 
                       {/* SECONDARY: Description */}
                       {store.description && (
@@ -452,7 +452,7 @@ const LandingContent = ({
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <Star className="h-5 w-5 text-primary" aria-hidden />
-                        <h2 className="text-2xl font-bold">Tiendas Destacadas</h2>
+                        <p className="text-2xl font-bold">Tiendas Destacadas</p>
                         <span className="text-sm text-muted-foreground">
                           {featuredStores.length}
                         </span>
@@ -468,7 +468,7 @@ const LandingContent = ({
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-primary" aria-hidden />
-                        <h2 className="text-2xl font-bold">Nuevas Llegadas</h2>
+                        <p className="text-2xl font-bold">Nuevas Llegadas</p>
                         <span className="text-sm text-muted-foreground">
                           {newStores.length}
                         </span>
@@ -482,7 +482,7 @@ const LandingContent = ({
                   {/* All Stores Section - Always visible */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-2xl font-bold">Todas las Tiendas</h2>
+                      <p className="text-2xl font-bold">Todas las Tiendas</p>
                       <span className="text-sm text-muted-foreground">
                         {stores.length}
                       </span>

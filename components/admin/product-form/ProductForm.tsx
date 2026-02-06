@@ -91,7 +91,7 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
                     <div className="p-2 md:p-8 w-full max-w-none mx-auto">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                             <div>
-                                <h1 className="text-3xl font-bold">Editar Variante</h1>
+                                <p className="text-3xl font-bold">Editar Variante</p>
                                 <p className="text-sm text-muted-foreground">
                                     Producto: {formData.name || "Producto sin nombre"}
                                 </p>
@@ -139,9 +139,9 @@ export function ProductForm({ productId, storeSlug }: ProductFormProps) {
         <div className="min-h-screen bg-background">
             <main className=" pt-20 lg:pt-0">
                 <div className="p-2 md:p-8 w-full max-w-none mx-auto">
-                    <h1 className="text-3xl font-bold mb-6">
+                    <p className="text-3xl font-bold mb-6">
                         {productId ? "Editar Producto" : "Crear Producto"}
-                    </h1>
+                    </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -287,9 +287,9 @@ export default function LoginPage() {
           {activeTab === "login" && (
             <>
               {/* Heading */}
-              <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
+              <p className="text-xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
                 Inicia sesión en tu cuenta
-              </h1>
+              </p>
               <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
                 Administra tus productos y tiendas fácilmente.
               </p>
@@ -395,9 +395,9 @@ export default function LoginPage() {
           {activeTab === "signup" && (
             <>
               {/* Heading */}
-              <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
+              <p className="text-xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
                 Crea tu cuenta
-              </h1>
+              </p>
               <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
                 Comienza a gestionar tus productos y tiendas.
               </p>

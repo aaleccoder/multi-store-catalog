@@ -226,7 +226,7 @@ export const FilterSidebar = async ({ storeSlug, storeId, categorySlug, subcateg
         <div className="shrink-0 bg-sidebar border-b border-border p-4">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-5 w-5 text-foreground" />
-            <h2 className="text-lg font-semibold text-foreground">Filtros</h2>
+            <p className="text-lg font-semibold text-foreground">Filtros</p>
           </div>
         </div>
 

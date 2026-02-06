@@ -21,10 +21,10 @@ interface ThemeHeaderProps {
 export const ThemeHeader = ({ stores, activeStoreId, onStoreChange, storeName, onSave, saving }: ThemeHeaderProps) => (
     <div className="flex items-center justify-between gap-4 w-full">
         <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
+            <p className="text-3xl font-bold flex items-center gap-2">
                 <Palette className="h-6 w-6" />
                 Tema de la tienda
-            </h1>
+            </p>
             <p className="text-sm text-muted-foreground">Ajusta los colores y tipografías usados en la tienda.</p>
         </div>
         <div className="flex gap-3 items-center">

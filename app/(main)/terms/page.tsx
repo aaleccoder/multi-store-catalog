@@ -10,7 +10,7 @@ export default function TermsPage() {
             <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Términos de uso
             </p>
-            <h1 className="text-4xl font-bold">Condiciones claras para todos</h1>
+            <h1 className="text-4xl font-bold">Condiciones claras para todos</p>
             <p className="text-muted-foreground">
               Al usar la plataforma aceptas estos términos. Si no estás de
               acuerdo, no utilices el servicio.
@@ -18,7 +18,7 @@ export default function TermsPage() {
           </div>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Uso de la plataforma</h2>
+            <p className="text-2xl font-semibold">Uso de la plataforma</p>
             <p className="text-muted-foreground">
               Debes proporcionar información veraz y mantener tus credenciales
               seguras. Eres responsable de la actividad que ocurra en tu cuenta.
@@ -26,7 +26,7 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Contenido y propiedad</h2>
+            <p className="text-2xl font-semibold">Contenido y propiedad</p>
             <p className="text-muted-foreground">
               Conservas la propiedad de tu contenido. Nos concedes permiso para
               alojarlo y mostrarlo con el fin de operar el servicio.
@@ -34,7 +34,7 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Pagos y planes</h2>
+            <p className="text-2xl font-semibold">Pagos y planes</p>
             <p className="text-muted-foreground">
               Los planes pueden cambiar. Siempre te avisaremos con antelación
               antes de cualquier modificación relevante.
@@ -42,7 +42,7 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Uso aceptable</h2>
+            <p className="text-2xl font-semibold">Uso aceptable</p>
             <ul className="list-disc pl-6 text-muted-foreground">
               <li>No usar la plataforma para actividades ilegales.</li>
               <li>No intentar acceder sin autorización a sistemas o datos.</li>
@@ -51,7 +51,7 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Limitación de responsabilidad</h2>
+            <p className="text-2xl font-semibold">Limitación de responsabilidad</p>
             <p className="text-muted-foreground">
               El servicio se ofrece “tal cual”. No garantizamos que sea libre de
               interrupciones o errores, aunque trabajamos constantemente en su
@@ -60,7 +60,7 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Cambios en los términos</h2>
+            <p className="text-2xl font-semibold">Cambios en los términos</p>
             <p className="text-muted-foreground">
               Podemos actualizar estos términos. La versión más reciente
               siempre estará disponible en esta página.

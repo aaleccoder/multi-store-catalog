@@ -132,7 +132,7 @@ export default function SettingsPage() {
                 <div className="p-4 md:p-8 space-y-6">
                     <div className="flex items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold">Configuración de la tienda</h1>
+                            <p className="text-3xl font-bold">Configuración de la tienda</p>
                             <p className="text-sm text-muted-foreground">Gestiona la configuración general de tu tienda.</p>
                         </div>
                         <div className="flex items-center gap-2">

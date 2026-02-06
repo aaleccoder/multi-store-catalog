@@ -157,7 +157,7 @@ export default function ContactPage() {
             <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Contacto
             </p>
-            <h1 className="text-4xl font-bold">Hablemos</h1>
+            <h1 className="text-4xl font-bold">Hablemos</p>
             <p className="text-muted-foreground">
               Cuéntanos sobre tu tienda y te ayudamos a empezar.
             </p>
@@ -266,7 +266,7 @@ export default function ContactPage() {
           </form>
 
           <div className="space-y-4 rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
-            <h2 className="text-lg font-semibold">Información de contacto</h2>
+            <p className="text-lg font-semibold">Información de contacto</p>
             <p className="text-sm text-muted-foreground">
               También puedes contactarnos directamente a través de:
             </p>

@@ -69,7 +69,7 @@ export default function SettingsPage() {
         <div className="min-h-screen bg-background">
             <main className="md:pt-20 lg:pt-0">
                 <div className="p-8">
-                    <h1 className="text-3xl font-bold mb-6">Configuración General</h1>
+                    <p className="text-3xl font-bold mb-6">Configuración General</p>
 
                     <form onSubmit={handleSubmit}>
                         <Card>
