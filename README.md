@@ -12,7 +12,7 @@ yarn dev
 pnpm dev
 # o
 bun dev
-```
+```dasd
 
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
 
