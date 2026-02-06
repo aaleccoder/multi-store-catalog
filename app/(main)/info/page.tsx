@@ -111,7 +111,7 @@ export default function InfoPage() {
                                 className="mx-auto"
                             />
                         </div>
-                        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                        <p className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                             Tu catálogo digital,{" "}
                             <span className="text-primary">listo en minutos</span>
                         </p>

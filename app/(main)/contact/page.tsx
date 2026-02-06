@@ -157,7 +157,7 @@ export default function ContactPage() {
             <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Contacto
             </p>
-            <h1 className="text-4xl font-bold">Hablemos</p>
+            <p className="text-4xl font-bold">Hablemos</p>
             <p className="text-muted-foreground">
               Cuéntanos sobre tu tienda y te ayudamos a empezar.
             </p>

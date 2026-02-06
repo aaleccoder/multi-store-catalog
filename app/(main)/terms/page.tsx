@@ -10,7 +10,7 @@ export default function TermsPage() {
             <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Términos de uso
             </p>
-            <h1 className="text-4xl font-bold">Condiciones claras para todos</p>
+            <p className="text-4xl font-bold">Condiciones claras para todos</p>
             <p className="text-muted-foreground">
               Al usar la plataforma aceptas estos términos. Si no estás de
               acuerdo, no utilices el servicio.
