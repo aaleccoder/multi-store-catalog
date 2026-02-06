@@ -41,14 +41,34 @@ export async function generateMetadata({
       title: "Store Not Found",
     };
   }
-  const store = storeSchema.parse(rawStore);
+  const rawTheme = (rawStore.theme as any) ?? {};
+  const rawLogoUrl = rawTheme?.branding?.logoUrl;
+  const normalizedLogoUrl =
+    typeof rawLogoUrl === "string" && !rawLogoUrl.trim()
+      ? undefined
+      : rawLogoUrl;
+  const normalizedTheme =
+    normalizedLogoUrl === rawLogoUrl
+      ? rawTheme
+      : {
+          ...rawTheme,
+          branding: {
+            ...(rawTheme?.branding ?? {}),
+            logoUrl: normalizedLogoUrl,
+          },
+        };
+  const storeResult = storeSchema.safeParse({
+    ...rawStore,
+    theme: normalizedTheme,
+  });
+  const store = storeResult.success ? storeResult.data : rawStore;
 
   // Add cache-busting timestamp to force browser to refresh favicon
   const cacheBuster = rawStore.updatedAt.getTime();
   const faviconPath = `/store/${storeSlug}/favicon.png?v=${cacheBuster}`;
 
   // Get logo from theme for OpenGraph image
-  const storeTheme = (rawStore.theme as any) ?? {};
+  const storeTheme = normalizedTheme;
   const logoUrl = storeTheme?.branding?.logoUrl;
   const ogImage = logoUrl || faviconPath;
 
