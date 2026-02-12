@@ -52,7 +52,7 @@ export const Header = ({ store }: { store?: Store }) => {
             {!desktopSearchOpen ? (
               <div
                 onClick={() => setDesktopSearchOpen(true)}
-                className="relative flex items-center w-72 bg-white rounded-md border border-primary/30 cursor-text hover:border-primary/50 transition-colors"
+                className="relative flex items-center w-72 bg-background border border-primary/30 cursor-text hover:border-primary/50 transition-colors"
               >
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <span className="pl-9 pr-4 py-2 text-sm text-muted-foreground w-full truncate">

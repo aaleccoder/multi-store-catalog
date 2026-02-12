@@ -9,14 +9,12 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetFooter,
 } from '@/components/ui/sheet'
 import { useCart } from '@/context/cart-context'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useState, useEffect } from 'react'
-import { formatPrice as formatCurrencyPrice, type Currency } from '@/lib/currency-client'
+import { useState } from 'react'
+import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { QuantityPicker } from '@/components/ui/quantity-picker'
 import { openWhatsApp } from '@/lib/whatsapp'
 
@@ -53,11 +51,9 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
           <Button className="">
             <div className="relative">
               <ShoppingCart className="h-5 w-5" />
-              {itemCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-white text-black text-[10px]">
-                  {itemCount}
-                </Badge>
-              )}
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-primary text-primary-foreground text-[10px]">
+                {itemCount}
+              </Badge>
             </div>
             <span className="text-xs">Carrito</span>
           </Button>
@@ -65,7 +61,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-black text-white text-xs">
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-secondary text-secondary-foreground text-xs">
                 {itemCount}
               </Badge>
             )}
@@ -85,7 +81,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
         <div className="flex-1 overflow-y-auto px-6">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[400px] text-center animate-in fade-in duration-500">
-              <div className="rounded-full bg-muted/50 p-6 mb-4">
+              <div className="bg-muted/50 p-6 mb-4">
                 <ShoppingCart className="h-12 w-12 text-muted-foreground/50" />
               </div>
               <p className="text-base font-medium text-foreground mb-2">Tu carrito está vacío</p>
@@ -103,14 +99,14 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                 <div
                   key={item.id}
                   className={`
-                    group relative bg-card rounded-lg p-4 shadow-sm border border-border/50 
-                    hover:shadow-md transition-all duration-300
+                    group relative bg-card p-4 border border-border/50 
+                    transition-all duration-300
                     ${removingItemId === String(item.id) ? 'animate-out fade-out slide-out-to-right-2 duration-300' : 'animate-in fade-in slide-in-from-left-2 duration-300'}
                   `}
                 >
                   <div className="flex gap-4">
                     {/* Product Image */}
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/30">
+                    <div className="relative w-20 h-20 overflow-hidden bg-muted shrink-0 border border-border/30">
                       {item.image ? (
                         <Image
                           src={item.image}
@@ -161,7 +157,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
                             onChange={(val) => updateQuantity(item.id, val)}
                             min={1}
                             size="sm"
-                            className="bg-transparent shadow-sm text-black"
+                            className="bg-transparent text-foreground"
                           />
                         </div>
 
@@ -189,7 +185,7 @@ export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProp
             {/* Action Buttons */}
             <div className="flex flex-col gap-2.5 pt-2">
               <Button
-                className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 text-sm"
                 onClick={handleWhatsAppOrder}
               >
                 Ordenar por WhatsApp

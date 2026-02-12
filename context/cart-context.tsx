@@ -22,6 +22,8 @@ interface CartContextType {
   clearCart: () => void
   itemCount: number
   total: number
+  getItemQuantity: (id: number | string) => number
+  isInCart: (id: number | string) => boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -87,6 +89,15 @@ export const CartProvider = ({ children, storeId }: { children: React.ReactNode;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
+  const getItemQuantity = (id: number | string) => {
+    const item = items.find((i) => i.id === id)
+    return item ? item.quantity : 0
+  }
+
+  const isInCart = (id: number | string) => {
+    return items.some((i) => i.id === id)
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -97,6 +108,8 @@ export const CartProvider = ({ children, storeId }: { children: React.ReactNode;
         clearCart,
         itemCount,
         total,
+        getItemQuantity,
+        isInCart,
       }}
     >
       {children}

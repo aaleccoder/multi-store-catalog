@@ -9,6 +9,29 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useDebounce } from "@/lib/hooks";
 
+interface ProductPrice {
+  id: string;
+  amount: string | number;
+  saleAmount?: string | number | null;
+  isDefault?: boolean;
+  currency?: {
+    code: string;
+  } | null;
+}
+
+interface ProductImage {
+  url: string;
+  alt?: string;
+}
+
+interface SearchProduct {
+  id: string;
+  name: string;
+  slug: string;
+  coverImages?: ProductImage[];
+  prices?: ProductPrice[];
+}
+
 interface SearchDropdownProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -79,7 +102,7 @@ export function SearchDropdown({
 
   return (
     <div ref={containerRef} className="relative w-72">
-      <div className="relative flex items-center bg-white rounded-md border border-primary/30">
+      <div className="relative flex items-center bg-background border border-primary/30">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           className={cn(
@@ -102,7 +125,7 @@ export function SearchDropdown({
       </div>
 
       {debouncedQuery && (
-        <div className="absolute top-full mt-2 w-full bg-white rounded-md border border-border shadow-lg overflow-hidden z-50">
+        <div className="absolute top-full mt-2 w-full bg-background border border-border overflow-hidden z-50">
           <div className="max-h-[400px] overflow-y-auto p-2">
             {isLoading ? (
               <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
@@ -115,13 +138,13 @@ export function SearchDropdown({
               </div>
             ) : (
               <div className="flex flex-col gap-1">
-                {results?.docs?.map((product: any) => (
+                {results?.docs?.map((product: SearchProduct) => (
                   <button
                     key={product.id}
                     onClick={() => handleSelectProduct(product.slug)}
-                    className="flex items-center gap-3 rounded-md p-2 text-left text-sm hover:bg-muted transition-colors"
+                    className="flex items-center gap-3 p-2 text-left text-sm hover:bg-muted transition-colors"
                   >
-                    <div className="relative h-10 w-10 overflow-hidden rounded-md border shrink-0">
+                    <div className="relative h-10 w-10 overflow-hidden border shrink-0">
                       {product.coverImages?.[0]?.url ? (
                         <Image
                           src={product.coverImages[0].url}
@@ -140,9 +163,9 @@ export function SearchDropdown({
                       <span className="text-xs text-muted-foreground">
                         $
                         {Number(
-                          product.prices?.find((p: any) => p.isDefault)
+                          product.prices?.find((p) => p.isDefault)
                             ?.saleAmount ??
-                          product.prices?.find((p: any) => p.isDefault)
+                          product.prices?.find((p) => p.isDefault)
                             ?.amount ??
                           0,
                         ).toFixed(2)}
@@ -160,7 +183,7 @@ export function SearchDropdown({
                   const base = storeSlug ? `/store/${storeSlug}` : "/";
                   router.push(`${base}/?search=${encodeURIComponent(query)}`);
                 }}
-                className="mt-2 w-full rounded-md bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"
+                className="mt-2 w-full bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"
               >
                 Ver todos los resultados para &quot;{query}&quot;
               </button>

@@ -242,6 +242,7 @@ export default async function ProductDetailPage({
 
   const serializedProduct = {
     ...product,
+    shortDescription: product.shortDescription ?? undefined,
     coverImages: coverImages.map((img: any) => ({
       ...img,
       url: img.url,
@@ -250,14 +251,14 @@ export default async function ProductDetailPage({
     prices: product.prices.map((p: any) => ({
       ...p,
       amount: toNumber(p.amount),
-      saleAmount: p.saleAmount ? toNumber(p.saleAmount) : null,
+      saleAmount: p.saleAmount ? toNumber(p.saleAmount) : undefined,
     })),
     variants: product.variants.map((v: any) => ({
       ...v,
       prices: v.prices.map((p: any) => ({
         ...p,
         amount: toNumber(p.amount),
-        saleAmount: p.saleAmount ? toNumber(p.saleAmount) : null,
+        saleAmount: p.saleAmount ? toNumber(p.saleAmount) : undefined,
       })),
     })),
     specifications,

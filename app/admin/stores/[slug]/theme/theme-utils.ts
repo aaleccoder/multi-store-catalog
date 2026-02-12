@@ -217,19 +217,87 @@ export const labelForKey = (key: ThemeKeys) => {
     return labelMap[key] ?? key
 }
 
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+
+const parseCssChannel = (value: string) => {
+    const numeric = Number.parseFloat(value)
+    if (!Number.isFinite(numeric)) return 0
+    if (value.trim().endsWith('%')) {
+        return clamp(Math.round((numeric / 100) * 255), 0, 255)
+    }
+    return clamp(Math.round(numeric), 0, 255)
+}
+
+const parseCssAlpha = (value: string) => {
+    const numeric = Number.parseFloat(value)
+    if (!Number.isFinite(numeric)) return 1
+    if (value.trim().endsWith('%')) {
+        return clamp(numeric / 100, 0, 1)
+    }
+    return clamp(numeric, 0, 1)
+}
+
+const parseResolvedColor = (value: string) => {
+    const channels = value.match(/[\d.]+%?/g)
+    if (!channels || channels.length < 3) return null
+
+    return {
+        r: parseCssChannel(channels[0]),
+        g: parseCssChannel(channels[1]),
+        b: parseCssChannel(channels[2]),
+        a: channels[3] ? parseCssAlpha(channels[3]) : 1,
+    }
+}
+
+const toHex = (value: number) => value.toString(16).padStart(2, '0')
+
+const resolveBrowserColor = (value: string) => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return null
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    const probe = document.createElement('span')
+    probe.style.color = ''
+    probe.style.color = trimmed
+    if (!probe.style.color) return null
+
+    probe.style.display = 'none'
+    document.body.appendChild(probe)
+    const resolved = window.getComputedStyle(probe).color
+    probe.remove()
+
+    return resolved || null
+}
+
 export const toSafeColor = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return '#000000'
+
     try {
-        return Color(value).hex()
+        return Color(trimmed).rgb().string()
     } catch {
+        const resolved = resolveBrowserColor(trimmed)
+        if (resolved) return resolved
         return '#000000'
     }
 }
 
 export const normalizeColor = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return { hex: '#000000', alpha: 1 }
+
     try {
-        const color = Color(value)
+        const color = Color(trimmed)
         return { hex: color.hex(), alpha: color.alpha() }
     } catch {
+        const resolved = resolveBrowserColor(trimmed)
+        const parsed = resolved ? parseResolvedColor(resolved) : null
+        if (parsed) {
+            return {
+                hex: `#${toHex(parsed.r)}${toHex(parsed.g)}${toHex(parsed.b)}`,
+                alpha: parsed.a,
+            }
+        }
         return { hex: '#000000', alpha: 1 }
     }
 }

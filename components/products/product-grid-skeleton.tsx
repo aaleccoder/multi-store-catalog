@@ -33,7 +33,7 @@ export const ProductGridSkeleton = ({
 
 const ProductCardSkeleton = () => {
   return (
-    <div className="group overflow-hidden border border-border rounded-lg">
+    <div className="group overflow-hidden border border-border">
       {/* Image skeleton */}
       <Skeleton className="aspect-square w-full" />
 
@@ -45,7 +45,7 @@ const ProductCardSkeleton = () => {
         </div>
         <div className="flex items-center justify-between pt-2">
           <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-9 w-24 rounded-md" />
+          <Skeleton className="h-9 w-24" />
         </div>
       </div>
     </div>

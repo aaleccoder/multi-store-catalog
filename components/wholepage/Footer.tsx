@@ -17,7 +17,6 @@ export default function Footer() {
                                 alt="Logo de Catálogo Multi-Tienda"
                                 width={48}
                                 height={48}
-                                className="rounded"
                             />
                             <div className="">
                                 <p className="font-bold text-foreground">Una Ganga</p>
@@ -114,7 +113,7 @@ export default function Footer() {
                                     href="https://instagram.com/wavelikeonline"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-colors hover:bg-accent hover:text-foreground"
+                                    className="flex h-9 w-9 items-center justify-center border border-border transition-colors hover:bg-accent hover:text-foreground"
                                     aria-label="Instagram"
                                 >
                                     <Instagram className="h-4 w-4" />
@@ -123,7 +122,7 @@ export default function Footer() {
                                     href="https://twitter.com/wavelikeonline"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-colors hover:bg-accent hover:text-foreground"
+                                    className="flex h-9 w-9 items-center justify-center border border-border transition-colors hover:bg-accent hover:text-foreground"
                                     aria-label="Twitter"
                                 >
                                     <Twitter className="h-4 w-4" />
@@ -132,7 +131,7 @@ export default function Footer() {
                                     href="https://facebook.com/wavelikeonline"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border transition-colors hover:bg-accent hover:text-foreground"
+                                    className="flex h-9 w-9 items-center justify-center border border-border transition-colors hover:bg-accent hover:text-foreground"
                                     aria-label="Facebook"
                                 >
                                     <Facebook className="h-4 w-4" />

@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { defaultStoreBranding } from "@/lib/theme";
 import { useStoreBranding } from "@/components/theme/store-theme-provider";
 
 interface LogoProps {
@@ -14,8 +13,10 @@ const Logo = ({ className, alt, width, height }: LogoProps) => {
   const branding = useStoreBranding();
 
 
-  const src = branding.logoUrl ?? defaultStoreBranding.logoUrl;
-  const resolvedAlt = alt ?? branding.logoAlt ?? defaultStoreBranding.logoAlt;
+  const src = branding.logoUrl;
+  const resolvedAlt = branding.logoAlt ?? alt;
+
+  console.log(src, "checking  here")
 
   return (
     <>

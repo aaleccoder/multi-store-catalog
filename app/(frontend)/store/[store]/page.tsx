@@ -8,6 +8,7 @@ import { NavigationLoadingBar } from "@/components/utils/navigation-loading";
 import { LoadingProvider } from "@/components/utils/loading-context";
 import { PageLayoutWrapper } from "@/components/layout/page-layout-wrapper";
 import { prisma } from "@/lib/db";
+import { isDatabaseUnavailableError, withPrismaRetry } from "@/lib/prisma-resilience";
 import { notFound } from "next/navigation";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import type { StoreTheme } from "@/lib/theme";
@@ -33,9 +34,25 @@ export async function generateMetadata({
 }: HomePageProps): Promise<Metadata> {
   const { store: storeSlug } = await params;
 
-  const rawStore = await prisma.store.findFirst({
-    where: { slug: storeSlug, isActive: true },
-  });
+  let rawStore: Awaited<ReturnType<typeof prisma.store.findFirst>>;
+
+  try {
+    rawStore = await withPrismaRetry(() =>
+      prisma.store.findFirst({
+        where: { slug: storeSlug, isActive: true },
+      }),
+    );
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return {
+        title: "Store Temporarily Unavailable",
+        description: "This store is temporarily unavailable. Please try again in a moment.",
+      };
+    }
+
+    throw error;
+  }
+
   if (!rawStore) {
     return {
       title: "Store Not Found",
@@ -138,18 +155,23 @@ export default async function HomePage({
   const categorySlug = queryParams.category;
   const subcategorySlug = queryParams.subcategory;
 
-  const store = await prisma.store.findFirst({
-    where: { slug: storeSlug, isActive: true },
-  });
+  const store = await withPrismaRetry(() =>
+    prisma.store.findFirst({
+      where: { slug: storeSlug, isActive: true },
+    }),
+  );
+
   if (!store) {
     notFound();
   }
 
-  const filterContent = await getFilterContent(
-    storeSlug,
-    store.id,
-    categorySlug,
-    subcategorySlug,
+  const filterContent = await withPrismaRetry(() =>
+    getFilterContent(
+      storeSlug,
+      store.id,
+      categorySlug,
+      subcategorySlug,
+    ),
   );
 
   return (

@@ -47,7 +47,7 @@ export function ImageGallery({
   return (
     <div className="space-y-4">
       {/* Main Image Display */}
-      <div className="relative aspect-square bg-muted/30 overflow-hidden rounded-lg">
+      <div className="relative aspect-square bg-muted/30 overflow-hidden">
         {selectedImageUrl ? (
           <Image
             src={selectedImageUrl}
@@ -77,7 +77,7 @@ export function ImageGallery({
                 key={idx}
                 onClick={() => setSelectedIndex(idx)}
                 className={cn(
-                  'relative aspect-square bg-muted/30 overflow-hidden rounded-md transition-all',
+                  'relative aspect-square bg-muted/30 overflow-hidden transition-all',
                   'border-2 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
                   isSelected ? 'border-primary ring-2 ring-primary ring-offset-2' : 'border-border',
                 )}

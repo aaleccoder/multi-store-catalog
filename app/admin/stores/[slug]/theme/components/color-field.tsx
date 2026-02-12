@@ -31,7 +31,7 @@ export const ColorField = ({ value, onChange }: ColorFieldProps) => {
                     />
                 </PopoverTrigger>
                 <PopoverContent className="w-72" align="start">
-                    <SimpleColorPicker value={preview} onChange={onChange} />
+                    <SimpleColorPicker value={safeValue} onChange={onChange} />
                 </PopoverContent>
             </Popover>
         </div>

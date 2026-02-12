@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { defaultStoreBranding, defaultStoreTheme, StoreTheme } from '@/lib/theme'
 import { defaultStoreFontId } from '@/lib/store-fonts'
 import { BrandingCard } from '../theme/components/branding-card'
@@ -147,10 +147,6 @@ export default function SettingsPage() {
 
                     <div className="space-y-6">
                         <Card>
-                            <CardHeader>
-                                <CardTitle>Identidad de la tienda</CardTitle>
-                                <CardDescription>Logo, datos de contacto y redes sociales.</CardDescription>
-                            </CardHeader>
                             <CardContent>
                                 <BrandingCard
                                     branding={branding}

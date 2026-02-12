@@ -163,7 +163,7 @@ export const ProductCard = ({
       }
       className="block h-full"
     >
-      <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-card shadow-sm hover:shadow-md transition-all duration-200 gap-0" : "bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"}`}>
+      <Card className={`group overflow-hidden border-border py-0 h-full flex flex-col ${isMobile ? "bg-card transition-all duration-200 gap-0" : "bg-card transition-all duration-300 hover:-translate-y-1"}`}>
         <div className={isMobile ? "relative w-full aspect-4/3" : "relative aspect-square"}>
           <div className={`relative overflow-hidden bg-secondary ${isMobile ? "w-full h-full" : "w-full h-full"}`}>
             {currentImage?.url ? (
@@ -189,7 +189,7 @@ export const ProductCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 onClick={handlePrevImage}
               >
                 <ChevronLeft className="h-4 w-4 text-card-foreground" />
@@ -197,7 +197,7 @@ export const ProductCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 bg-card/90 backdrop-blur-sm hover:bg-card opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 onClick={handleNextImage}
               >
                 <ChevronRight className="h-4 w-4 text-card-foreground" />
@@ -236,19 +236,19 @@ export const ProductCard = ({
           {!isMobile && (
             <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
               {featured && (
-                <Badge className="bg-accent text-accent-foreground shadow-sm">
+                <Badge className="bg-accent text-accent-foreground">
                   Destacado
                 </Badge>
               )}
               {displayDiscount && (
-                <Badge className="bg-destructive/70 text-destructive-foreground shadow-sm">
+                <Badge className="bg-destructive/70 text-destructive-foreground">
                   -{discountPercentage}%
                 </Badge>
               )}
               {!inStock && (
                 <Badge
                   variant="secondary"
-                  className="bg-muted text-muted-foreground shadow-sm"
+                  className="bg-muted text-muted-foreground"
                 >
                   Agotado
                 </Badge>
@@ -333,14 +333,14 @@ export const ProductCard = ({
                 )}
                 <div className="flex items-baseline gap-4">
                   <span className={`font-bold text-primary ${isMobile ? "text-lg" : "text-xl"}`}>
-                    {formatCurrencyPrice(
-                      price,
-                      typeof currency === "number" ? String(currency) : currency,
-                    )}
                     {pricePrefix && (
                       <span className="text-xs font-normal text-muted-foreground mr-1">
                         {pricePrefix}
                       </span>
+                    )}
+                    {formatCurrencyPrice(
+                      price,
+                      typeof currency === "number" ? String(currency) : currency,
                     )}
                     {hasDiscount && regularPrice && (
                       <span className="text-xs text-muted-foreground line-through ml-2">

@@ -14,6 +14,7 @@ import {
   Settings,
   Palette,
   ArrowLeft,
+  SettingsIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +27,6 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import LogoProps from "../layout/logo";
 import { authClient } from "@/lib/auth-client";
 import { Role } from "@/generated/prisma/enums";
 import { trpc } from "@/trpc/client";
@@ -95,7 +95,7 @@ export function AdminNav() {
     {
       name: "Configuración",
       href: storeSlug ? `${storeBase}/branding` : "/admin/stores",
-      icon: ImageIcon,
+      icon: SettingsIcon,
     },
   ];
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, Trash2, ShoppingCart, ArrowRight, Minus, Plus } from 'lucide-react'
+import { Heart, Trash2, ShoppingCart, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -15,8 +15,6 @@ import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -53,27 +51,6 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
     }
   }
 
-  const handleIncrement = (item: (typeof wishlistItems)[0]) => {
-    const quantity = getCartQuantity(item.id)
-    if (quantity > 0) {
-      updateQuantity(item.id, quantity + 1)
-    } else {
-      addToCart({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        slug: item.slug,
-      })
-    }
-  }
-
-  const handleDecrement = (id: string | number) => {
-    const quantity = getCartQuantity(id)
-    if (quantity > 0) {
-      updateQuantity(id, quantity - 1)
-    }
-  }
 
   const handleAddAllToCart = () => {
     const itemsNotInCart = wishlistItems.filter(
@@ -156,7 +133,7 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
         <div className="flex-1 overflow-y-auto px-6">
           {wishlistItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[400px] text-center animate-in fade-in duration-500">
-              <div className="rounded-full bg-muted/50 p-6 mb-4">
+              <div className="bg-muted/50 p-6 mb-4">
                 <Heart className="h-12 w-12 text-muted-foreground/50" />
               </div>
               <p className="text-base font-medium text-foreground mb-2">
@@ -178,30 +155,29 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
                   <div
                     key={item.id}
                     className={`
-                    group relative bg-white rounded-lg p-4 shadow-sm border border-border/50 
-                    hover:shadow-md transition-all duration-300
+                    group relative bg-card p-4 border border-border/50 
+                    transition-all duration-300
                     ${removingItemId === String(item.id) ? 'animate-out fade-out slide-out-to-right-2 duration-300' : 'animate-in fade-in slide-in-from-left-2 duration-300'}
                   `}
                   >
                     <div className="flex gap-4">
                       {/* Product Image */}
-                      <Link
-                        href={`/product/${item.slug}`}
-                        className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/30"
-                      >
-                        {item.image ? (
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Heart className="h-8 w-8 text-muted-foreground/30" />
-                          </div>
-                        )}
+                      <Link href={`/product/${item.slug}`} >
+                        <div className="relative w-20 h-20 overflow-hidden bg-muted shrink-0 border border-border/30">
+                          {item.image ? (
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Heart className="h-8 w-8 text-muted-foreground/30" />
+                            </div>
+                          )}
+                        </div>
                       </Link>
 
                       {/* Product Info */}
@@ -262,7 +238,7 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
               {areAllItemsInCart() ? (
                 <Button
                   variant="outline"
-                  className="w-full h-10 text-destructive border-destructive/40 hover:bg-destructive/10 hover:border-destructive/60 font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                  className="w-full h-10 text-destructive border-destructive/40 hover:bg-destructive/10 hover:border-destructive/60 font-semibold transition-all duration-200 text-sm"
                   onClick={handleRemoveAllFromCart}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -270,7 +246,7 @@ export const WishlistSheet = ({ isMobileNav = false }: WishlistSheetProps) => {
                 </Button>
               ) : (
                 <Button
-                  className="w-full h-10 bg-primary hover:bg-primary/90 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                  className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 text-sm"
                   onClick={handleAddAllToCart}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />

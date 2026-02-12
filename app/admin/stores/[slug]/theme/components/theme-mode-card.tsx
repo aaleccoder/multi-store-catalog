@@ -10,12 +10,29 @@ import { ShadowField } from './shadow-field'
 import { colorKeySet, editableThemeKeys, shadowPresetKeys } from '../theme-constants'
 import { getColorDescription, labelForKey } from '../theme-utils'
 
-const safeTextColor = (background: string) => {
-    try {
-        return Color(background).isLight() ? '#111111' : '#f8f8f8'
-    } catch {
-        return '#111111'
-    }
+const colorPreviewPairs: Partial<Record<ThemeKeys, { surface: ThemeKeys; text: ThemeKeys }>> = {
+    background: { surface: 'background', text: 'foreground' },
+    foreground: { surface: 'background', text: 'foreground' },
+    card: { surface: 'card', text: 'cardForeground' },
+    cardForeground: { surface: 'card', text: 'cardForeground' },
+    popover: { surface: 'popover', text: 'popoverForeground' },
+    popoverForeground: { surface: 'popover', text: 'popoverForeground' },
+    primary: { surface: 'primary', text: 'primaryForeground' },
+    primaryForeground: { surface: 'primary', text: 'primaryForeground' },
+    secondary: { surface: 'secondary', text: 'secondaryForeground' },
+    secondaryForeground: { surface: 'secondary', text: 'secondaryForeground' },
+    muted: { surface: 'muted', text: 'mutedForeground' },
+    mutedForeground: { surface: 'muted', text: 'mutedForeground' },
+    accent: { surface: 'accent', text: 'accentForeground' },
+    accentForeground: { surface: 'accent', text: 'accentForeground' },
+    destructive: { surface: 'destructive', text: 'destructiveForeground' },
+    destructiveForeground: { surface: 'destructive', text: 'destructiveForeground' },
+    sidebar: { surface: 'sidebar', text: 'sidebarForeground' },
+    sidebarForeground: { surface: 'sidebar', text: 'sidebarForeground' },
+    sidebarPrimary: { surface: 'sidebarPrimary', text: 'sidebarPrimaryForeground' },
+    sidebarPrimaryForeground: { surface: 'sidebarPrimary', text: 'sidebarPrimaryForeground' },
+    sidebarAccent: { surface: 'sidebarAccent', text: 'sidebarAccentForeground' },
+    sidebarAccentForeground: { surface: 'sidebarAccent', text: 'sidebarAccentForeground' },
 }
 
 const safeNumber = (value: string, fallback: number) => {
@@ -44,25 +61,25 @@ const shadowColorWithOpacity = (color: string, opacity: string) => {
 const ThemeKeyPreview = ({
     themeMode,
     mergedMode,
-    theme,
-    mergedTheme,
-    mode,
     themeKey,
     value,
 }: {
     themeMode: NonNullable<StoreTheme['light']>
     mergedMode: NonNullable<StoreTheme['light']>
-    theme: StoreTheme
-    mergedTheme: StoreTheme
-    mode: 'light' | 'dark'
     themeKey: ThemeKeys
     value: string
 }) => {
     if (shadowPresetKeys.has(themeKey)) return null
 
     if (colorKeySet.has(themeKey)) {
-        const bg = value?.trim() ? value : 'transparent'
-        const fg = safeTextColor(bg)
+        const resolveModeValue = (key: ThemeKeys) => {
+            const raw = key === themeKey ? value : (themeMode?.[key] ?? mergedMode?.[key] ?? '')
+            return typeof raw === 'string' ? raw : ''
+        }
+        const pair = colorPreviewPairs[themeKey]
+        const bg = (pair ? resolveModeValue(pair.surface) : resolveModeValue(themeKey)).trim() || 'transparent'
+        const fg = (pair ? resolveModeValue(pair.text) : resolveModeValue('foreground')).trim() || '#111111'
+
         return (
             <div className="border bg-background p-3">
                 <div
@@ -116,7 +133,7 @@ const ThemeKeyPreview = ({
         return (
             <div className="border bg-background p-3">
                 <div className="border bg-card p-3 text-sm" style={{ fontFamily: value }}>
-                    const hello = 'world'
+                    {"const hello = 'world'"}
                 </div>
             </div>
         )
@@ -234,9 +251,6 @@ export const ThemeModeCard = ({
                             <ThemeKeyPreview
                                 themeMode={themeMode}
                                 mergedMode={mergedMode}
-                                theme={theme}
-                                mergedTheme={mergedTheme}
-                                mode={mode}
                                 themeKey={key}
                                 value={value}
                             />

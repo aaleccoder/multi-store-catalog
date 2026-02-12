@@ -68,7 +68,7 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md bg-background/80 backdrop-blur-sm"
+              className="h-8 w-8 shrink-0 shadow-md bg-background/80 backdrop-blur-sm"
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
@@ -85,7 +85,7 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
             {/* All Products Button */}
             <Button
               onClick={() => (window.location.href = `/store/${storeSlug}`)}
-              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategorySlug
+              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${!selectedCategorySlug
                 ? 'bg-primary text-primary-foreground backdrop-blur-md'
                 : 'hover:bg-primary/5 text-foreground bg-transparent'
                 }`}
@@ -102,7 +102,7 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
                 <Button
                   key={category.id}
                   onClick={() => (window.location.href = `/store/${storeSlug}?category=${category.slug}`)}
-                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${isSelected
+                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${isSelected
                     ? 'bg-primary text-primary-foreground backdrop-blur-md'
                     : 'hover:bg-primary/5 text-foreground bg-transparent'
                     }`}
@@ -122,7 +122,7 @@ export const CategoryBar = ({ storeSlug, selectedCategorySlug }: CategoryBarProp
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 shrink-0 rounded-full shadow-md bg-background/80 backdrop-blur-sm"
+              className="h-8 w-8 shrink-0 shadow-md bg-background/80 backdrop-blur-sm"
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >

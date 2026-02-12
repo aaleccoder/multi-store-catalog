@@ -237,7 +237,7 @@ async function main() {
         }
     }>`;
 
-    let updatedContent = fileContent.replace(typeRegex, newType);
+    const updatedContent = fileContent.replace(typeRegex, newType);
 
     // Extract and parse the icons array
     const arrayMatch = fileContent.match(/= \[([\s\S]*)\];/);

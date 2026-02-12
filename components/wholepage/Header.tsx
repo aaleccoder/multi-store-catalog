@@ -99,7 +99,6 @@ export default function Header() {
                     alt="Logo"
                     width={32}
                     height={32}
-                    className="rounded"
                   />
                   <div>
                     <p className="text-2xl font-bold text-foreground hidden md:block">Una Ganga - Catálogos</p>
@@ -138,7 +137,7 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[340px] border-border/20 bg-background/90 p-3 shadow-2xl backdrop-blur-xl"
+                className="w-[340px] border-border/20 bg-background/90 p-3 backdrop-blur-xl"
                 onMouseEnter={openHelpMenu}
                 onMouseLeave={closeHelpMenu}
               >
@@ -289,7 +288,7 @@ export default function Header() {
                 asChild
                 variant="default"
                 size="lg"
-                className="group relative max-w-[20rem] overflow-hidden bg-banner-bg border-2 border-banner-border text-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-xl hover:bg-primary group-hover:text-primary-foreground focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none whitespace-normal text-center leading-snug"
+                className="group relative max-w-[20rem] overflow-hidden bg-banner-bg border-2 border-banner-border text-primary transition-all hover:scale-105 hover:bg-primary group-hover:text-primary-foreground focus-visible:ring-primary/50 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none whitespace-normal text-center leading-snug"
               >
                 <Link href="/info">
                   <span className="relative z-10 text-primary font-semibold group-hover:text-primary-foreground">
@@ -339,7 +338,6 @@ export default function Header() {
                       alt="Logo"
                       width={40}
                       height={40}
-                      className="rounded"
                     />
                     <div className="leading-tight">
                       <p className="text-sm font-semibold">Una Ganga - Catálogos</p>

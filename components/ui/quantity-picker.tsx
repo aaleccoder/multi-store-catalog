@@ -83,7 +83,7 @@ export function QuantityPicker({
     const textSizeClass = size === "sm" ? "text-sm" : "text-base"
 
     return (
-        <div className={cn("flex items-center rounded-md border border-input bg-background text-primary", className)}>
+        <div className={cn("flex items-center border border-input bg-background text-primary", className)}>
             <Button
                 variant="ghost"
                 size="icon"

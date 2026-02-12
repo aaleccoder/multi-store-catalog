@@ -1,13 +1,9 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { headers, cookies } from "next/headers";
+import { headers } from "next/headers";
 import { Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { prisma } from "@/lib/db";
-import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
-import type { StoreTheme } from "@/lib/theme";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -21,6 +17,7 @@ export const metadata = {
 };
 
 import "../globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default async function AdminLayout({
   children,
@@ -38,7 +35,9 @@ export default async function AdminLayout({
 
   return (
     <div className={`${outfit.className}`}>
-      {children}
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        {children}
+      </ThemeProvider>
       <Toaster />
     </div>
   );

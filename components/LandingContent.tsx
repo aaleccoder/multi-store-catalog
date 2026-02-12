@@ -201,7 +201,7 @@ const LandingContent = ({
         {/* Hero conversion block */}
         <div className="relative w-full">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="border border-border/60 bg-card bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-7 sm:p-9 lg:p-10">
+            <div className="border border-border/60 bg-card bg-linear-to-br from-primary/5 via-background to-secondary/5 p-7 sm:p-9 lg:p-10">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
@@ -280,7 +280,7 @@ const LandingContent = ({
             </Select>
 
             <Select value={selectedSort || "popular"} onValueChange={handleSortChange}>
-              <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="Ordenar" />
               </SelectTrigger>
               <SelectContent>
@@ -340,33 +340,21 @@ const LandingContent = ({
                     className={`group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/50 ${featured ? "sm:col-span-2 lg:col-span-2" : ""
                       }`}
                   >
-                    {/* Logo container with ambient background */}
-                    <div className={`relative flex w-full items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-6 ${featured ? "h-44 sm:h-52 lg:h-60" : "h-36 sm:h-44"
+                    {/* Logo container */}
+                    <div className={`relative flex w-full items-center justify-center bg-linear-to-br from-primary/5 to-secondary/5 ${featured ? "h-44 sm:h-52 lg:h-60" : "h-36 sm:h-44"
                       }`}>
-                      {/* Logo frame - 1:1 aspect ratio with intentional styling */}
-                      <div className={`relative aspect-square bg-background/80 backdrop-blur-sm shadow-sm ring-1 ring-border/50 p-3 overflow-hidden transition-all duration-300 group-hover:shadow-md group-hover:ring-primary/30 sm:p-4 ${featured ? "w-24 sm:w-36 lg:w-40" : "w-20 sm:w-28"
-                        }`}>
-                        {/* Subtle inner gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-transparent pointer-events-none" />
-
-                        {/* Logo */}
-                        <div className="relative h-full w-full flex items-center justify-center">
-
-                          {logoSrc ? (
-                            <Image
-                              src={logoSrc}
-                              alt={logoAlt}
-                              width={featured ? 96 : 64}
-                              height={featured ? 96 : 64}
-                              className="max-h-full max-w-full object-contain"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Store className="h-12 w-12 text-muted-foreground" />
-                            </div>
-                          )}
+                      {logoSrc ? (
+                        <Image
+                          src={logoSrc}
+                          alt={logoAlt}
+                          fill
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Store className="h-14 w-14 text-muted-foreground" />
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     <div className="flex min-w-0 flex-1 flex-col gap-2 px-4 py-4 sm:gap-3 sm:px-6 sm:py-4 sm:h-full">

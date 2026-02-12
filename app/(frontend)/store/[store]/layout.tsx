@@ -7,6 +7,7 @@ import { Outfit, Lobster } from "next/font/google";
 import { Footer } from "@/components/layout/footer";
 import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import { prisma } from "@/lib/db";
+import { withPrismaRetry } from "@/lib/prisma-resilience";
 import { notFound } from "next/navigation";
 import type { StoreTheme } from "@/lib/theme";
 
@@ -31,9 +32,11 @@ export default async function RootLayout({
 }) {
   const { store } = await params;
 
-  const storeData = await prisma.store.findFirst({
-    where: { slug: store, isActive: true },
-  });
+  const storeData = await withPrismaRetry(() =>
+    prisma.store.findFirst({
+      where: { slug: store, isActive: true },
+    }),
+  );
 
   if (!storeData) {
     notFound();

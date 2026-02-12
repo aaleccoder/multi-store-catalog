@@ -1,50 +1,108 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { Button } from "@/components/ui/button";
 import { ImageGallery } from "@/components/utils/image-gallery";
+import { QuantityPicker } from "@/components/ui/quantity-picker";
 import { formatPrice as formatCurrencyPrice } from "@/lib/currency-client";
 import { toNumber } from "@/lib/number";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/context/cart-context";
+import { ShoppingCart, Trash2 } from "lucide-react";
+
+interface Variant {
+  id: string;
+  name: string;
+  sku?: string;
+  stock: number;
+  isActive: boolean;
+  image?: string;
+  images?: ImageData[];
+  prices: Price[];
+}
+
+interface Price {
+  amount: number | string;
+  saleAmount?: number | string;
+  currency: string | null;
+  isDefault?: boolean;
+  taxIncluded?: boolean;
+}
+
+interface Specifications {
+  sku?: string;
+  unit?: string;
+  weight?: string | number;
+  weightUnit?: string;
+  volume?: string | number;
+  volumeUnit?: string;
+  dimensions?: {
+    length: string | number;
+    width: string | number;
+    height: string | number;
+    unit?: string;
+  };
+  sizes?: Array<{
+    size: string;
+    inStock: boolean;
+  }>;
+}
+
+interface ImageData {
+  url: string;
+  alt?: string;
+  isPrimary?: boolean;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  shortDescription?: string;
+  featured?: boolean;
+  inStock: boolean;
+  coverImages?: ImageData[];
+  variants?: Variant[];
+  prices: Price[];
+  specifications?: Specifications;
+}
 
 interface ProductDetailClientProps {
-  product: any;
+  product: Product;
+}
+
+// Helper to get default variant ID
+function getDefaultVariantId(variants?: Variant[]): string | null {
+  if (!variants || variants.length === 0) return null;
+
+  const inStockVariant = variants.find((v) => v.stock > 0 && v.isActive);
+  return inStockVariant ? inStockVariant.id : variants[0].id;
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    null,
+  const { addItem, removeItem, updateQuantity, getItemQuantity, isInCart } = useCart();
+
+  // Initialize with default variant using lazy initialization
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(() =>
+    getDefaultVariantId(product.variants)
   );
 
-  useEffect(() => {
-    if (product.variants && product.variants.length > 0) {
-      const inStockVariant = product.variants.find(
-        (v: any) => v.stock > 0 && v.isActive,
-      );
-      if (inStockVariant) {
-        setSelectedVariantId(inStockVariant.id);
-      } else {
-        setSelectedVariantId(product.variants[0].id);
-      }
-    }
-  }, [product.variants]);
-
   const selectedVariant = selectedVariantId
-    ? product.variants.find((v: any) => v.id === selectedVariantId)
+    ? product.variants?.find((v) => v.id === selectedVariantId)
     : null;
 
   // Determine display values based on selection or default product data
   const currentData = selectedVariant || product;
 
   // Helper to parse prices
-  const parseNumeric = (raw: any) => toNumber(raw);
+  const parseNumeric = (raw: number | string) => toNumber(raw);
 
   // Get price for the current selection
   // If variant selected, use its price. If not, use product default price.
   const getPriceData = () => {
     const prices = currentData.prices || [];
-    const defaultPriceObj = prices.find((p: any) => p.isDefault) || prices[0];
+    const defaultPriceObj = prices.find((p) => p.isDefault) || prices[0];
 
     if (!defaultPriceObj)
       return {
@@ -69,7 +127,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     };
   };
 
-  const { price, regularPrice, currency, taxIncluded } = getPriceData();
+  const { price, regularPrice, currency } = getPriceData();
   const hasDiscount = regularPrice !== undefined && regularPrice > price;
   const discountPercentage = hasDiscount
     ? Math.round(((regularPrice! - price) / regularPrice!) * 100)
@@ -77,11 +135,11 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
   // Images
   // Priority: variant images array > variant single image > product images
-  const productImages = (product.coverImages as any[]) || [];
+  const productImages = product.coverImages || [];
 
   let allImages = productImages;
   if (selectedVariant) {
-    const variantImages = (selectedVariant.images as any[]) || [];
+    const variantImages = selectedVariant.images || [];
     if (variantImages.length > 0) {
       allImages = variantImages;
     } else if (selectedVariant.image) {
@@ -105,11 +163,40 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     : product.inStock;
 
   // Specifications
-  const specifications = product.specifications as any;
+  const specifications = product.specifications;
 
   // Handle variant selection
   const handleVariantChange = (variantId: string) => {
     setSelectedVariantId(variantId);
+  };
+
+  // Cart integration
+  const currentProductId = selectedVariant ? selectedVariant.id : product.id;
+  const quantityInCart = getItemQuantity(currentProductId);
+  const productInCart = isInCart(currentProductId);
+
+  const handleAddToCart = () => {
+    addItem({
+      id: currentProductId,
+      name: product.name,
+      price,
+      image: primaryImageUrl,
+      slug: product.slug,
+      variantName: selectedVariant?.name,
+      currency,
+    });
+  };
+
+  const handleRemoveFromCart = () => {
+    removeItem(currentProductId);
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity === 0) {
+      removeItem(currentProductId);
+    } else {
+      updateQuantity(currentProductId, newQuantity);
+    }
   };
 
   return (
@@ -206,12 +293,12 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           <div className="space-y-3">
             <p className="text-sm font-semibold text-foreground">Opciones:</p>
             <div className="flex flex-wrap gap-2">
-              {product.variants.map((variant: any) => (
+              {product.variants.map((variant) => (
                 <button
                   key={variant.id}
                   onClick={() => handleVariantChange(variant.id)}
                   className={cn(
-                    "px-3 py-1.5 text-sm border rounded-md transition-all hover:border-primary",
+                    "px-3 py-1.5 text-sm border transition-all hover:border-primary",
                     selectedVariantId === variant.id
                       ? "border-primary bg-primary/5 ring-1 ring-primary font-medium"
                       : "border-input bg-background",
@@ -243,7 +330,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                 Tallas disponibles:
               </p>
               <div className="flex flex-wrap gap-2">
-                {specifications.sizes.map((sizeObj: any, idx: number) => (
+                {specifications.sizes.map((sizeObj, idx: number) => (
                   <Badge
                     key={idx}
                     variant={sizeObj.inStock ? "outline" : "secondary"}
@@ -279,19 +366,44 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
         )}
 
-        {/* Add to Cart */}
-        <AddToCartButton
-          product={{
-            id: selectedVariant ? selectedVariant.id : product.id, // Use variant ID if selected
-            name: product.name,
-            price,
-            image: primaryImageUrl,
-            slug: product.slug,
-            variantName: selectedVariant?.name,
-            currency,
-          }}
-          inStock={inStock}
-        />
+        {/* Add to Cart / Quantity Controls */}
+        <div className="space-y-3">
+          {productInCart ? (
+            <>
+              <div className="flex items-center gap-2">
+                <QuantityPicker
+                  value={quantityInCart}
+                  onChange={handleQuantityChange}
+                  min={1}
+                  max={100}
+                  className="flex-1"
+                  disabled={!inStock}
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={handleRemoveFromCart}
+                  className="h-10 w-10 shrink-0"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                {quantityInCart} {quantityInCart === 1 ? 'unidad' : 'unidades'} en el carrito
+              </p>
+            </>
+          ) : (
+            <Button
+              onClick={handleAddToCart}
+              disabled={!inStock}
+              className="w-full h-12 text-base font-semibold"
+              size="lg"
+            >
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              {inStock ? 'Agregar al carrito' : 'Agotado'}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,23 +2,14 @@
 
 import { Loader2, Palette } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-
-interface StoreOption {
-    id: string
-    name: string
-}
 
 interface ThemeHeaderProps {
-    stores?: StoreOption[]
-    activeStoreId?: string
-    onStoreChange?: (storeId: string) => void
     storeName?: string
     onSave: () => void
     saving: boolean
 }
 
-export const ThemeHeader = ({ stores, activeStoreId, onStoreChange, storeName, onSave, saving }: ThemeHeaderProps) => (
+export const ThemeHeader = ({ storeName, onSave, saving }: ThemeHeaderProps) => (
     <div className="flex items-center justify-between gap-4 w-full">
         <div>
             <p className="text-3xl font-bold flex items-center gap-2">
@@ -26,6 +17,9 @@ export const ThemeHeader = ({ stores, activeStoreId, onStoreChange, storeName, o
                 Tema de la tienda
             </p>
             <p className="text-sm text-muted-foreground">Ajusta los colores y tipografías usados en la tienda.</p>
+            {storeName ? (
+                <p className="mt-1 text-xs text-muted-foreground">Tienda actual: {storeName}</p>
+            ) : null}
         </div>
         <div className="flex gap-3 items-center">
             <Button onClick={onSave} disabled={saving}>

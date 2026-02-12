@@ -341,7 +341,7 @@ export const ProductGridClient = ({
           </div>
           <div className="flex-1">
             <div className="mb-4 flex items-center justify-end md:hidden">
-              <div className="inline-flex rounded-md border border-border overflow-hidden">
+              <div className="inline-flex border border-border overflow-hidden">
                 <Button
                   type="button"
                   variant="ghost"
