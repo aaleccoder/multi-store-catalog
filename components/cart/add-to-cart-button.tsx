@@ -3,10 +3,11 @@
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/context/cart-context'
 import { ShoppingCart, Send } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { QuantityPicker } from '../ui/quantity-picker'
 import { openWhatsApp } from '@/lib/whatsapp'
 import { type Currency } from '@/lib/currency-client'
+import { useStoreBranding } from '@/components/theme/store-theme-provider'
 
 
 
@@ -25,6 +26,7 @@ interface AddToCartButtonProps {
 
 export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProps) => {
   const { addItem } = useCart()
+  const branding = useStoreBranding()
   const [quantity, setQuantity] = useState(1)
 
 
@@ -43,7 +45,7 @@ export const AddToCartButton = ({ product, inStock = true }: AddToCartButtonProp
       price: product.price,
       currency: product.currency,
       variantName: product.variantName
-    }], product.price * quantity, product.currency)
+    }], product.price * quantity, product.currency, branding)
   }
 
 

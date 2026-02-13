@@ -15,6 +15,7 @@ import {
 } from "@/lib/currency-client";
 import { QuantityPicker } from "@/components/ui/quantity-picker";
 import { openWhatsApp, type WhatsAppItem } from "@/lib/whatsapp";
+import { useStoreBranding } from "@/components/theme/store-theme-provider";
 
 interface ProductCardProps {
   id: number | string;
@@ -69,6 +70,7 @@ export const ProductCard = ({
     removeItem: removeFromWishlist,
     isInWishlist,
   } = useWishlist();
+  const branding = useStoreBranding();
   const isMobile = useIsMobile();
 
   const imageList =
@@ -151,7 +153,7 @@ export const ProductCard = ({
       price,
       currency,
     };
-    openWhatsApp([whatsappItem], price, currency);
+    openWhatsApp([whatsappItem], price, currency, branding);
   };
 
   const currentImage = imageList[currentImageIndex];

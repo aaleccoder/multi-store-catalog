@@ -135,6 +135,7 @@ export interface StoreBranding {
   logoWidth?: number;
   logoHeight?: number;
   faviconUrl?: string;
+  slogan?: string;
   contactEmail?: string;
   contactPhone?: string;
   contactAddress?: string;
@@ -148,6 +149,7 @@ export const defaultStoreBranding: StoreBranding = {
   logoAlt: "",
   logoWidth: 100,
   logoHeight: 100,
+  slogan: "",
   contactEmail: "",
   contactPhone: "",
   contactAddress: "",

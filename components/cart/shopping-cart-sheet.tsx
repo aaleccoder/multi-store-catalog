@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { formatPrice as formatCurrencyPrice } from '@/lib/currency-client'
 import { QuantityPicker } from '@/components/ui/quantity-picker'
 import { openWhatsApp } from '@/lib/whatsapp'
+import { useStoreBranding } from '@/components/theme/store-theme-provider'
 
 
 
@@ -26,13 +27,14 @@ interface ShoppingCartSheetProps {
 
 export const ShoppingCartSheet = ({ isMobileNav = false }: ShoppingCartSheetProps) => {
   const { items, removeItem, updateQuantity, clearCart, itemCount, total } = useCart()
+  const branding = useStoreBranding()
   const [removingItemId, setRemovingItemId] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
 
 
 
   const handleWhatsAppOrder = () => {
-    openWhatsApp(items, total)
+    openWhatsApp(items, total, undefined, branding)
     clearCart()
   }
 

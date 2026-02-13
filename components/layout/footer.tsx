@@ -7,6 +7,20 @@ import { useStoreBranding } from "@/components/theme/store-theme-provider";
 
 export function Footer() {
   const branding = useStoreBranding();
+  const contactAddress = branding.contactAddress?.trim();
+  const contactEmail = branding.contactEmail?.trim();
+  const contactPhone = branding.contactPhone?.trim();
+  const socialFacebook = branding.socialFacebook?.trim();
+  const socialInstagram = branding.socialInstagram?.trim();
+  const socialTwitter = branding.socialTwitter?.trim();
+
+  const hasAddress = Boolean(contactAddress);
+  const hasContact = Boolean(contactEmail || contactPhone);
+  const hasSocial = Boolean(
+    socialFacebook ||
+      socialInstagram ||
+      socialTwitter
+  );
 
 
 
@@ -18,78 +32,90 @@ export function Footer() {
             <div className="flex items-center">
               <Logo className="h-24 w-24" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              El placer de probar algo diferente
-            </p>
+            {branding.slogan && (
+              <p className="text-sm text-muted-foreground">
+                {branding.slogan}
+              </p>
+            )}
           </div>
 
-          <div>
-            <p className="font-semibold mb-4 text-foreground">Dirección</p>
-            <div className="flex items-start gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-              <address className="not-italic">
-                {branding.contactAddress || "Calle 94 y 5ta Avenida, Miramar, La Habana"}
-              </address>
+          {hasAddress && (
+            <div>
+              <p className="font-semibold mb-4 text-foreground">Dirección</p>
+              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                <Link
+                  href={`https://www.google.com/maps?q=${encodeURIComponent(contactAddress ?? "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  <address className="not-italic">{contactAddress}</address>
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div>
-            <p className="font-semibold mb-4 text-foreground">Contacto</p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {branding.contactEmail && (
-                <li className="hover:text-primary transition-colors">
-                  <a href={`mailto:${branding.contactEmail}`}>Email: {branding.contactEmail}</a>
-                </li>
-              )}
-              {branding.contactPhone && (
-                <li className="hover:text-primary transition-colors">
-                  <a href={`tel:${branding.contactPhone}`}>Tel: {branding.contactPhone}</a>
-                </li>
-              )}
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-semibold mb-4 text-foreground">Síguenos</p>
-            <div className="flex gap-4">
-              {branding.socialFacebook && (
-                <Link
-                  href={branding.socialFacebook}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Facebook className="h-5 w-5" />
-                </Link>
-              )}
-              {branding.socialInstagram && (
-                <Link
-                  href={branding.socialInstagram}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Instagram className="h-5 w-5" />
-                </Link>
-              )}
-              {branding.socialTwitter && (
-                <Link
-                  href={branding.socialTwitter}
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Twitter className="h-5 w-5" />
-                </Link>
-              )}
+          {hasContact && (
+            <div>
+              <p className="font-semibold mb-4 text-foreground">Contacto</p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {contactEmail && (
+                  <li className="hover:text-primary transition-colors">
+                    <Link href={`mailto:${contactEmail}`}>Email: {contactEmail}</Link>
+                  </li>
+                )}
+                {contactPhone && (
+                  <li className="hover:text-primary transition-colors">
+                    <Link href={`tel:${contactPhone}`}>Tel: {contactPhone}</Link>
+                  </li>
+                )}
+              </ul>
             </div>
-          </div>
+          )}
+
+          {hasSocial && (
+            <div>
+              <p className="font-semibold mb-4 text-foreground">Síguenos</p>
+              <div className="flex gap-4">
+                {socialFacebook && (
+                  <Link
+                    href={socialFacebook}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Facebook className="h-5 w-5" />
+                  </Link>
+                )}
+                {socialInstagram && (
+                  <Link
+                    href={socialInstagram}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </Link>
+                )}
+                {socialTwitter && (
+                  <Link
+                    href={socialTwitter}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Twitter className="h-5 w-5" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Una Ganga. Todos los derechos
-            reservados.
+            &copy; {new Date().getFullYear()} Construido con el servicio de catálogos <a>Una Ganga</a>. Todos los derechos reservados
           </p>
         </div>
       </div>

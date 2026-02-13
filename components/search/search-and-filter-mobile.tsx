@@ -1,14 +1,12 @@
 'use client'
 
-import { Search, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { SlidersHorizontal, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
@@ -22,32 +20,11 @@ interface SearchAndFiltersBarProps {
 export const SearchAndFiltersBar = ({ storeSlug, filterContent }: SearchAndFiltersBarProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const currentSort = searchParams.get('sort') || '-createdAt'
   const basePath = storeSlug ? `/store/${storeSlug}` : '/'
 
-  const handleSearch = () => {
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (searchQuery.trim()) {
-      params.set('search', searchQuery.trim())
-    } else {
-      params.delete('search')
-    }
-
-    const queryString = params.toString()
-    router.push(queryString ? `${basePath}?${queryString}` : basePath)
-  }
-
-  const clearSearch = () => {
-    setSearchQuery('')
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete('search')
-    const queryString = params.toString()
-    router.push(queryString ? `${basePath}?${queryString}` : basePath)
-  }
 
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -99,8 +76,9 @@ export const SearchAndFiltersBar = ({ storeSlug, filterContent }: SearchAndFilte
           {/* Mobile Filter Button */}
           <div className="md:hidden">
             <Button
+              variant={"outline"}
               size="icon"
-              className="h-10 w-10 shrink-0 bg-primary backdrop-blur-md text-white"
+              className="h-10 w-10 shrink-0 backdrop-blur-md"
               onClick={() => setIsFilterOpen(true)}
             >
               <SlidersHorizontal className="h-4 w-4" />

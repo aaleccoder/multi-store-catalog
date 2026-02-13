@@ -28,6 +28,7 @@ export const storeSchema = z.object({
           logoAlt: z.string().optional(),
           logoWidth: z.number().optional(),
           logoHeight: z.number().optional(),
+          slogan: z.string().optional(),
           contactEmail: z.string().optional(),
           contactPhone: z.string().optional(),
           contactAddress: z.string().optional(),
@@ -137,12 +138,12 @@ export const adminStoresRouter = router({
           branding: { ...defaultStoreTheme.branding },
           fontId: defaultStoreTheme.fontId,
         };
-        
+
         // If no categories provided, default to "General"
-        const categoryIds = input.storeCategoryIds?.length 
-          ? input.storeCategoryIds 
+        const categoryIds = input.storeCategoryIds?.length
+          ? input.storeCategoryIds
           : [(await prisma.storeCategory.findFirst({ where: { slug: 'general' } }))?.id].filter(Boolean) as string[];
-        
+
         const availableCurrencies = await prisma.currency.findMany({
           where: { isActive: true },
           orderBy: { code: "asc" },
@@ -250,7 +251,7 @@ export const adminStoresRouter = router({
           await prisma.storeCategoryAssignment.deleteMany({
             where: { storeId: id },
           });
-          
+
           // Create new assignments (up to 5)
           if (patch.storeCategoryIds.length > 0) {
             await prisma.storeCategoryAssignment.createMany({

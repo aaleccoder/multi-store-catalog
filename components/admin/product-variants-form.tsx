@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -18,22 +17,16 @@ import { Plus, Trash2, Copy, Upload, Star, Edit } from 'lucide-react'
 import type { Currency } from '@/lib/currency-client'
 import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 import { Specifications } from '@/lib/api-validators'
 import { Separator } from '@/components/ui/separator'
-import { createNumberInputHandlers } from '@/lib/number-input'
 import { CreateCurrencyDialog } from './product-form/dialogs/CreateResourceDialogs'
 import { useCreateCurrency } from './product-form/hooks/useCreateDialogs'
 import { SpecificationsFormFields } from './product-form/sections/SpecificationsFormFields'
 import { PricingSection } from './product-form/sections/PricingSection'
 import type { PriceInput } from './product-form/types'
 
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface VariantPrice extends PriceInput {
     // Additional fields specific to variants can be added here if needed
 }
@@ -50,7 +43,7 @@ export interface Variant {
     id?: string
     name: string
     sku?: string
-    stock: number
+    stock?: number
     prices: VariantPrice[]
     isActive: boolean
     attributes?: any
@@ -84,7 +77,6 @@ export function ProductVariantsForm({ variants, onChange, currencies }: ProductV
         const newVariant: Variant = {
             name: '',
             sku: '',
-            stock: 0,
             isActive: true,
             prices: [{
                 price: 0,
@@ -123,7 +115,7 @@ export function ProductVariantsForm({ variants, onChange, currencies }: ProductV
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[80px]">Imagen</TableHead>
+                        <TableHead className="w-20">Imagen</TableHead>
                         <TableHead>Nombre</TableHead>
                         <TableHead>SKU</TableHead>
                         <TableHead className="text-right">Stock</TableHead>
@@ -164,7 +156,7 @@ export function ProductVariantsForm({ variants, onChange, currencies }: ProductV
                                     {variant.sku || '-'}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {variant.stock}
+                                    {variant.stock ?? <span className="text-muted-foreground">-</span>}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     {variant.prices.length > 0
@@ -309,15 +301,29 @@ export function ProductVariantEditor({
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>Stock</Label>
+                        <Label>Stock (opcional)</Label>
                         <Input
                             type="number"
-                            value={currentVariant.stock}
-                            {...createNumberInputHandlers({
-                                onChange: (value) => updateVariant(variantIndex, { stock: value as any }),
-                                defaultValue: 0,
-                                parseType: 'int',
-                            })}
+                            placeholder="Sin definir"
+                            value={currentVariant.stock ?? ''}
+                            onChange={(e) => {
+                                const value = e.target.value
+                                if (value === '') {
+                                    updateVariant(variantIndex, { stock: undefined })
+                                } else {
+                                    const parsed = parseInt(value, 10)
+                                    updateVariant(variantIndex, { stock: isNaN(parsed) ? undefined : parsed })
+                                }
+                            }}
+                            onBlur={(e) => {
+                                const value = e.target.value
+                                if (value === '') {
+                                    updateVariant(variantIndex, { stock: undefined })
+                                } else {
+                                    const parsed = parseInt(value, 10)
+                                    updateVariant(variantIndex, { stock: isNaN(parsed) || parsed < 0 ? undefined : parsed })
+                                }
+                            }}
                         />
                     </div>
                     <div className="flex items-center space-x-2 pt-8">

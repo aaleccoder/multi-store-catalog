@@ -1,5 +1,6 @@
 import { formatPrice } from '@/lib/currency-client'
 import { type Currency } from '@/lib/currency-client'
+import { type StoreBranding } from '@/lib/theme'
 
 export interface WhatsAppItem {
     name: string
@@ -9,9 +10,28 @@ export interface WhatsAppItem {
     variantName?: string
 }
 
-export function generateWhatsAppLink(items: WhatsAppItem[], total: number, currency?: Currency | string | null) {
-    const phoneNumber = '+5363404607'
+export interface ActiveStoreWhatsAppData extends Pick<StoreBranding, 'contactPhone' | 'contactEmail' | 'contactAddress' | 'slogan'> {
+    name?: string | null
+}
+
+const normalizeWhatsAppPhone = (phoneNumber?: string | null) => {
+    const normalized = (phoneNumber ?? '').replace(/[^\d]/g, '')
+    return normalized || null
+}
+
+export function generateWhatsAppLink(
+    items: WhatsAppItem[],
+    total: number,
+    currency?: Currency | string | null,
+    activeStore?: ActiveStoreWhatsAppData | null
+) {
+    const phoneNumber = normalizeWhatsAppPhone(activeStore?.contactPhone)
+    const storeName = activeStore?.name?.trim()
     let message = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n'
+
+    if (storeName) {
+        message = `¡Hola! Me gustaría hacer el siguiente pedido en ${storeName}:\n\n`
+    }
 
     items.forEach((item, index) => {
         const itemName = item.variantName ? `${item.name} (${item.variantName})` : item.name
@@ -25,10 +45,16 @@ export function generateWhatsAppLink(items: WhatsAppItem[], total: number, curre
     message += 'Gracias!'
 
     const encodedMessage = encodeURIComponent(message)
-    return `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+    const baseUrl = phoneNumber ? `https://wa.me/${phoneNumber}` : 'https://wa.me/'
+    return `${baseUrl}?text=${encodedMessage}`
 }
 
-export function openWhatsApp(items: WhatsAppItem[], total: number, currency?: Currency | string | null) {
-    const url = generateWhatsAppLink(items, total, currency)
+export function openWhatsApp(
+    items: WhatsAppItem[],
+    total: number,
+    currency?: Currency | string | null,
+    activeStore?: ActiveStoreWhatsAppData | null
+) {
+    const url = generateWhatsAppLink(items, total, currency, activeStore)
     window.open(url, '_blank')
 }

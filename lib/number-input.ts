@@ -30,7 +30,7 @@ export function createNumberInputHandlers<T extends number | null>({
     /** Callback to update the value in parent state */
     onChange: (value: T | (string & {})) => void;
     /** Default value to use when input is empty or invalid */
-    defaultValue: T;
+    defaultValue?: T;
     /** Whether to parse as integer or float */
     parseType?: "int" | "float";
     /** Minimum allowed value (defaults to 0) */
