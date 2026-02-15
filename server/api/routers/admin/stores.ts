@@ -33,7 +33,7 @@ export const storeSchema = z.object({
       dark: z.record(z.string(), z.string()).optional(),
       branding: z
         .object({
-          logoUrl: z.string().min(1).optional(),
+          logoUrl: z.string().optional(),
           logoAlt: z.string().optional(),
           logoWidth: z.number().optional(),
           logoHeight: z.number().optional(),
@@ -61,6 +61,27 @@ const normalizeSlug = (value: string | undefined, fallback: string) => {
     return sanitizeSlugInput(value);
   }
   return generateSlug(fallback);
+};
+
+const mergeThemeSection = (
+  existingSection: Record<string, unknown> | undefined,
+  incomingSection: Record<string, unknown> | undefined,
+) => {
+  if (!incomingSection) {
+    return { ...(existingSection ?? {}) };
+  }
+
+  const merged: Record<string, unknown> = { ...(existingSection ?? {}) };
+
+  for (const [key, value] of Object.entries(incomingSection)) {
+    if (value === null) {
+      delete merged[key];
+      continue;
+    }
+    merged[key] = value;
+  }
+
+  return merged;
 };
 
 const ensureOwnerAccess = async (
@@ -232,25 +253,33 @@ export const adminStoresRouter = router({
         }
 
         if (patch.theme !== undefined) {
-          const existingTheme = (existing.theme as any) ?? {};
-          console.log(patch.theme);
+          const existingTheme = (existing.theme as Record<string, unknown>) ?? {};
           const incomingTheme = patch.theme ?? {};
+
+          const existingLight = (existingTheme.light ??
+            {}) as Record<string, unknown>;
+          const existingDark = (existingTheme.dark ??
+            {}) as Record<string, unknown>;
+          const existingBranding = (existingTheme.branding ??
+            {}) as Record<string, unknown>;
+
           updateData.theme = {
             ...existingTheme,
             ...incomingTheme,
-            light: {
-              ...(existingTheme.light ?? {}),
-              ...(incomingTheme.light ?? {}),
-            },
-            dark: {
-              ...(existingTheme.dark ?? {}),
-              ...(incomingTheme.dark ?? {}),
-            },
-            branding: {
-              ...(existingTheme.branding ?? {}),
-              ...(incomingTheme.branding ?? {}),
-            },
-            fontId: incomingTheme?.fontId ?? existingTheme?.fontId,
+            light: mergeThemeSection(
+              existingLight,
+              incomingTheme.light as Record<string, unknown> | undefined,
+            ),
+            dark: mergeThemeSection(
+              existingDark,
+              incomingTheme.dark as Record<string, unknown> | undefined,
+            ),
+            branding: mergeThemeSection(
+              existingBranding,
+              incomingTheme.branding as Record<string, unknown> | undefined,
+            ),
+            fontId:
+              incomingTheme.fontId ?? (existingTheme.fontId as string | undefined),
           };
         }
 

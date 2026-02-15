@@ -111,7 +111,6 @@ interface AdminResourceProps<
   trpcResource?: string;
   renderHeaderExtra?: () => React.ReactNode;
   createEnabled?: boolean | ((items: T[]) => boolean);
-  createDisabledMessage?: string;
 }
 
 export function AdminResource<
@@ -136,7 +135,6 @@ export function AdminResource<
     trpcResource,
     renderHeaderExtra,
     createEnabled = true,
-    createDisabledMessage = "No se puede crear en este momento.",
   } = props;
 
   const pathname = usePathname();
@@ -313,7 +311,7 @@ export function AdminResource<
     } else {
       fetchList();
     }
-  }, [pathname]);
+  }, [pathname, listQueryHook, fetchList]);
 
   // If using tRPC hooks directly, sync local items with the query result
   useEffect(() => {
@@ -489,35 +487,11 @@ export function AdminResource<
     <div className="p-4 sm:p-6 md:p-8 w-full mx-auto flex-col md:pt-20 lg:pt-0 mt-14">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 w-full">
         <p className="text-3xl font-bold">{title}</p>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          {createPageUrl ? (
-            <Link
-              href={isCreateEnabled ? createPageUrl : "#"}
-              onClick={async (e) => {
-                if (!isCreateEnabled) {
-                  e.preventDefault();
-                  toast.error(createDisabledMessage);
-                  return;
-                }
-                resetForm();
-                if (loadDependencies) {
-                  const deps = await loadDependencies();
-                  setDependencies(deps);
-                }
-              }}
-            >
-              <Button
-                className={
-                  !isCreateEnabled ? "opacity-50 cursor-not-allowed" : ""
-                }
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
-              </Button>
-            </Link>
-          ) : isCreateEnabled ? (
-            <DialogTrigger asChild>
-              <Button
+        {isCreateEnabled && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            {createPageUrl ? (
+              <Link
+                href={createPageUrl}
                 onClick={async () => {
                   resetForm();
                   if (loadDependencies) {
@@ -526,20 +500,28 @@ export function AdminResource<
                   }
                 }}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
-              </Button>
-            </DialogTrigger>
-          ) : (
-            <Button
-              onClick={() => toast.error(createDisabledMessage)}
-              className="opacity-50 cursor-not-allowed"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
-            </Button>
-          )}
-          <DialogContent>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
+                </Button>
+              </Link>
+            ) : (
+              <DialogTrigger asChild>
+                <Button
+                  onClick={async () => {
+                    resetForm();
+                    if (loadDependencies) {
+                      const deps = await loadDependencies();
+                      setDependencies(deps);
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {newButtonLabel ?? `Agregar ${title.slice(0, -1)}`}
+                </Button>
+              </DialogTrigger>
+            )}
+            <DialogContent>
             <DialogHeader>
               <DialogTitle>
                 {editing
@@ -642,6 +624,7 @@ export function AdminResource<
             </form>
           </DialogContent>
         </Dialog>
+        )}
 
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>

@@ -99,8 +99,30 @@ export const adminCurrenciesRouter = router({
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })
             }
+
+            // Check if currency is being disabled and has related products
+            if (data.isActive === false) {
+                const pricesCount = await prisma.price.count({
+                    where: {
+                        currencyId: id,
+                        storeId,
+                        OR: [
+                            { productId: { not: null } },
+                            { productVariantId: { not: null } }
+                        ]
+                    }
+                })
+
+                if (pricesCount > 0) {
+                    throw createErrorWithCode(ErrorCode.RESOURCE_IN_USE, {
+                        message: 'No se puede desactivar la moneda porque tiene productos asociados'
+                    })
+                }
+            }
+
             const currency = await prisma.currency.update({
-                where: { id }, data: {
+                where: { id },
+                data: {
                     name: data.name,
                     code: data.code.toUpperCase(),
                     symbol: data.symbol,
@@ -131,6 +153,24 @@ export const adminCurrenciesRouter = router({
             const existing = await prisma.storeCurrency.findFirst({ where: { currencyId: input.id, storeId } })
             if (!existing) {
                 throw createErrorWithCode(ErrorCode.ITEM_NOT_FOUND, { message: 'Currency not found for this store' })
+            }
+
+            // Check if currency has related products
+            const pricesCount = await prisma.price.count({
+                where: {
+                    currencyId: input.id,
+                    storeId,
+                    OR: [
+                        { productId: { not: null } },
+                        { productVariantId: { not: null } }
+                    ]
+                }
+            })
+
+            if (pricesCount > 0) {
+                throw createErrorWithCode(ErrorCode.RESOURCE_IN_USE, {
+                    message: 'No se puede desactivar la moneda porque tiene productos asociados'
+                })
             }
 
             await prisma.storeCurrency.update({

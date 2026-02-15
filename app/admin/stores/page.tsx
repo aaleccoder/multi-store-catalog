@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { StoreThemeProvider } from "@/components/theme/store-theme-provider";
 import {
   Dialog,
   DialogContent,
@@ -232,7 +231,6 @@ export default function StoresPage() {
             searchKeys={["name", "slug"]}
             newButtonLabel="Crear tienda"
             createEnabled={(items) => items.length < 5}
-            createDisabledMessage="Has alcanzado el límite de 5 tiendas por usuario."
             renderList={(items, loading, onEdit, onDelete) => (
               <>
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">

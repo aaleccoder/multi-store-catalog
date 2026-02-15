@@ -4,6 +4,8 @@ import Link from "next/link";
 import Logo from "./logo";
 import { Facebook, Instagram, Twitter, MapPin } from "lucide-react";
 import { useStoreBranding } from "@/components/theme/store-theme-provider";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Mail, WhatsappIcon } from '@hugeicons/core-free-icons';
 
 export function Footer() {
   const branding = useStoreBranding();
@@ -61,13 +63,15 @@ export function Footer() {
               <p className="font-semibold mb-4 text-foreground">Contacto</p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 {contactEmail && (
-                  <li className="hover:text-primary transition-colors">
+                  <li className="hover:text-primary transition-colors items-center flex flex-row cursor-pointer">
+                      <HugeiconsIcon icon={Mail} className="h-4 w-4 mr-1 inline-block" />
                     <Link href={`mailto:${contactEmail}`}>Email: {contactEmail}</Link>
                   </li>
                 )}
                 {contactPhone && (
-                  <li className="hover:text-primary transition-colors">
-                    <Link href={`tel:${contactPhone}`}>Tel: {contactPhone}</Link>
+                  <li className="hover:text-primary transition-colors items-center flex flex-row cursor-pointer">
+                    <HugeiconsIcon icon={WhatsappIcon} className="h-4 w-4 mr-1 inline-block" />
+                    <Link href={`https://wa.me/${contactPhone}`}>{contactPhone}</Link>
                   </li>
                 )}
               </ul>

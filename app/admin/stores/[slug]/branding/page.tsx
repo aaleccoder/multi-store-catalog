@@ -52,9 +52,14 @@ export default function SettingsPage() {
 
     const theme = useMemo<StoreTheme>(() => themeDraft ?? baseTheme, [baseTheme, themeDraft])
     const branding = theme.branding ?? defaultStoreBranding
+    const numericBrandingKeys = new Set<keyof NonNullable<StoreTheme['branding']>>(['logoWidth', 'logoHeight'])
 
     const handleBrandingChange = (key: keyof NonNullable<StoreTheme['branding']>, value: string | number | undefined) => {
         if (!activeStoreId) return
+
+        const normalizedValue = value === undefined && !numericBrandingKeys.has(key)
+            ? ''
+            : value
 
         setThemeDraft((prev) => {
             const current = prev ?? baseTheme
@@ -63,7 +68,7 @@ export default function SettingsPage() {
                 ...current,
                 branding: {
                     ...(current.branding ?? defaultStoreBranding),
-                    [key]: value === '' ? undefined : value,
+                    [key]: normalizedValue,
                 },
             }
         })
