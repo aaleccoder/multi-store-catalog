@@ -7,10 +7,19 @@ import {
   createErrorWithCode,
   mapPrismaError,
 } from "@/lib/error-codes";
+import { isValidE164PhoneNumber, normalizePhoneNumber } from "@/lib/phone";
 import { generateSlug, sanitizeSlugInput } from "@/lib/utils";
 import { defaultStoreTheme } from "@/lib/theme";
 import { Role } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
+
+const brandingPhoneSchema = z
+  .string()
+  .optional()
+  .transform((value) => normalizePhoneNumber(value))
+  .refine((value) => value === undefined || isValidE164PhoneNumber(value), {
+    message: "Phone number must be a valid international number",
+  });
 
 export const storeSchema = z.object({
   name: z.string().min(2),
@@ -30,7 +39,7 @@ export const storeSchema = z.object({
           logoHeight: z.number().optional(),
           slogan: z.string().optional(),
           contactEmail: z.string().optional(),
-          contactPhone: z.string().optional(),
+          contactPhone: brandingPhoneSchema,
           contactAddress: z.string().optional(),
           socialFacebook: z.string().optional(),
           socialInstagram: z.string().optional(),

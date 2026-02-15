@@ -1,5 +1,5 @@
 "use client";
-import { Heart, ChevronLeft, ChevronRight, ShoppingCart, MessageCircle } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, ShoppingCart, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
 import { QuantityPicker } from "@/components/ui/quantity-picker";
 import { openWhatsApp, type WhatsAppItem } from "@/lib/whatsapp";
 import { useStoreBranding } from "@/components/theme/store-theme-provider";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   id: number | string;
@@ -89,6 +90,13 @@ export const ProductCard = ({
     ? Math.round(((regularPrice - price) / regularPrice) * 100)
     : 0;
   const displayDiscount = discountPercentage >= 1;
+  const normalizedCurrency = currency ?? null;
+  const currencyCode =
+    typeof normalizedCurrency === "string"
+      ? /^[A-Za-z]{3}$/.test(normalizedCurrency)
+        ? normalizedCurrency.toUpperCase()
+        : null
+      : normalizedCurrency?.code ?? null;
 
   const handleAddToCart = () => {
     addItem({
@@ -155,6 +163,12 @@ export const ProductCard = ({
     };
     openWhatsApp([whatsappItem], price, currency, branding);
   };
+
+  const handleRemoveFromCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateQuantity(id, 0);
+  }
 
   const currentImage = imageList[currentImageIndex];
 
@@ -340,16 +354,15 @@ export const ProductCard = ({
                         {pricePrefix}
                       </span>
                     )}
-                    {formatCurrencyPrice(
-                      price,
-                      typeof currency === "number" ? String(currency) : currency,
+                    {formatCurrencyPrice(price, normalizedCurrency)}
+                    {currencyCode && (
+                      <span className="text-xs font-normal text-muted-foreground ml-1">
+                        {currencyCode}
+                      </span>
                     )}
                     {hasDiscount && regularPrice && (
                       <span className="text-xs text-muted-foreground line-through ml-2">
-                        {formatCurrencyPrice(
-                          regularPrice,
-                          typeof currency === "number" ? String(currency) : currency,
-                        )}
+                        {formatCurrencyPrice(regularPrice, normalizedCurrency)}
                       </span>
                     )}
                   </span>
@@ -358,25 +371,42 @@ export const ProductCard = ({
             </div>
           </div>
 
-          <div className={isMobile ? "pt-2" : "px-4 pb-4"}>
+          <div className={cn(isMobile ? "pt-2" : "px-4 pb-4", "w-full")}>
             {quantityInCart > 0 && inStock ? (
               isMobile ? (
-                <QuantityPicker
+                <div className="flex flex-row w-full">
+                  <QuantityPicker
                   value={quantityInCart}
                   onChange={(val) => updateQuantity(id, val)}
                   min={0}
-                  size="default"
-                  className="bg-transparent shadow-sm text-black w-full"
-                />
+                  size="sm"
+                  className="w-full" />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleRemoveFromCart}
+                    className="h-8 w-8 shrink-0 ml-2"
+                  >
+                    <Trash2 className="h-8 w-8" />
+                  </Button>
+                  </div>
               ) : (
-                <div className="w-full">
+                <div className="flex flex-row w-full">
                   <QuantityPicker
                     value={quantityInCart}
                     onChange={(val) => updateQuantity(id, val)}
                     min={0}
-                    size="sm"
-                    className="bg-transparent shadow-sm text-black w-full"
+                    size="default"
+                    className="w-full"
                   />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={handleRemoveFromCart}
+                    className="h-10 w-10 shrink-0 ml-2"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
                 </div>
               )
             ) : inStock ? (

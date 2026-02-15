@@ -21,6 +21,24 @@ export function SearchDialog({
   onOpenChange,
   storeSlug,
 }: SearchDialogProps) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <SearchDialogContent
+      open={open}
+      onOpenChange={onOpenChange}
+      storeSlug={storeSlug}
+    />
+  );
+}
+
+function SearchDialogContent({
+  open,
+  onOpenChange,
+  storeSlug,
+}: SearchDialogProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = React.useState("");
@@ -35,7 +53,7 @@ export function SearchDialog({
 
   const { data: results, isLoading } = trpc.products.list.useQuery(
     { storeSlug: storeSlug || "", search: debouncedQuery, limit: "5" },
-    { enabled: !!storeSlug && debouncedQuery.length > 0 },
+    { enabled: open && !!storeSlug && debouncedQuery.length > 0 },
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -134,8 +152,7 @@ export function SearchDialog({
               <button
                 onClick={() => {
                   onOpenChange(false);
-                  const base = `$/store/${storeSlug}` || "/";
-                  console.log("Base URL:", base);
+                  const base = storeSlug ? `/store/${storeSlug}` : "/";
                   router.push(`${base}?search=${encodeURIComponent(query)}`);
                 }}
                 className="mt-2 w-full rounded-md bg-primary/10 p-2 text-center text-sm font-medium text-primary hover:bg-primary/20"

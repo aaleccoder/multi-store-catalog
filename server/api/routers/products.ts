@@ -2,6 +2,7 @@ import { router, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { toNumber } from "@/lib/number";
+import { getProductSortablePrice } from "@/lib/product-pricing";
 import { TRPCError } from "@trpc/server";
 
 export const productsRouter = router({
@@ -196,10 +197,7 @@ export const productsRouter = router({
           });
         }
 
-        const totalDocs = filteredProducts.length;
-        const paginatedProducts = filteredProducts.slice(skip, skip + limit);
-
-        let products = paginatedProducts.map((prod) => ({
+        let products = filteredProducts.map((prod) => ({
           ...prod,
           prices:
             prod.prices?.map((p) => ({
@@ -221,51 +219,30 @@ export const productsRouter = router({
         }));
 
         if (shouldSortByPrice) {
-          const getMinPrice = (product: any) => {
-            const prices: number[] = [];
-
-            if (product.variants?.length > 0) {
-              product.variants.forEach((variant: any) => {
-                if (variant.isActive && variant.prices?.length > 0) {
-                  variant.prices.forEach((price: any) => {
-                    const effectivePrice = price.saleAmount ?? price.amount;
-                    if (
-                      typeof effectivePrice === "number" &&
-                      !isNaN(effectivePrice)
-                    ) {
-                      prices.push(effectivePrice);
-                    }
-                  });
-                }
-              });
-            }
-
-            if (prices.length === 0 && product.prices?.length > 0) {
-              product.prices.forEach((price: any) => {
-                const effectivePrice = price.saleAmount ?? price.amount;
-                if (
-                  typeof effectivePrice === "number" &&
-                  !isNaN(effectivePrice)
-                ) {
-                  prices.push(effectivePrice);
-                }
-              });
-            }
-
-            return prices.length > 0 ? Math.min(...prices) : Infinity;
-          };
-
           products = products.sort((a, b) => {
-            const priceA = getMinPrice(a);
-            const priceB = getMinPrice(b);
-            return sort === "price" ? priceA - priceB : priceB - priceA;
+            const priceA = getProductSortablePrice(a, currency);
+            const priceB = getProductSortablePrice(b, currency);
+
+            if (priceA == null && priceB == null) {
+              return a.id.localeCompare(b.id);
+            }
+            if (priceA == null) return 1;
+            if (priceB == null) return -1;
+
+            const comparison =
+              sort === "price" ? priceA - priceB : priceB - priceA;
+
+            if (comparison !== 0) return comparison;
+            return a.id.localeCompare(b.id);
           });
         }
 
+        const totalDocs = products.length;
+        const paginatedProducts = products.slice(skip, skip + limit);
         const totalPages = Math.ceil(totalDocs / limit);
 
         return {
-          docs: products,
+          docs: paginatedProducts,
           totalDocs,
           page,
           limit,

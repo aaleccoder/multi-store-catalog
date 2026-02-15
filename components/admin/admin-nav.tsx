@@ -157,12 +157,12 @@ export function AdminNav() {
               )}
             </div>
             {store && (
-              <div className="flex flex-row text-xl font-bold text-foreground px-4 items-center">
+              <div className="flex flex-row text-md font-bold text-foreground px-4 items-center">
                 <p>{store.name}</p>
               </div>
             )}
           </button>
-          <Link href="/admin/stores" className="cursor-pointer justify-start flex flex-row items-center px-4 py-2 hover:bg-primary rounded-md">
+          <Link href="/admin/stores" className="cursor-pointer justify-start flex flex-row items-center px-4 py-2 hover:bg-muted rounded-md">
             <ArrowLeft className="mr-2 h-4 w-4" />
             <span >Ir a tiendas</span>
           </Link>
@@ -217,8 +217,8 @@ export function AdminNav() {
 
         <SidebarFooter className="p-4 border-t border-border">
           <Button
-            variant="ghost"
-            className="w-full justify-start gap-3"
+            variant="default"
+            className="w-full justify-start gap-3 bg-transparent hover:bg-muted text-foreground"
             onClick={() => setIsDialogOpen(true)}
           >
             <LogOut className="h-5 w-5" />

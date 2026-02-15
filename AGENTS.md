@@ -90,13 +90,7 @@ Prefer:
 - Existing oversized files may remain temporarily, but all new work should move toward smaller units.
 
 ## Quality Checklist
-Before finishing changes:
-- Run `bun run lint` to check for errors.
-- Run `bun run lint --fix` to auto-fix what can be fixed.
-- Ensure no TypeScript errors remain.
-- Verify all hardcoded colors are replaced with theme variables.
-- Check that `any` types are replaced with concrete types.
-- Test the feature if possible.
+If possible mostly use the available tools from VScode for you. If not then use other commands to check for errors.
 
 
 ## AGENTS.md Maintenance Rule

@@ -18,12 +18,25 @@ export function formatPrice(
     currency?: Currency | string | null,
 ): string {
     let formatted = '';
+    const stripTrailingZeros = (value: string) => value.replace(/([.,]00)(?!\d)/, '');
 
     if (!currency) {
         formatted = `$${amount.toFixed(2)}`
     } else if (typeof currency === 'string') {
-        // If currency is a string (ID), use default formatting
-        formatted = `$${amount.toFixed(2)}`
+        const code = currency.trim().toUpperCase()
+        if (/^[A-Z]{3}$/.test(code)) {
+            try {
+                formatted = new Intl.NumberFormat(undefined, {
+                    style: 'currency',
+                    currency: code,
+                }).format(amount)
+            } catch {
+                formatted = `$${amount.toFixed(2)}`
+            }
+        } else {
+            // If currency is a store currency ID, use default formatting
+            formatted = `$${amount.toFixed(2)}`
+        }
     } else {
         const formattedAmount = amount.toFixed(currency.decimalPlaces)
         const parts = formattedAmount.split('.')
@@ -47,7 +60,7 @@ export function formatPrice(
             formatted = formatted.replace(target, '')
         }
     } else {
-        formatted = formatted.replace('.00', '')
+        formatted = stripTrailingZeros(formatted)
     }
 
     return formatted

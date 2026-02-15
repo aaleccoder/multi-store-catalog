@@ -2,13 +2,11 @@
 
 import { useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { defaultStoreBranding, defaultStoreTheme, StoreTheme } from '@/lib/theme'
 import { defaultStoreFontId } from '@/lib/store-fonts'
 import { BrandingCard } from '../theme/components/branding-card'
@@ -136,9 +134,6 @@ export default function SettingsPage() {
                             <p className="text-sm text-muted-foreground">Gestiona la configuración general de tu tienda.</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href={`/admin/stores/${storeSlug}/theme`}>Volver al tema</Link>
-                            </Button>
                             <Button onClick={handleSave} disabled={updateStore.isPending}>
                                 {updateStore.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar'}
                             </Button>
@@ -146,16 +141,12 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <Card>
-                            <CardContent>
-                                <BrandingCard
-                                    branding={branding}
-                                    onBrandingChange={handleBrandingChange}
-                                    onLogoFile={handleLogoFile}
-                                    uploading={uploadMedia.isPending}
-                                />
-                            </CardContent>
-                        </Card>
+                        <BrandingCard
+                            branding={branding}
+                            onBrandingChange={handleBrandingChange}
+                            onLogoFile={handleLogoFile}
+                            uploading={uploadMedia.isPending}
+                        />
                     </div>
                 </div>
             </main>

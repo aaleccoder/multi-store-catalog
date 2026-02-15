@@ -257,7 +257,7 @@ export const FilterSidebarClient = ({
       <div className="space-y-3">
         <p className="text-sm font-bold text-foreground uppercase tracking-wide">Ordenar por</p>
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="bg-white dark:bg-background text-foreground">
+          <SelectTrigger className="">
             <SelectValue placeholder="Seleccionar orden" />
           </SelectTrigger>
           <SelectContent>
@@ -370,7 +370,7 @@ export const FilterSidebarClient = ({
               value={selectedCurrency || 'all'}
               onValueChange={(value) => setSelectedCurrency(value === 'all' ? '' : value)}
             >
-              <SelectTrigger className="bg-white dark:bg-background text-foreground">
+              <SelectTrigger className="bg-background text-foreground">
                 <SelectValue placeholder="Todas las monedas" />
               </SelectTrigger>
               <SelectContent>
@@ -404,7 +404,7 @@ export const FilterSidebarClient = ({
                   type="number"
                   value={priceMin ?? ''}
                   onChange={(e) => handleMinInputChange(e.target.value)}
-                  className="pl-6 bg-white dark:bg-background"
+                  className="pl-6 bg-background"
                 />
               </div>
             </div>
@@ -422,7 +422,7 @@ export const FilterSidebarClient = ({
                   type="number"
                   value={priceMax ?? ''}
                   onChange={(e) => handleMaxInputChange(e.target.value)}
-                  className="pl-6 bg-white dark:bg-background"
+                  className="pl-6 bg-background"
                 />
               </div>
             </div>

@@ -16,7 +16,7 @@ export const FontCard = ({ selectedFontId, onChange }: FontCardProps) => (
             <CardTitle>Tipografía</CardTitle>
             <CardDescription>Selecciona la fuente principal de la tienda.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 w-full">
             <div className="space-y-2">
                 <Label htmlFor="font-id">Fuente</Label>
                 <Select

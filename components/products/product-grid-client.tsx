@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProductCard } from "./product-card";
-import { toNumber } from "@/lib/number";
 import { ProductGridSkeleton } from "./product-grid-skeleton";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -27,6 +26,11 @@ import {
 import { trpc } from "@/trpc/client";
 import { SearchAndFiltersBar } from "../search/search-and-filter-mobile";
 import { FilterSheet } from "@/components/filters/filter-sheet";
+import {
+  resolveProductListingPrice,
+  type ProductPriceLike,
+  type ProductVariantLike,
+} from "@/lib/product-pricing";
 
 interface ProductGridClientProps {
   storeSlug: string;
@@ -35,8 +39,46 @@ interface ProductGridClientProps {
   filterContent?: React.ReactNode;
 }
 
+interface ProductListItem {
+  id: string;
+  name: string;
+  shortDescription?: string | null;
+  slug: string;
+  featured?: boolean | null;
+  inStock?: boolean | null;
+  specifications?: unknown;
+  coverImages?: Array<{
+    url: string;
+    alt?: string | null;
+  }> | null;
+  prices?: ProductPriceLike[] | null;
+  variants?: ProductVariantLike[] | null;
+}
+
 const MIN_CARD_WIDTH = 280;
 const MAX_DESKTOP_COLUMNS = 6;
+
+const asSpecObject = (
+  value: unknown,
+): Record<string, unknown> | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+};
+
+const toOptionalNumber = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+};
+
+const toOptionalString = (value: unknown): string | undefined =>
+  typeof value === "string" ? value : undefined;
 
 export const ProductGridClient = ({
   storeSlug,
@@ -52,6 +94,7 @@ export const ProductGridClient = ({
 
   const currentSort = searchParams.get("sort") || "-createdAt";
   const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+  const selectedCurrencyId = searchParams.get("currency") || undefined;
   const mobileView = searchParams.get("view") === "list" ? "list" : "grid";
   const mobileCols = mobileView === "list" ? 1 : 2;
   const colsParam = parseInt(searchParams.get("cols") || "", 10);
@@ -84,12 +127,12 @@ export const ProductGridClient = ({
       inStock: searchParams.get("inStock") || undefined,
       featured: searchParams.get("featured") || undefined,
       search: searchParams.get("search") || undefined,
-      currency: searchParams.get("currency") || undefined,
+      currency: selectedCurrencyId,
       price: searchParams.get("price") || undefined,
     },
     { enabled: !!storeSlug },
   );
-  const products = productsQuery.data?.docs || [];
+  const products = (productsQuery.data?.docs ?? []) as ProductListItem[];
   const totalPages = productsQuery.data?.totalPages || 1;
   const totalDocs = productsQuery.data?.totalDocs || 0;
   const currentPage = productsQuery.data?.page || 1;
@@ -367,17 +410,25 @@ export const ProductGridClient = ({
                 { "--grid-cols": desktopCols } as React.CSSProperties
               }
             >
-              {products.map((product: any) => {
+              {products.map((product) => {
                 const imageData = product.coverImages?.[0];
                 const imageUrl = imageData?.url || "";
+                const pricing = resolveProductListingPrice(
+                  {
+                    prices: product.prices,
+                    variants: product.variants,
+                  },
+                  selectedCurrencyId,
+                );
+                const specs = asSpecObject(product.specifications);
 
                 // Prepare all images for carousel
                 const images = product.coverImages
-                  ?.map((img: any) => ({
+                  ?.map((img) => ({
                     url: img.url || "",
                     alt: img.alt || product.name,
                   }))
-                  .filter((img: any) => img.url); // Filter out images without URL
+                  .filter((img) => img.url); // Filter out images without URL
 
                 return (
                   <ProductCard
@@ -386,58 +437,25 @@ export const ProductGridClient = ({
                     name={product.name}
                     description={product.shortDescription || ""}
                     storeSlug={storeSlug}
-                    price={(() => {
-                      // Check for variants first
-                      if (product.variants && product.variants.length > 0) {
-                        const variantPrices = product.variants
-                          .filter(
-                            (v: any) => v.isActive && v.prices?.length > 0,
-                          )
-                          .flatMap((v: any) => v.prices)
-                          .map((p: any) => toNumber(p.saleAmount ?? p.amount))
-                          .filter((p: number) => !isNaN(p));
-
-                        if (variantPrices.length > 0) {
-                          return Math.min(...variantPrices);
-                        }
-                      }
-
-                      const rawPrice =
-                        product.prices?.find((p: any) => p.isDefault)
-                          ?.saleAmount ??
-                        product.prices?.find((p: any) => p.isDefault)?.amount ??
-                        0;
-
-                      return toNumber(rawPrice);
-                    })()}
-                    pricePrefix={
-                      product.variants && product.variants.length > 0
-                        ? "Desde"
-                        : undefined
+                    price={pricing.price}
+                    pricePrefix={pricing.usesVariantPricing ? "Desde" : undefined}
+                    regularPrice={
+                      pricing.usesVariantPricing
+                        ? undefined
+                        : pricing.regularPrice
                     }
-                    regularPrice={(() => {
-                      if (product.variants && product.variants.length > 0)
-                        return undefined; // Don't show regular price for variants range
-                      const raw =
-                        product.prices?.find((p: any) => p.isDefault)?.amount ??
-                        0;
-                      return toNumber(raw);
-                    })()}
-                    currency={
-                      (product.prices?.find((p: any) => p.isDefault)
-                        ?.currency ?? null) as any
-                    }
+                    currency={pricing.currency}
                     image={imageUrl}
                     imageAlt={imageData?.alt || product.name}
                     images={images}
                     slug={product.slug}
                     featured={product.featured || false}
                     inStock={product.inStock || false}
-                    unit={product.specifications?.unit}
-                    weight={product.specifications?.weight}
-                    weightUnit={product.specifications?.weightUnit}
-                    volume={product.specifications?.volume}
-                    volumeUnit={product.specifications?.volumeUnit}
+                    unit={toOptionalString(specs?.unit)}
+                    weight={toOptionalNumber(specs?.weight)}
+                    weightUnit={toOptionalString(specs?.weightUnit)}
+                    volume={toOptionalNumber(specs?.volume)}
+                    volumeUnit={toOptionalString(specs?.volumeUnit)}
                   />
                 );
               })}

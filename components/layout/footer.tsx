@@ -30,7 +30,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="">
             <div className="flex items-center">
-              <Logo className="h-24 w-24" />
+              <Logo className="" />
             </div>
             {branding.slogan && (
               <p className="text-sm text-muted-foreground">
@@ -115,7 +115,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Construido con el servicio de catálogos <a>Una Ganga</a>. Todos los derechos reservados
+            &copy; {new Date().getFullYear()} Construido con el servicio de catálogos <a href={process.env.NEXT_PUBLIC_APP_URL}>Una Ganga</a>. Todos los derechos reservados
           </p>
         </div>
       </div>

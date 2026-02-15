@@ -219,36 +219,6 @@ export const labelForKey = (key: ThemeKeys) => {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
-const parseCssChannel = (value: string) => {
-    const numeric = Number.parseFloat(value)
-    if (!Number.isFinite(numeric)) return 0
-    if (value.trim().endsWith('%')) {
-        return clamp(Math.round((numeric / 100) * 255), 0, 255)
-    }
-    return clamp(Math.round(numeric), 0, 255)
-}
-
-const parseCssAlpha = (value: string) => {
-    const numeric = Number.parseFloat(value)
-    if (!Number.isFinite(numeric)) return 1
-    if (value.trim().endsWith('%')) {
-        return clamp(numeric / 100, 0, 1)
-    }
-    return clamp(numeric, 0, 1)
-}
-
-const parseResolvedColor = (value: string) => {
-    const channels = value.match(/[\d.]+%?/g)
-    if (!channels || channels.length < 3) return null
-
-    return {
-        r: parseCssChannel(channels[0]),
-        g: parseCssChannel(channels[1]),
-        b: parseCssChannel(channels[2]),
-        a: channels[3] ? parseCssAlpha(channels[3]) : 1,
-    }
-}
-
 const toHex = (value: number) => value.toString(16).padStart(2, '0')
 
 const resolveBrowserColor = (value: string) => {
@@ -267,6 +237,50 @@ const resolveBrowserColor = (value: string) => {
     probe.remove()
 
     return resolved || null
+}
+
+const resolveColorChannels = (value: string) => {
+    const resolved = resolveBrowserColor(value)
+    if (!resolved) return null
+
+    try {
+        const color = Color(resolved)
+        return {
+            r: color.red(),
+            g: color.green(),
+            b: color.blue(),
+            a: clamp(color.alpha(), 0, 1),
+        }
+    } catch {
+        if (typeof document === 'undefined') return null
+
+        const canvas = document.createElement('canvas')
+        canvas.width = 1
+        canvas.height = 1
+        const context = canvas.getContext('2d', { willReadFrequently: true })
+        if (!context) return null
+
+        const marker = 'rgba(1, 2, 3, 0.25)'
+        context.fillStyle = marker
+        context.fillStyle = resolved
+        const markerNormalized = marker.replace(/\s+/g, '').toLowerCase()
+        const currentNormalized = context.fillStyle.replace(/\s+/g, '').toLowerCase()
+        const resolvedNormalized = resolved.replace(/\s+/g, '').toLowerCase()
+        if (currentNormalized === markerNormalized && resolvedNormalized !== markerNormalized) {
+            return null
+        }
+
+        context.clearRect(0, 0, 1, 1)
+        context.fillRect(0, 0, 1, 1)
+        const [r, g, b, a] = context.getImageData(0, 0, 1, 1).data
+
+        return {
+            r,
+            g,
+            b,
+            a: clamp(a / 255, 0, 1),
+        }
+    }
 }
 
 export const toSafeColor = (value: string) => {
@@ -290,8 +304,7 @@ export const normalizeColor = (value: string) => {
         const color = Color(trimmed)
         return { hex: color.hex(), alpha: color.alpha() }
     } catch {
-        const resolved = resolveBrowserColor(trimmed)
-        const parsed = resolved ? parseResolvedColor(resolved) : null
+        const parsed = resolveColorChannels(trimmed)
         if (parsed) {
             return {
                 hex: `#${toHex(parsed.r)}${toHex(parsed.g)}${toHex(parsed.b)}`,

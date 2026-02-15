@@ -83,7 +83,7 @@ export function QuantityPicker({
     const textSizeClass = size === "sm" ? "text-sm" : "text-base"
 
     return (
-        <div className={cn("flex items-center border border-input bg-background text-primary", className)}>
+        <div className={cn("flex items-center border border-input", className)}>
             <Button
                 variant="ghost"
                 size="icon"
@@ -94,14 +94,10 @@ export function QuantityPicker({
                 <Minus className={iconSizeClass} />
                 <span className="sr-only">Decrease</span>
             </Button>
-            <div className={cn("flex-1 border-x border-input min-w-[2rem]", heightClass)}>
+            <div className={cn("flex-1 border-x border-input min-w-8", heightClass)}>
                 <Input
                     type="number"
-                    className={cn(
-                        "h-full w-full border-0 bg-background text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none",
-                        textSizeClass,
-                        "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    )}
+                    className={cn("h-full w-full border-0 bg-background text-foreground text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none", textSizeClass, "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none")}
                     value={inputValue}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
@@ -117,7 +113,7 @@ export function QuantityPicker({
             <Button
                 variant="ghost"
                 size="icon"
-                className={cn(heightClass, buttonWidthClass, "shrink-0 rounded-none hover:bg-accent hover:text-accent-foreground")}
+                className={cn(heightClass, buttonWidthClass, "")}
                 onClick={handleIncrement}
                 disabled={disabled || (max !== undefined && value >= max)}
             >

@@ -3,15 +3,15 @@
 import { Search } from "lucide-react";
 import { ShoppingCartSheet } from "@/components/cart/shopping-cart-sheet";
 import { WishlistSheet } from "@/components/wishlist/wishlist-sheet";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Logo from "@/components/layout/logo";
 import { SearchDialog } from "@/components/search/search-dialog";
 import { SearchDropdown } from "@/components/search/search-dropdown";
 import { Store } from "@/generated/prisma/browser";
+import Link from "next/link";
 
 export const Header = ({ store }: { store?: Store }) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
@@ -21,22 +21,18 @@ export const Header = ({ store }: { store?: Store }) => {
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
       <div className="relative flex flex-row h-16 items-center justify-between px-4 md:px-6 py-3 md:py-0 gap-4 bg-primary/30">
-        <div className="flex items-center gap-4 flex-1">
-          <button
-            onClick={() => router.push(store ? `/store/${store.slug}` : "/")}
-            className="cursor-pointer flex flex-row items-center gap-2"
-            aria-label="Ir a inicio"
-          >
-            <div className="">
+        <div className="flex items-center gap-4 flex-1"> 
+          <Link href={store ? `/store/${store.slug}` : "/"} className="flex flex-row cursor-pointer items-center gap-2">
+            <div className="h-10 w-10 shrink-0">
               <Logo
-                className="object-cover p-1"
+                className="h-full w-full object-contain"
                 aria-label="Una Ganga logo"
                 width={64}
                 height={64}
               />
             </div>
             <p>{store?.name}</p>
-          </button>
+          </Link>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4 md:ml-auto">
